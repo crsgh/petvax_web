@@ -109,3 +109,5 @@ Route::prefix('notification')->group(function () {
 Route::post('/check-slot', [BookingController::class, 'checkSlotAvailability']);
 Route::post('/check-schedule', [ScheduleController::class, 'checkScheduleAvailability']);
 Route::get('/notifications/read/{id}', [NotificationController::class, 'read']);
+
+//Rich missing
