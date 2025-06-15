@@ -42,10 +42,12 @@ class BookingController extends Controller
             // Handle payment_proof image upload
             if ($request->hasFile('payment_proof')) {
                 $fileUrl = $this->uploadImage($request->file('payment_proof'), 'payment_proofs');
-                $validated['payment_proof'] = $fileUrl;
+                 
             }
 
             $booking = Booking::create($request->all());
+            $booking->payment_proof = $fileUrl;
+            $booking->save();
 
             // send notif to clinic
             // Notification::create([

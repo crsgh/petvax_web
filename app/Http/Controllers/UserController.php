@@ -146,3 +146,5 @@ class UserController extends Controller
         return redirect()->route('staffs')->with('success', 'Staff deleted successfully');
     }
 }
+
+// Hello

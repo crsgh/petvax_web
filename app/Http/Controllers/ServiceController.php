@@ -66,7 +66,7 @@ class ServiceController extends Controller
         $service->price = $validatedData['price']; 
         $service->status = $validatedData['status'];
         $service->category = $validatedData['category'];
-        $service->home_service = $validatedData['home_service'] == "on" ? 1 : 0;
+        $service->home_service = isset($validatedData['home_service']) ? 1 : 0;
         $service->save();
 
        } catch(\Illuminate\Validation\ValidationException $e) {
