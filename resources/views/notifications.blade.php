@@ -59,9 +59,9 @@
                     </tr>
                   </thead>
                   <tbody id="notificationsTableBody">
-                    @foreach($notifications as $notification)
+                    @foreach($notifs as $notification)
                     <tr class="notification-row" 
-                        data-status="{{ $notification->read_at ? 'read' : 'unread' }}"
+                        data-status="{{ $notification->is_read ? 'read' : 'unread' }}"
                         data-type="{{ $notification->type }}"
                         data-date="{{ $notification->created_at->format('Y-m-d') }}">
                       <td>
@@ -73,18 +73,18 @@
                         </span>
                       </td>
                       <td>
-                        <span class="badge badge-sm {{ $notification->read_at ? 'bg-gradient-success' : 'bg-gradient-danger' }}">
-                          {{ $notification->read_at ? 'Read' : 'Unread' }}
+                        <span class="badge badge-sm {{ $notification->is_read ? 'bg-gradient-success' : 'bg-gradient-danger' }}">
+                          {{ $notification->is_read ? 'Read' : 'Unread' }}
                         </span>
                       </td>
                       <td>
                         <p class="text-sm font-weight-normal mb-0 ps-4">{{ $notification->created_at->format('M d, Y h:i A') }}</p>
                       </td>
                       <td>
-                        @if(!$notification->read_at)
+                        @if(!$notification->is_read)
                           <button class="btn btn-sm btn-info mark-read" data-id="{{ $notification->id }}">Mark as Read</button>
                         @endif
-                        <button class="btn btn-sm btn-danger delete-notification" data-id="{{ $notification->id }}">Delete</button>
+                        
                       </td>
                     </tr>
                     @endforeach

@@ -43,4 +43,51 @@ class NotificationController extends Controller
             'data' => $notifications
         ]);
     }
+
+    public function readAllNotification(Request $request, $userId)
+    {
+        $notifications = Notification::where('user_id', $userId)
+            ->where('for_user', true)
+            ->where('is_read', 0)
+            ->get();
+
+        $notifications->each(function ($notification) {
+            $notification->update(['is_read' => 1]);
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'All notifications marked as read.'
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        
+        $data = [
+            'clinic_id' => $request->clinic_id ?? 7,
+            'type' => $request->type ?? 'booking',
+            'user_id' => $request->user_id ?? 5,
+            'title' => $request->title ?? 'Sample Notification',
+            'message' => $request->message ?? 'This is a sample notification message.',
+            'for_user' => $request->input('for_user', true),
+            'pet_id' => $request->pet_id ?? null,
+            'is_read' => 0,
+        ];
+
+        $notification = Notification::create($data);
+
+        \App\Models\ActivityRecord::create([
+            'user_id' => 5,
+            'clinic_id' => 7,
+            'action' => '   ',
+            
+            'description' => 'Notification created: ',
+          ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $notification,
+        ], 201);
+    }
 }

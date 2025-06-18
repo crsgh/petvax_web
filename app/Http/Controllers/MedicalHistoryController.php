@@ -76,9 +76,31 @@ class MedicalHistoryController extends Controller
         return redirect()->route('medical-histories')->with('success', 'Pet saved successfully');
     }
 
-    /**
-     * Remove the specified pet.
-     */
+public function followup(Request $request)
+{
+   
+    try {
+        $validatedData = $request->validate([
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required',
+            'notes' => 'required|string|max:255'
+        ]);
+       
+        $history = MedicalHistory::findOrFail((int)$request->id);
+        
+        $history->notes = $validatedData['notes'];
+        $history->followup = \Carbon\Carbon::parse($validatedData['appointment_date'])
+            ->setTimeFromTimeString($validatedData['appointment_time'])
+            ->format('Y-m-d H:i:s');
+            
+        $history->save();
+
+        return redirect()->route('medical-histories')->with('success', 'Follow-up appointment created successfully');
+
+    } catch(\Illuminate\Validation\ValidationException $e) {
+        return redirect()->back()->withErrors($e->errors())->withInput();
+    }
+}
     public function delete($id)
     {
         $history = MedicalHistory::findOrFail($id);

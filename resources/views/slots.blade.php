@@ -64,6 +64,13 @@
                           <button class="btn btn-link text-secondary mb-0 p-1" onclick="openSidebar({{ json_encode($slot) }})">
                             <i class="fa fa-edit fa-lg"></i>
                           </button>
+                          <form action="{{ url('schedules/duplicate/'.$slot->id) }}" method="GET" class="d-inline">
+                            
+                            
+                            <button type="submit" class="btn btn-link text-primary mb-0 p-1">
+                              <i class="fa fa-copy fa-lg"></i>
+                            </button>
+                          </form>
                           <button class="btn btn-link text-danger mb-0 p-1" onclick="deleteSlot({{ $slot->id }})">
                             <i class="fa fa-trash fa-lg"></i>
                           </button>

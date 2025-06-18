@@ -133,7 +133,7 @@ class UserController extends Controller
             dd($e->errors());
         }
      
-        return redirect('/stafss')->with('success', 'Staff saved successfully');
+        return redirect('/staffs')->with('success', 'Staff saved successfully');
     }
 
     public function deleteStaff($id)
@@ -146,5 +146,3 @@ class UserController extends Controller
         return redirect()->route('staffs')->with('success', 'Staff deleted successfully');
     }
 }
-
-// Hello

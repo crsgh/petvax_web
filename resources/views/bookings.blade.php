@@ -10,9 +10,11 @@
             <div class="card-header pb-0">
               <div class="d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Bookings Table</h6>
+                @if(auth()->user()->role_id != 4)
                 <button class="btn btn-primary btn-sm" onclick="openSidebar()">
                   <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Booking
                 </button>
+                @endif
               </div>
               
               <!-- Filter Section -->
@@ -58,9 +60,12 @@
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Clinic</th>
                       @endif
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date & Time</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Veterinarian</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Payment Method</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                      @if(auth()->user()->role_id != 4)
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                      @endif
                     </tr>
                   </thead>
                   <tbody id="bookingsTableBody">
@@ -88,6 +93,9 @@
                       <span class="text-secondary text-xs font-weight-bold">
                           {{ \Carbon\Carbon::parse($booking->appointment_datetime)->format('M d, Y g:i A') }}
                       </span>
+                      </td>
+                      <td class="align-middle text-center">
+                        <p class="text-xs text-secondary mb-0">{{ $booking->staff ? $booking->staff->name : 'Not Assigned' }}</p>
                       </td>
                       <td class="align-middle text-center text-sm">
                         <div class="d-flex flex-column align-items-center">
@@ -140,6 +148,7 @@
                           {{ ucfirst($booking->status) }}
                         </span>
                       </td>
+                      @if(auth()->user()->role_id != 4)
                       <td class="align-middle text-center">
                         <div class="d-flex gap-2 justify-content-center">
                           <select class="form-select form-select-sm" style="width: auto;" id="actionSelect_{{ $booking->id }}" onchange="handleAction(this.value, {{ $booking->id }})">
@@ -233,9 +242,8 @@
                             </div>
                           </div>
                         </div>
-
-                      
                       </td>
+                      @endif
                     </tr>
                     @endforeach
                   </tbody>
@@ -294,6 +302,10 @@
           <select class="form-select" id="staffSelect" name="staff_id" required disabled>
             <option value="" selected disabled>Choose a staff member</option>
           </select>
+        </div>
+        <div class="mb-3">
+          <label for="appointmentDate" class="form-label">Appointment Date & Time</label>
+          <input type="datetime-local" class="form-control" id="appointmentDate" name="appointment_date" required>
         </div>
         <div class="mb-3">
           <label for="bookingNotes" class="form-label">Notes</label>
@@ -391,21 +403,25 @@
     function deleteBooking(bookingId) {
       if (confirm('Are you sure you want to delete this booking?')) {
         const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/bookings/${bookingId}`;
+        form.method = 'GET';
+        form.action = `/bookings/${bookingId}/delete`;
         
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
+        // Get CSRF token from meta tag
+        const token = document.querySelector('[name="_token"]').getAttribute('content');
         
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = token;
         
-        form.appendChild(csrfToken);
-        form.appendChild(methodField);
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden'; 
+        methodInput.name = '_method';
+        
+        form.appendChild(csrfInput);
+        form.appendChild(methodInput);
+        
+        // Add form to document and submit
         document.body.appendChild(form);
         form.submit();
       }
@@ -465,6 +481,7 @@
 
     function handleAction(action, bookingId) {
                             if (action === 'edit') {
+                              @if(isset($booking))
                               openEditSidebar({
                                 id: bookingId,
                                 clinic_id: '{{ $booking->clinic_id }}',
@@ -473,6 +490,7 @@
                                 staff_id: '{{ $booking->staff_id }}',
                                 notes: '{{ $booking->notes }}'
                               });
+                              @endif
                             } else if (action === 'delete') {
                               deleteBooking(bookingId);
                             } else if (action === 'confirmed') {

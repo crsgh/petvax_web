@@ -102,6 +102,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/clinic-ratings', [RatingController::class, 'index'])->name('clinic-ratings');
 	Route::get('/activity-records', [ActivityRecordController::class, 'index'])->name('activity-records');
 	Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+	Route::get('/schedules/duplicate/{id}', [ScheduleController::class, 'duplicate'])->name('duplicate-schedule');
 	
 	Route::group(['prefix' => 'services'], function () {
 		Route::get('/', [ServiceController::class,'index'])->name('services');
@@ -112,6 +113,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::group(['prefix' => 'bookings'], function () {
 		Route::get('/', [BookingController::class,'index'])->name('bookings');
 		Route::post('/action', [BookingController::class, 'action'])->name('update-bookings');
+		
 		Route::post('/{id?}', [BookingController::class, 'upsert'])->name('upsert-bookings');
 		Route::get('/{id}/delete', [BookingController::class, 'delete'])->name('delete-bookings');
 		Route::get('/{id}/approve', [BookingController::class, 'approve'])->name('approve-bookings');
@@ -135,7 +137,9 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::group(['prefix' => 'medical-histories'], function () {
 		Route::get('/', [MedicalHistoryController::class,'index'])->name('medical-histories');
+		Route::post('/follow-up', [MedicalHistoryController::class, 'followUp'])->name('follow-up-medical-history');
 		Route::post('/{id?}', [MedicalHistoryController::class, 'upsert'])->name('upsert-medical-histories');
+		
 		Route::get('/{id}/delete', [MedicalHistoryController::class, 'delete'])->name('delete-medical-histories');
 	});
 
@@ -156,6 +160,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/logout', [SessionsController::class, 'destroy'])->name('logout');
 	Route::get('/user-profile', [InfoUserController::class, 'create']);
 	Route::post('/user-profile', [InfoUserController::class, 'store']);
+	Route::post('/settings/password', [SessionsController::class, 'updatePassword']);
     Route::get('/login', function () {
 		return view('dashboard');
 	})->name('sign-up');

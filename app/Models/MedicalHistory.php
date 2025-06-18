@@ -16,4 +16,7 @@ class MedicalHistory extends Model
     public function veterinarian() {
         return $this->belongsTo(User::class, 'staff_id');
     }
+    public function inventoryItem() {
+        return $this->belongsTo(InventoryItem::class, 'inventory_item');
+    }
 }

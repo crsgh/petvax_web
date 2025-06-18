@@ -10,9 +10,11 @@
             <div class="card-header pb-0">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6>Pets Table</h6>
+                @if(auth()->user()->role_id != 4)
                 <button class="btn btn-primary btn-sm" onclick="openAddSidebar()">
                   <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Pet
                 </button>
+                @endif
               </div>
               
               <!-- Search and Filter Section -->
@@ -62,7 +64,9 @@
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gender</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Weight</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Owner</th>
+                      @if(auth()->user()->role_id != 4)
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                      @endif
                     </tr>
                   </thead>
                   <tbody>
@@ -99,6 +103,7 @@
                           {{ $pet->owners_name }}
                         </span>
                       </td>
+                      @if(auth()->user()->role_id != 4)
                       <td class="align-middle text-center">
                         <div class="d-flex gap-1 justify-content-center">
                           <button class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center" 
@@ -123,6 +128,7 @@
                           </button>
                         </div>
                       </td>
+                      @endif
                     </tr>
                     @endforeach
                   </tbody>

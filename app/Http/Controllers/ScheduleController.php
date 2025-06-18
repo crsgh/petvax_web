@@ -63,4 +63,14 @@ class ScheduleController extends Controller
             'message' => 'Schedule deleted successfully'
         ]);
     }
+
+    public function duplicate($id)
+    {
+        $schedule = Schedule::findOrFail($id);
+        
+        $newSchedule = $schedule->replicate();
+        $newSchedule->save();
+
+        return redirect()->back()->with('success', 'Schedule duplicated successfully');
+    }
 }

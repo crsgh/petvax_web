@@ -76,7 +76,7 @@ class PetController extends Controller
             'species' => 'string|max:100',
             'breed' => 'string|max:100',
             'birth_date' => 'date',
-            'owner_id' => 'exists:owners,id',
+            'owner_id' => 'exists:users,id',
             'clinic_id' => 'exists:clinics,id'
         ]);
 

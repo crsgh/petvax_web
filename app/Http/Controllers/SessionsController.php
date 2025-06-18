@@ -36,4 +36,38 @@ class SessionsController extends Controller
 
         return redirect('/login')->with(['success'=>'You\'ve been logged out.']);
     }
+
+    public function updatePassword(Request $request)
+    {
+        try {
+            // Validate the request
+            $request->validate([
+                'old_password' => 'required',
+                'new_password' => 'required|min:8',
+                'confirm_password' => 'required|same:new_password'
+            ]);
+
+            // Get the authenticated user
+            $user = User::find(auth()->user()->id);
+
+            // Check if old password matches
+            if (!Hash::check($request->old_password, $user->password)) {
+                return back()->withErrors(['old_password' => 'The current password is incorrect']);
+            }
+
+            // Update the password
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return back()->with('success', 'Password has been updated successfully');
+
+        } catch (\Exception $e) {
+            dd([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
 }

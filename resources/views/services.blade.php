@@ -239,6 +239,7 @@
       document.getElementById('serviceStatus').value = service.status;
       document.getElementById('serviceForm').action = `/services/${service.id}`;
       document.getElementById('submitBtn').textContent = 'Update Service';
+      document.getElementById('homeServiceSwitch').checked = service.home_service == 1 ? true : false;
       new bootstrap.Offcanvas(document.getElementById('serviceSidebar')).show();
     }
   </script>

@@ -326,7 +326,7 @@
       const formData = new FormData(this);
       
       try {
-        const url = userId ? `{{ Route::currentRouteName() }}${userId}` : '{{ Route::currentRouteName() }}';
+        const url = userId ? `{{ Route::currentRouteName() }}/${userId}` : '{{ Route::currentRouteName() }}';
         const method = 'POST';
         
         const response = await fetch(url, {

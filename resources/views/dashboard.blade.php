@@ -110,7 +110,7 @@
             <td>
               <div class="d-flex px-2 py-1">
                 <div class="avatar me-3">
-                  <img src="" class="avatar-sm rounded-circle" alt="employee photo">
+                    <img src="{{ asset('storage/' . $booking['avatar']) }}" class="avatar-sm rounded-circle" alt="employee photo">
                 </div>
                 <div class="d-flex flex-column justify-content-center">
                   <h6 class="mb-0 text-sm">{{ $booking['name']}}</h6>
@@ -143,20 +143,19 @@
       gradientStroke1.addColorStop(0.2, 'rgba(0,128,255,0.0)');
       gradientStroke1.addColorStop(0, 'rgba(0,128,255,0)');
 
-      // Process the monthly data
-      var monthlyData = {!! json_encode($monthlyBookings) !!};
+      // Process the daily data for last 7 days
+      var dailyData = {!! json_encode($dailyBookings) !!};
       var labels = [];
       var incomeData = [];
       
-      for (var key in monthlyData) {
-        if (monthlyData.hasOwnProperty(key)) {
-          // Extract month and year from the date string
-          var date = new Date(key + '-01');
-          var monthYear = date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
-          
-          labels.push(monthYear);
-          incomeData.push(monthlyData[key].income);
-        }
+      // Get dates for last 7 days
+      for(let i=6; i>=0; i--) {
+        let date = new Date();
+        date.setDate(date.getDate() - i);
+        let dateStr = date.toISOString().split('T')[0];
+        
+        labels.push(date.toLocaleString('default', { weekday: 'short' }));
+        incomeData.push(dailyData[dateStr] ? dailyData[dateStr].income : 0);
       }
 
       new Chart(ctx2, {
@@ -164,7 +163,7 @@
         data: {
           labels: labels,
           datasets: [{
-              label: "Monthly Income",
+              label: "Daily Income",
               tension: 0.4,
               borderWidth: 3,
               pointRadius: 3,

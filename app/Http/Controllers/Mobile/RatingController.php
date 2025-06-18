@@ -26,7 +26,28 @@ class RatingController extends Controller
         $rating->is_anonymous = $validated['is_anonymous'] ?? false;
         $rating->user_id =$validated['user_id'];
 
+        if ($request->has('booking_id')) {
+            // Update the related booking's 'rate' field instead of 'stars'
+            $booking = \App\Models\Booking::find($request->input('booking_id'));
+            if ($booking) {
+                $booking->stars = $validated['rate'];
+                $booking->save();
+            }
+        }
+
         $rating->save();
+
+        //  \App\Models\Notification::create([
+        //     'user_id'   => $validated['user_id'],
+        //     'clinic_id' => $validated['clinic_id'],
+        //     'title'     => 'New Clinic Rating',
+        //     'message'   => 'Your clinic has received a new rating of ' . $validated['rate'] . ' stars.',
+        //     'type'      => 'clinic_rating',
+        //     'is_read'   => 0,
+        //     'for_user'  => false,
+        //     'pet_id'    => null,
+        //     ]);
+        
 
         return response()->json([
             'status' => 'success',

@@ -46,12 +46,12 @@
             </svg>
         </button>
          --}}
-        {{-- <button class="nav-button" onclick="handleSettingsClick()">
+        <button class="nav-button" onclick="handleSettingsClick()">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
-        </button> --}}
+        </button>
         
         <div class="user-avatar" onclick="handleUserClick()">{{ $userInitials }}</div>
         <form method="GET" action="/logout" class="d-inline">
@@ -421,8 +421,122 @@
     }
 
     function handleSettingsClick() {
-        // Add your settings logic here
-        console.log('Settings clicked');
+        // Create modal HTML
+        const modal = document.createElement('div');
+        modal.className = 'settings-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Change Password</h3>
+                    <button class="close-button">&times;</button>
+                </div>
+                <form id="changePasswordForm" class="modal-body" method="POST" action="/settings/password">
+                    @csrf
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="old_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="new_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirm_password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        // Add styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .settings-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+            .modal-content {
+                background: white;
+                padding: 24px;
+                border-radius: 16px;
+                width: 90%;
+                max-width: 400px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+            }
+            .modal-header h3 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 600;
+            }
+            .close-button {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                color: #666;
+            }
+            .form-group {
+                margin-bottom: 16px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+            .form-group input {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 14px;
+            }
+            .form-actions {
+                margin-top: 24px;
+                text-align: right;
+            }
+            .submit-btn {
+                background: #007AFF;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+            }
+            .submit-btn:hover {
+                background: #0056b3;
+            }
+        `;
+
+        document.head.appendChild(style);
+        document.body.appendChild(modal);
+
+        // Handle close button
+        const closeButton = modal.querySelector('.close-button');
+        closeButton.addEventListener('click', () => {
+            modal.remove();
+        });
+
+        // Handle click outside modal
+        
     }
 
     function handleUserClick() {

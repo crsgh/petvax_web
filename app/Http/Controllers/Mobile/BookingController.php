@@ -7,6 +7,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
 use App\Models\Notification;
+use App\Models\ActivityRecord;
 
 class BookingController extends Controller
 {
@@ -42,12 +43,10 @@ class BookingController extends Controller
             // Handle payment_proof image upload
             if ($request->hasFile('payment_proof')) {
                 $fileUrl = $this->uploadImage($request->file('payment_proof'), 'payment_proofs');
-                 
+                $request->merge(['payment_proof' => $fileUrl]);
             }
 
             $booking = Booking::create($request->all());
-            $booking->payment_proof = $fileUrl;
-            $booking->save();
 
             // send notif to clinic
             // Notification::create([
@@ -60,6 +59,19 @@ class BookingController extends Controller
             //     'for_user' => 0,
             //     'pet_id' => null,
             // ]);
+
+            Notification::create([
+                'user_id' => $booking->client_id,
+                'clinic_id' => $booking->clinic_id,
+                'title' => 'Booking Submitted',
+                'message' => $booking->payment_proof
+                    ? 'New Booking with payment proof has been submitted for your clinic.'
+                    : 'New Booking has been submitted for your clinic.',
+                'type' => 'booking',
+                'is_read' => 0,
+                'for_user' => false,
+                'pet_id' => $booking->pet_id,
+            ]);
 
             return response()->json([
             'status' => 'success',
@@ -117,6 +129,17 @@ class BookingController extends Controller
         $booking->status = 'cancelled';
         $booking->save();
 
+        Notification::create([
+            'user_id' => $booking->client_id,
+            'clinic_id' => $booking->clinic_id,
+            'title' => 'Booking Cancelled',
+            'message' => 'A customer has cancelled their booking.',
+            'type' => 'booking',
+            'is_read' => 0,
+            'for_user' => false,
+            'pet_id' => $booking->pet_id,
+        ]);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Booking cancelled successfully',
@@ -142,8 +165,25 @@ class BookingController extends Controller
 
         $message = ucfirst($booking->status) . ' booking successfully';
 
-        // send notifications too client
-        // add record
+        Notification::create([
+            'user_id' => $booking->client_id,
+            'clinic_id' => $booking->clinic_id,
+            'title' => 'Booking Status Updated',
+            'message' => 'The status of your booking has been updated to ' . ucfirst($booking->status) . '.',
+            'type' => 'booking',
+            'is_read' => 0,
+            'for_user' => auth()->check() && auth()->user()->role_id == 5,
+            'pet_id' => $booking->pet_id,
+        ]);
+
+        if (auth()->check() && auth()->user()->role_id != 5) {
+            
+            ActivityRecord::create([
+                'user_id' => auth()->id(),
+                'activity' => 'Updated booking status to ' . ucfirst($booking->status) . ' for booking ID ' . $booking->id,
+                'booking_id' => $booking->id,
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -182,6 +222,17 @@ class BookingController extends Controller
 
             $booking->update($validated);
 
+            Notification::create([
+                'user_id' => $booking->client_id,
+                'clinic_id' => $booking->clinic_id,
+                'title' => 'Booking Updated',
+                'message' => 'Your booking details have been updated.',
+                'type' => 'booking',
+                'is_read' => 0,
+                'for_user' => true,
+                'pet_id' => $booking->pet_id,
+            ]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Booking updated successfully',
@@ -200,6 +251,8 @@ class BookingController extends Controller
     {
         $booking = Booking::findOrFail($id);
         $booking->delete();
+
+
 
         return response()->json([
             'status' => 'success',
@@ -267,7 +320,8 @@ class BookingController extends Controller
 
             $exists = Booking::where('clinic_id', $validated['clinic_id'])
             ->where('service_id', $validated['service_id'])
-            ->where('appointment_datetime', $appointmentDatetime)
+            ->whereDate('appointment_datetime', date('Y-m-d', strtotime($validated['date'])))
+            ->whereTime('appointment_datetime', 'like', date('H:i', strtotime($validated['time'])) . '%')
            
             ->exists();
 

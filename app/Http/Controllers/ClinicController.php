@@ -32,7 +32,7 @@ class ClinicController extends Controller
 
     public function upsert(Request $request, $id = null)
     {
-       
+    //    dd($request->all());
        
      
         try {
@@ -46,6 +46,7 @@ class ClinicController extends Controller
                 'closing_time' => 'required|date_format:H:i',
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
+                'tags' => 'nullable|string',
                 'clinic_status' => 'required|in:active,inactive',
             ]);
             $clinic = $id == null ? new Clinic() : Clinic::findOrFail($id);
@@ -62,11 +63,17 @@ class ClinicController extends Controller
             $clinic->closing_time = $validatedData['closing_time'];
             $clinic->latitude = $validatedData['latitude'];
             $clinic->longitude = $validatedData['longitude'];
-            //$clinic->image = $validatedData['clinic_image'];
+            $clinic->tags = $validatedData['tags'];
             $clinic->status = $validatedData['clinic_status'];
             $clinic->description = "";
 
             $clinic->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Clinic saved successfully',
+                'data' => $clinic
+            ]);
 
             // add record
         } catch (\Illuminate\Validation\ValidationException $e) {

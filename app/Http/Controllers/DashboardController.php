@@ -18,14 +18,19 @@ class DashboardController extends Controller
         $todayIncome = 0;
         $totalUser = User::all()->count();
 
-        $monthlyBookings = [];
-        $currentMonth = now()->format('Y-m');
+        $weeklyBookings = [];
+        $dailyBookings = []; // Added missing dailyBookings array
+        $currentWeek = now()->startOfWeek()->format('Y-W');
 
         foreach ($bookings as $booking) {
             if ($booking->status === 'completed') {
                 $client = User::find($booking->staff_id);
-                // Check if booking name already exists in the list
-                $existingIndex = array_search($booking->name, array_column($topBookings, 'name'));
+                
+                // Use client name consistently for both searching and storing
+                $clientName = $client->name;
+                
+                // Check if client name already exists in the list
+                $existingIndex = array_search($clientName, array_column($topBookings, 'name'));
                 
                 if ($existingIndex !== false) {
                     // Increment completed count for existing booking
@@ -33,22 +38,36 @@ class DashboardController extends Controller
                 } else {
                     // Add new booking entry
                     $topBookings[] = [
-                        'name' => $client->name,
+                        'avatar' => $client->avatar,
+                        'name' => $clientName,
                         'email' => $client->email,
                         'completed_count' => 1
                     ];
                 }
 
-                // Add to monthly summary
-                $bookingMonth = $booking->created_at->format('Y-m');
-                if (!isset($monthlyBookings[$bookingMonth])) {
-                    $monthlyBookings[$bookingMonth] = [
+                // Add to weekly summary
+                $bookingWeek = $booking->created_at->startOfWeek()->format('Y-W');
+                if (!isset($weeklyBookings[$bookingWeek])) {
+                    $weeklyBookings[$bookingWeek] = [
+                        'count' => 0,
+                        'income' => 0,
+                        'start_date' => $booking->created_at->startOfWeek()->format('Y-m-d'),
+                        'end_date' => $booking->created_at->endOfWeek()->format('Y-m-d')
+                    ];
+                }
+                $weeklyBookings[$bookingWeek]['count']++;
+                $weeklyBookings[$bookingWeek]['income'] += $booking->total_amount;
+
+                // Add to daily summary
+                $bookingDate = $booking->created_at->format('Y-m-d');
+                if (!isset($dailyBookings[$bookingDate])) {
+                    $dailyBookings[$bookingDate] = [
                         'count' => 0,
                         'income' => 0
                     ];
                 }
-                $monthlyBookings[$bookingMonth]['count']++;
-                $monthlyBookings[$bookingMonth]['income'] += $booking->total_amount;
+                $dailyBookings[$bookingDate]['count']++;
+                $dailyBookings[$bookingDate]['income'] += $booking->total_amount;
             }
 
             // Check if booking is for today
@@ -58,9 +77,9 @@ class DashboardController extends Controller
             }
         }
 
-        // Sort topBookings by completed date
+        // Sort topBookings by completed_count in descending order
         usort($topBookings, function($a, $b) {
-            return strtotime($b['completed']) - strtotime($a['completed']);
+            return $b['completed_count'] - $a['completed_count'];
         });
 
         // Get today's new users
@@ -74,13 +93,14 @@ class DashboardController extends Controller
             'latest_users' => $todayUsers->take(5),
             'total_users' => $totalUser,
         ];
-        //dd(auth()->user()->id);//Notification::where('user_id', auth()->user()->id)->where('is_read',0)->get(),
+
         return view('dashboard', [
             'topBookings' => $topBookings,
             'todayStats' => $todayStats,
             'todayBookingCounts' => $todayBookingCounts,
             'todayIncome' => $todayIncome,
-            'monthlyBookings' => $monthlyBookings,
+            'weeklyBookings' => $weeklyBookings,
+            'dailyBookings' => $dailyBookings, // Added dailyBookings to view data
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),

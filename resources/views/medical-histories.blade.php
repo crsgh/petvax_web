@@ -9,9 +9,11 @@
         <div class="card mb-4">
           <div class="card-header pb-0 d-flex justify-content-between align-items-center">
             <h6>Medical Histories</h6>
+            @if(auth()->user()->role_id != 4)
             <button class="btn btn-primary btn-sm mb-0" onclick="openSidebar()">
               <i class="fas fa-plus"></i>&nbsp;&nbsp;Add Medical Record
             </button>
+            @endif
           </div>
           <div class="card-body px-0 pt-0 pb-2">
             <div class="table-responsive p-0">
@@ -26,7 +28,9 @@
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Treatment Date</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Veterinarian</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Follow-up Date</th>
+                    @if(auth()->user()->role_id != 4)
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                    @endif
                   </tr>
                 </thead>
                 <tbody>
@@ -56,13 +60,12 @@
                     </td>
                     <td class="align-middle text-center text-sm">
                       <span class="text-secondary text-xs font-weight-bold">
-                        Dr. {{ $history->veterinarian ? $history->veterinarian->name : $history->attending_vet }}
-                      </span>
-                    </td>
+{{ $history->veterinarian ? "Dr. " . $history->veterinarian->name : ($history->attending_vet ? "Dr. " . $history->attending_vet : "N/A") }}
+                      </td>
                     <td class="align-middle text-center text-sm">
-                      @if($history->follow_up_date)
+                      @if($history->followup)
                         <span class="badge badge-sm bg-gradient-info">
-                          {{ $history->follow_up_date }}
+                          {{ $history->followup }}
                         </span>
                       @else
                         <div class="d-flex align-items-center justify-content-center" style="height: 100%;">
@@ -72,7 +75,7 @@
                              style="width: 22px; height: 22px; border-radius: 8px;"
                              data-bs-toggle="modal"
                              data-bs-target="#followUpModal"
-                             onclick="prepareFollowUp('{{ $history->pet_id }}', '{{ $history->pet->name }}')"
+                             onclick="prepareFollowUp('{{ $history->pet_id }}', '{{ $history->pet->name }}', '{{ $history->id }}')"
                              title="Schedule Follow-up">
                             <i class="fas fa-plus" style="font-size: 0.75rem;"></i>
                           </button>
@@ -80,6 +83,7 @@
                       @endif
                     </td>
                     <td class="align-middle text-center">
+                      @if(auth()->user()->role_id != 4)
                       <div class="d-flex gap-1 justify-content-center">
                         <button class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center" 
                                 onclick="editHistory('{{ $history->id }}', '{{ $history->pet_id }}', '{{ $history->clinic_id }}', '{{ $history->diagnosis }}', '{{ $history->treatment }}', '{{ $history->treatment_date }}', '{{ $history->veterinarian }}', '{{ $history->notes }}', '{{ $history->inventory_id }}')"
@@ -104,6 +108,7 @@
                           </button>
                         </form>
                       </div>
+                      @endif
                     </td>
                   </tr>
                   @endforeach
@@ -125,10 +130,11 @@
         <h5 class="modal-title" id="followUpModalLabel">Schedule Follow-up</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="followUpForm" action="/bookings" method="POST">
+      <form id="followUpForm" action="/medical-histories/follow-up" method="POST">
         @csrf
         <div class="modal-body">
           <input type="hidden" id="followUpPetId" name="pet_id">
+          <input type="hidden" id="followUpHistoryId" name="id">
           <div class="mb-3">
             <label class="form-label">Pet Name</label>
             <input type="text" class="form-control" id="followUpPetName" readonly>
@@ -321,8 +327,9 @@
             }
           }
 
-          function prepareFollowUp(petId, petName) {
+          function prepareFollowUp(petId, petName, historyId) {
             document.getElementById('followUpPetId').value = petId;
+            document.getElementById('followUpHistoryId').value = historyId;
             document.getElementById('followUpPetName').value = petName;
           }
         </script>

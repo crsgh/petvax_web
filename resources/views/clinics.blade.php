@@ -192,6 +192,58 @@
             <option value="inactive">Inactive</option>
           </select>
         </div>
+        <div class="mb-3">
+          <label for="clinicTags" class="form-label">Tags</label>
+          <div class="input-group">
+            <input type="text" class="form-control " id="tagInput" placeholder="Add tags...">
+            <button class="btn btn-outline-primary" type="button" onclick="addTag()">Add</button>
+          </div>
+          <div id="tagContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
+          <input type="hidden" id="clinicTags" name="tags">
+        </div>
+
+        <script>
+          let tags = [];
+
+          function addTag() {
+            const input = document.getElementById('tagInput');
+            const tag = input.value.trim();
+            
+            if (tag && !tags.includes(tag)) {
+              tags.push(tag);
+              updateTags();
+            }
+            
+            input.value = '';
+          }
+
+          function removeTag(tag) {
+            tags = tags.filter(t => t !== tag);
+            updateTags();
+          }
+
+          function updateTags() {
+            const container = document.getElementById('tagContainer');
+            const hiddenInput = document.getElementById('clinicTags');
+            
+            container.innerHTML = tags.map(tag => `
+              <div class="badge bg-primary d-flex align-items-center gap-2">
+                ${tag}
+                <i class="fas fa-times cursor-pointer" onclick="removeTag('${tag}')"></i>
+              </div>
+            `).join('');
+            
+            hiddenInput.value = JSON.stringify(tags);
+          }
+          
+          // Handle enter key press
+          document.getElementById('tagInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addTag();
+            }
+          });
+        </script>
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary" id="submitBtn">Save Clinic</button>
         </div>
@@ -267,7 +319,15 @@
       document.getElementById('openingTime').value = data.opening_time;
       document.getElementById('closingTime').value = data.closing_time;
       document.getElementById('clinicStatus').value = data.status;
-
+      // Set tags if they exist
+      if (data.tags) {
+        tags = JSON.parse(data.tags);
+        updateTags();
+      } else {
+        tags = [];
+        document.getElementById('tagContainer').innerHTML = '';
+        document.getElementById('clinicTags').value = '[]';
+      }
       if (data.latitude && data.longitude) {
         document.getElementById('latitude').value = data.latitude;
         document.getElementById('longitude').value = data.longitude;
@@ -325,9 +385,8 @@
       })
       .then(response => response.json())
       .then(data => {
-        if (data.success) {
-          location.reload();
-        }
+      
+        location.reload();
       });
     }
   </script>

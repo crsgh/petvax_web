@@ -18,6 +18,7 @@ use App\Http\Controllers\Mobile\NotificationController;
 use App\Http\Controllers\Mobile\ScheduleController;
 use App\Http\Controllers\Mobile\RatingController;
 use App\Http\Controllers\Mobile\MedicalHistoryController;
+use App\Http\Controllers\Mobile\HomeServiceController;
 
 
 /*
@@ -71,10 +72,12 @@ Route::get('/service/clinic/{id}', [ServiceController::class, 'servicesByClinic'
 
 Route::prefix('pet')->group(function () {
     Route::get('/all', [PetController::class, 'index']);
+    Route::post('/edit/{id}', [PetController::class, 'update']);
+    Route::get('/delete/{id}', [PetController::class, 'destroy']);
     Route::get('/owner/{id}', [PetController::class, 'getByOwner']);
     
     Route::post('/add', [PetController::class, 'store']);
-    Route::post('/edit', [PetController::class, 'update']);
+   
     Route::post('/remove', [PetController::class, 'destroy']);
 
 }); 
@@ -103,11 +106,17 @@ Route::prefix('rate')->group(function () {
 });
 
 Route::prefix('notification')->group(function () {
+    Route::get('/create', [NotificationController::class, 'store']);
     Route::get('/user/{id}', [NotificationController::class, 'getNotificationsByUser']);
+    Route::get('/read/all/{userId}', [NotificationController::class, 'readAllNotification']);
+    Route::get('/read/{id}', [NotificationController::class, 'readById']);
 });
 
 Route::post('/check-slot', [BookingController::class, 'checkSlotAvailability']);
 Route::post('/check-schedule', [ScheduleController::class, 'checkScheduleAvailability']);
 Route::get('/notifications/read/{id}', [NotificationController::class, 'read']);
+Route::prefix('homeservice')->group(function () {
+    Route::post('/add/{id?}', [HomeServiceController::class, 'upsert']);
+    Route::get('/find/{bookingId}', [HomeServiceController::class, 'findByBookingId']);
+});
 
-//Rich missing

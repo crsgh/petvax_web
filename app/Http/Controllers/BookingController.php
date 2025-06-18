@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\User;
 use App\Models\InventoryItem;
 use App\Models\MedicalHistory;
+use App\Models\ActivityRecord;
 
 class BookingController extends Controller
 {
@@ -25,7 +26,7 @@ class BookingController extends Controller
             'inventoryItems' => InventoryItem::all(),
            'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
-                2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
+                2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->where('for_user' , 0)->get(),
                 default => Notification::where('user_id', auth()->id())->where('is_read', 0)->get(),
             },
 		]);
@@ -34,7 +35,7 @@ class BookingController extends Controller
     public function upsert(Request $request, $id = null)
     {
     
-       
+        // dd($request->all);
         try{
             $validatedData = $request->validate([
                 'pet_id' => 'required|exists:pets,id',
@@ -57,7 +58,15 @@ class BookingController extends Controller
             $booking->total_amount = 0;
             $booking->save();   
 
-            // Add record 
+            ActivityRecord::create([
+                'user_id' => auth()->id(),
+                'clinic_id' => $booking->clinic_id,
+                'action' => $id === null ? 'created booking' : 'updated booking',
+                'description' => $id === null 
+                    ? 'Created a new booking for pet ID ' . $booking->pet_id 
+                    : 'Updated booking ID ' . $booking->id,
+            ]);
+
         }catch(\Illuminate\Validation\ValidationException $e){
             dd($e->errors());
        }
@@ -65,6 +74,8 @@ class BookingController extends Controller
 
         return redirect()->route('bookings')->with('success', 'Pet saved successfully');
     }
+
+
 
     public function complete(Request $request, $id){
         try {
@@ -91,8 +102,33 @@ class BookingController extends Controller
             $medicalHistory->attending_vet = $booking->staff_id;
             $medicalHistory->save();
 
+            // Decrease inventory item quantity
+            $inventoryItem = InventoryItem::findOrFail($request->inventory_id);
+            if ($inventoryItem->quantity > 0) {
+                $inventoryItem->decrement('quantity');
+            } else {
+                throw new \Exception('Insufficient inventory quantity');
+            }
+
             // add notif 
+            Notification::create([
+                'user_id'    => $booking->client_id,
+                'clinic_id'  => $booking->clinic_id,
+                'pet_id'     => $booking->pet_id,
+                'title'      => 'Booking Completed',
+                'message'    => 'Your booking for pet ID ' . $booking->pet_id . ' has been completed.',
+                'type'       => 'booking',
+                'for_user'   => 1,
+                'is_read'    => 0,
+            ]);
+
             // add record
+            ActivityRecord::create([
+                'user_id' => auth()->id(),
+                'clinic_id' => $booking->clinic_id,
+                'action' => 'completed booking',
+                'description' => 'Completed booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
+            ]);
 
             return redirect()->back()->with('success', 'Booking completed and medical history recorded successfully');
 
@@ -120,6 +156,23 @@ class BookingController extends Controller
             $booking->save();
 
             // add record and notif
+            ActivityRecord::create([
+                'user_id' => auth()->id(),
+                'clinic_id' => $booking->clinic_id,
+                'action' => $validatedData['action'] . ' booking',
+                'description' => ucfirst($validatedData['action']) . ' booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
+            ]);
+
+            Notification::create([
+                'user_id'    => $booking->client_id,
+                'clinic_id'  => $booking->clinic_id,
+                'pet_id'     => $booking->pet_id,
+                'title'      => 'Booking ' . ucfirst($validatedData['action']),
+                'message'    => 'Your booking for pet ID ' . $booking->pet_id . ' has been ' . $validatedData['action'] . '.',
+                'type'       => 'booking',
+                'for_user'   => 1,
+                'is_read'    => 0,
+            ]);
 
             return redirect()->back()->with('success', 'Booking status updated successfully');
         } catch (\Exception $e) {
@@ -133,7 +186,12 @@ class BookingController extends Controller
         $booking = Booking::findOrFail($id);
         $booking->delete();
 
-        // add record
+        ActivityRecord::create([
+            'user_id' => auth()->id(),
+            'clinic_id' => $booking->clinic_id,
+            'action' => 'deleted booking',
+            'description' => 'Deleted booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
+        ]);
         
         return redirect()->back()->with('success', 'Booking deleted successfully');
     }
