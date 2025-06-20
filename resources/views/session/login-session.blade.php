@@ -1,67 +1,75 @@
 @extends('layouts.user_type.guest')
 
 @section('content')
+<main class="main-content mt-0">
+    <section class="min-h-screen bg-gray-50 flex items-center">
+        <div class="container mx-auto px-4 h-full">
+            <div class="flex content-center items-center justify-center h-full">
+                <div class="w-full md:w-5/12 px-4">
+                    <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-white border-0">
+                        <div class="rounded-t mb-0 px-6 py-6">
+                            <div class="flex justify-center mb-4">
+                                <img src="{{ asset('assets/img/logo.png') }}" alt="PetVax Logo" class="h-20">
+                            </div>
+                            <div class="text-center mb-0">
+                                <h4 class="text-2xl font-bold text-gray-700">PetVax Techies!</h4>
+                                <p class="text-gray-500 text-sm">Sign in to continue to Clinic Management.</p>
+                            </div>
+                        </div>
+                        <div class="flex-auto px-8 py-6 pt-0">
+                            <form role="form" method="POST" action="/session">
+                                @csrf
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                                        Email Address
+                                    </label>
+                                    <input type="email" 
+                                           class="border-2 px-3 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                           name="email"
+                                           id="email"
+                                           placeholder="Enter your email"
+                                           value="admin@petvax.com">
+                                    @error('email')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-  <main class="main-content  mt-0">
-    <section>
-      <div class="page-header min-vh-75">
-        <div class="container">
-          <div class="row">
-            <div class="col-xl-4 col-lg-5 col-md-6 d-flex flex-column mx-auto">
-              <div class="card card-plain mt-8">
-                <div class="card-header pb-0 text-left bg-transparent">
-                  <h3 class="font-weight-bolder text-info text-gradient">Welcome back</h3>
-                  {{-- <p class="mb-0">Create a new acount<br></p>
-                  <p class="mb-0">OR Sign in with these credentials:</p>
-                  <p class="mb-0">Email <b>admin@softui.com</b></p>
-                  <p class="mb-0">Password <b>secret</b></p> --}}
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                                        Password
+                                    </label>
+                                    <input type="password"
+                                           class="border-2 px-3 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                           name="password"
+                                           id="password"
+                                           placeholder="Enter your password"
+                                           value="asdasd123">
+                                    @error('password')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                               class="form-checkbox rounded border-gray-300 text-blue-500 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                               id="rememberMe">
+                                        <span class="ml-2 text-sm text-gray-700">Remember me</span>
+                                    </label>
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" 
+                                            class="bg-blue-500 text-white active:bg-blue-600 font-bold uppercase text-sm px-6 py-3 rounded-lg shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150">
+                                        Sign In
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                  <form role="form" method="POST" action="/session">
-                    @csrf
-                    <label>Email</label>
-                    <div class="mb-3">
-                      <input type="email" class="form-control" name="email" id="email" placeholder="Email" value="admin@petvax.com" aria-label="Email" aria-describedby="email-addon">
-                      @error('email')
-                        <p class="text-danger text-xs mt-2">{{ $message }}</p>
-                      @enderror
-                    </div>
-                    <label>Password</label>
-                    <div class="mb-3">
-                      <input type="password" class="form-control" name="password" id="password" placeholder="Password" value="asdasd123" aria-label="Password" aria-describedby="password-addon">
-                      @error('password')
-                        <p class="text-danger text-xs mt-2">{{ $message }}</p>
-                      @enderror
-                    </div>
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="rememberMe" checked="">
-                      <label class="form-check-label" for="rememberMe">Remember me</label>
-                    </div>
-                    <div class="text-center">
-                      <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Sign in</button>
-                    </div>
-                  </form>
-                </div>
-                <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                <small class="text-muted">Forgot you password? Reset you password 
-                  <a href="/login/forgot-password" class="text-info text-gradient font-weight-bold">here</a>
-                </small>
-                  <p class="mb-4 text-sm mx-auto">
-                    Don't have an account?
-                    <a href="register" class="text-info text-gradient font-weight-bold">Sign up</a>
-                  </p>
-                </div>
-              </div>
             </div>
-            <div class="col-md-6">
-              <div class="oblique position-absolute top-0 h-100 d-md-block d-none me-n8">
-                <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('../assets/img/curved-images/curved6.jpg')"></div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
     </section>
-  </main>
-
+</main>
 @endsection

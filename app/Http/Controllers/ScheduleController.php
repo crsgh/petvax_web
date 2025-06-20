@@ -64,11 +64,12 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function duplicate($id)
+    public function duplicate($id,$day)
     {
         $schedule = Schedule::findOrFail($id);
         
         $newSchedule = $schedule->replicate();
+        $newSchedule->day = $day;
         $newSchedule->save();
 
         return redirect()->back()->with('success', 'Schedule duplicated successfully');

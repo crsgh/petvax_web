@@ -6,12 +6,12 @@
     <div class="container-fluid py-4">
       <div class="row">
         <div class="col-12">
-          <div class="card mb-4">
+          <div class="card mb-0">
             <div class="card-header pb-0">
               <div class="d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Bookings Table</h6>
                 @if(auth()->user()->role_id != 4)
-                <button class="btn btn-primary btn-sm" onclick="openSidebar()">
+                <button class="btn btn-primary btn-sm" onclick="openSidebar()" title="Add New Booking">
                   <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Booking
                 </button>
                 @endif
@@ -145,7 +145,28 @@
                                   bg-gradient-secondary
                           @endswitch
                         ">
+                        @if($booking->status == 'declined')
+                          <a href="#" data-bs-toggle="modal" data-bs-target="#declineReasonModal_{{ $booking->id }}" style="color: inherit; text-decoration: none;">
+                            {{ ucfirst($booking->status) }}
+                          </a>
+
+                          <!-- Decline Reason Modal -->
+                          <div class="modal fade" id="declineReasonModal_{{ $booking->id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Decline Reason</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <p class="text-black">{{ $booking->notes }}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        @else
                           {{ ucfirst($booking->status) }}
+                        @endif
                         </span>
                       </td>
                       @if(auth()->user()->role_id != 4)
@@ -187,7 +208,6 @@
                                 <form id="completeBookingForm_{{ $booking->id }}" action="/bookings/complete/{{ $booking->id }}" method="POST">
                                   @csrf
 
-
                                   <div class="mb-3">
                                     <label for="diagnosis_{{ $booking->id }}" class="form-label">Diagnosis</label>
                                     <input type="text" class="form-control" id="diagnosis_{{ $booking->id }}" name="diagnosis" required>
@@ -207,8 +227,6 @@
                                       @endforeach
                                     </select>
                                   </div>
-
-                                
 
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -248,6 +266,11 @@
                     @endforeach
                   </tbody>
                 </table>
+                
+                <!-- Pagination -->
+                <div class="d-flex justify-content-end mt-1 mr-10 mb-2">
+                    {{ $bookings->links() }}
+                </div>
               </div>
             </div>
           </div>
@@ -317,6 +340,32 @@
       </form>
     </div>
   </div>
+
+<div class="modal fade" id="declineModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Decline Booking</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" id="declineForm">
+        @csrf
+      <div class="modal-body">
+        
+          <div class="mb-3">
+            <label for="declineReason_${bookingId}" class="form-label">Reason for Declining</label>
+            <textarea class="form-control" id="declineReason_${bookingId}" rows="3" required name="notes"></textarea>
+          </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
 
   <script>
     // Existing functions remain the same
@@ -502,6 +551,10 @@
                               }
                             } else if (action === 'completed') {
                               const modal = new bootstrap.Modal(document.getElementById('completeBookingModal_' + bookingId));
+                              modal.show();
+                            }else if (action === 'declined') {
+                              const modal = new bootstrap.Modal(document.getElementById('declineModal'));
+                              document.getElementById('declineForm').action = "/bookings/" + bookingId + "/decline/";
                               modal.show();
                             } else if (action) {
                               submitAction(action, bookingId);

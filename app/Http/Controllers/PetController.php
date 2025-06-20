@@ -24,7 +24,7 @@ class PetController extends Controller
                 })
                 ->leftJoin('users', 'pets.owner_id', '=', 'users.id')
                 ->leftJoin('clinics', 'pets.clinic_id', '=', 'clinics.id')
-                ->get(),
+                ->paginate(8),
             'owners' => User::where('role_id', 5)->get(),
             'clinics' => Clinic::all(),
             'species' => Specie::all(),
@@ -46,7 +46,7 @@ class PetController extends Controller
             'breeds' => Breed::with(['clinic', 'species'])
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('breeds.clinic_id', auth()->user()->clinic_id);
-                })->get(),
+                })->paginate(8),
                 'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),

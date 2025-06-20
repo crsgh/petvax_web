@@ -125,6 +125,9 @@
                     @endforeach
                   </tbody>
                 </table>
+                <div class="d-flex justify-content-end mt-1 mr-10 mb-2">
+                    {{ $users->links() }}
+                </div>
               </div>
             </div>
           </div>

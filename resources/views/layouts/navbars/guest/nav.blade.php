@@ -1,4 +1,4 @@
-<!-- Navbar -->
+{{-- <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top w-full md:w-[90%] lg:w-[85%] mx-auto left-0 right-0 top-2 md:top-4 z-50 backdrop-blur-sm bg-white/90 shadow-md rounded-lg">
   <div class="container-fluid px-4">
     <a class="navbar-brand font-weight-bold text-primary hover:opacity-80 transition-all duration-300 text-base" href="{{ url('dashboard') }}">
@@ -60,4 +60,4 @@
     </div>
   </div>
 </nav>
-<!-- End Navbar -->
+<!-- End Navbar --> --}}

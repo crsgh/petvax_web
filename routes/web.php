@@ -102,8 +102,10 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/clinic-ratings', [RatingController::class, 'index'])->name('clinic-ratings');
 	Route::get('/activity-records', [ActivityRecordController::class, 'index'])->name('activity-records');
 	Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-	Route::get('/schedules/duplicate/{id}', [ScheduleController::class, 'duplicate'])->name('duplicate-schedule');
+	Route::get('/schedules/duplicate/{id}/{day}', [ScheduleController::class, 'duplicate'])->name('duplicate-schedule');
 	
+
+
 	Route::group(['prefix' => 'services'], function () {
 		Route::get('/', [ServiceController::class,'index'])->name('services');
 		Route::post('/{id?}', [ServiceController::class, 'upsert'])->name('upsert-services');
@@ -118,11 +120,10 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('/{id}/delete', [BookingController::class, 'delete'])->name('delete-bookings');
 		Route::get('/{id}/approve', [BookingController::class, 'approve'])->name('approve-bookings');
 		Route::get('/{id}/decline', [BookingController::class, 'decline'])->name('decline-bookings');
-	
+		Route::post('/{id}/decline', [BookingController::class, 'decline'])->name('decline-bookings');
 		Route::post('/complete/{id}', [BookingController::class, 'complete'])->name('complete-bookings');
 	});
-
-	
+	Route::get('/sales-report', [BookingController::class, 'salesReport'])->name('sales-report');
 	Route::group(['prefix' => 'inventory'], function () {
 		Route::get('/', [InventoryController::class,'index'])->name('inventory');
 		Route::post('/{id?}', [InventoryController::class, 'upsert'])->name('upsert-inventory');

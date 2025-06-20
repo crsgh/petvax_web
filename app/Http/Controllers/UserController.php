@@ -21,7 +21,7 @@ class UserController extends Controller
                 //           ->orWhere('role_id', 5);
                 //     });
                 // })
-                ->get(),
+                ->paginate(8),
             'roles' => Role::all(),
             'clinics' => Clinic::all(),
             'notifications' => match(auth()->user()->role_id) {
@@ -88,7 +88,7 @@ class UserController extends Controller
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
-                ->get(),
+                ->paginate(8),
             'roles' => Role::all(),
             'clinics' => Clinic::all(),
             'notifications' => match(auth()->user()->role_id) {

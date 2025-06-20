@@ -10,17 +10,20 @@ use App\Models\User;
 use App\Models\InventoryItem;
 use App\Models\MedicalHistory;
 use App\Models\ActivityRecord;
+use App\Models\Service;
 
 class BookingController extends Controller
 {
     public function index () {
 		return view('bookings',[
-			'bookings' => Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
+            'bookings' => Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
                 ->select('bookings.*')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
                 })
-                ->get(),
+                ->orderBy('created_at', 'desc')
+                ->paginate(8)
+                ->withQueryString(),
 			'clinics' => Clinic::all(),
             'veterinarians' => User::where('role_id', 4)->get(),
             'inventoryItems' => InventoryItem::all(),
@@ -31,6 +34,28 @@ class BookingController extends Controller
             },
 		]);
 	}
+
+    public function salesReport(Request $request)
+    {
+       
+       return view('sales-report',[
+			'bookings' => Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
+                ->select('bookings.*')
+                ->when(auth()->user()->role_id != 1, function($query) {
+                    return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
+                })
+                ->get(),
+			
+            'services' => Service::all(),
+          
+           
+            'notifications' => match(auth()->user()->role_id) {
+                1 => collect([]),
+                2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->where('for_user' , 0)->get(),
+                default => Notification::where('user_id', auth()->id())->where('is_read', 0)->get(),
+            },
+		]);
+    }
 
     public function upsert(Request $request, $id = null)
     {
@@ -192,7 +217,46 @@ class BookingController extends Controller
             'action' => 'deleted booking',
             'description' => 'Deleted booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
         ]);
-        //return
+        
         return redirect()->back()->with('success', 'Booking deleted successfully');
     }
+
+public function decline(Request $request, $id)
+{
+    try {
+        $booking = Booking::findOrFail($id);
+        
+        $validatedData = $request->validate([
+            'notes' => 'required|string'
+        ]);
+
+        $booking->status = 'declined';
+        $booking->notes = $validatedData['notes'];
+        $booking->save();
+
+        // Create activity record
+        ActivityRecord::create([
+            'user_id' => auth()->id(),
+            'clinic_id' => $booking->clinic_id,
+            'action' => 'declined booking',
+            'description' => 'Declined booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id . ' with reason: ' . $validatedData['notes']
+        ]);
+
+        // Create notification
+        Notification::create([
+            'user_id' => $booking->client_id,
+            'clinic_id' => $booking->clinic_id,
+            'pet_id' => $booking->pet_id,
+            'title' => 'Booking Declined',
+            'message' => 'Your booking for pet ID ' . $booking->pet_id . ' has been declined. Reason: ' . $validatedData['notes'],
+            'type' => 'booking',
+            'for_user' => 1,
+            'is_read' => 0,
+        ]);
+
+        return redirect()->back()->with('success', 'Booking declined successfully');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to decline booking: ' . $e->getMessage());
+    }
+}
 }
