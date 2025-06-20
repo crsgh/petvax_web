@@ -192,7 +192,7 @@ class BookingController extends Controller
             'action' => 'deleted booking',
             'description' => 'Deleted booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
         ]);
-        
+        //return
         return redirect()->back()->with('success', 'Booking deleted successfully');
     }
 }

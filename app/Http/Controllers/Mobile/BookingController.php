@@ -41,24 +41,28 @@ class BookingController extends Controller
             // ]);
 
             // Handle payment_proof image upload
-            if ($request->hasFile('payment_proof')) {
-                $fileUrl = $this->uploadImage($request->file('payment_proof'), 'payment_proofs');
+            if ($request->hasFile('proof')) {
+                $fileUrl = $this->uploadImage($request->file('proof'), 'payment_proofs');
                 $request->merge(['payment_proof' => $fileUrl]);
             }
 
-            $booking = Booking::create($request->all());
 
-            // send notif to clinic
-            // Notification::create([
-            //     'user_id' => $validated['client_id'],
-            //     'clinic_id' => $validated['clinic_id'],
-            //     'title' => 'New Booking',
-            //     'message' => 'You have a new booking for your clinic',
-            //     'type' => 'booking',
-            //     'is_read' => 0,
-            //     'for_user' => 0,
-            //     'pet_id' => null,
-            // ]);
+            $booking = new Booking();
+            $booking->clinic_id = $request->input('clinic_id');
+            $booking->staff_id = $request->input('staff_id');
+            $booking->client_id = $request->input('client_id');
+            $booking->pet_id = $request->input('pet_id');
+            $booking->appointment_datetime = $request->input('appointment_datetime');
+            $booking->status = $request->input('status');
+            $booking->notes = $request->input('notes');
+            $booking->total_amount = $request->input('total_amount');
+            $booking->service_id = $request->input('service_id');
+            $booking->payment_reference = $request->input('payment_reference');
+            $booking->payment_method = $request->input('payment_method');
+            $booking->payment_proof = $request->input('payment_proof');
+            $booking->save();
+
+
 
             Notification::create([
                 'user_id' => $booking->client_id,

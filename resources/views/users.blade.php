@@ -334,13 +334,9 @@
           body: formData
         });
 
-        if (response.ok) {
           closeSidebar();
           window.location.reload();
-        } else {
-          const error = await response.json();
-          alert(error.message || 'Failed to save user');
-        }
+          
       } catch (error) {
         console.error('Error saving user:', error);
         alert('Failed to save user');
