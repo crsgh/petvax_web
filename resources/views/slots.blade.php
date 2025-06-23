@@ -7,11 +7,33 @@
       <div class="row">
         <div class="col-12">
           <div class="card mb-4">
-            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-              <h6>Schedule Slots</h6>
-              <button class="btn btn-primary btn-sm mb-0" onclick="openSidebar()">
-                <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Slot
-              </button>
+            <div class="card-header pb-0">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6>Schedule Slots</h6>
+                <button class="btn btn-primary btn-sm mb-0" onclick="openSidebar()">
+                  <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Slot
+                </button>
+              </div>
+              
+              <!-- Filters -->
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <select class="form-select" id="serviceFilter" onchange="filterSlots()">
+                    <option value="">All Services</option>
+                    @foreach($services as $service)
+                      <option value="{{ $service->id }}">{{ $service->name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select" id="dayFilter" onchange="filterSlots()">
+                    <option value="">All Days</option>
+                    @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
+                      <option value="{{ $day }}">{{ ucfirst($day) }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
               <div class="table-responsive p-0">
@@ -29,9 +51,11 @@
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="slotsTableBody">
                     @foreach($slots as $slot)
-                    <tr>
+                    <tr class="slot-row" 
+                        data-service="{{ $slot->service_id }}"
+                        data-day="{{ $slot->day }}">
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div class="d-flex flex-column justify-content-center">
@@ -67,63 +91,6 @@
                           <button type="button" class="btn btn-link text-primary mb-0 p-1" onclick="openDuplicateModal({{ json_encode($slot) }})">
                             <i class="fa fa-copy fa-lg"></i>
                           </button>
-
-                          <!-- Duplicate Slot Modal -->
-                          <div class="modal fade" id="duplicateSlotModal" tabindex="-1">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title">Duplicate Schedule Slot</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <form id="duplicateForm" onsubmit="handleDuplicateSubmit(event)">
-                                  <input type="hidden" name="slot_id" id="duplicateSlotId">
-                                  <div class="modal-body">
-                                    <div class="mb-3">
-                                      <label for="duplicate_day" class="form-label">Select Day to Duplicate To</label>
-                                      <select class="form-select" id="duplicate_day" name="day" required>
-                                        @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
-                                          <option value="{{ $day }}">{{ ucfirst($day) }}</option>
-                                        @endforeach
-                                      </select>
-                                    </div>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Duplicate</button>
-                                  </div>
-                                </form>
-
-                                <script>
-                                  function handleDuplicateSubmit(e) {
-                                    e.preventDefault();
-                                    const slotId = document.getElementById('duplicateSlotId').value;
-                                    const day = document.getElementById('duplicate_day').value;
-                                    window.location.href = `{{ url('schedules/duplicate') }}/${slotId}/${day}`;
-                                  }
-                                </script>
-                              </div>
-                            </div>
-                          </div>
-
-                          <script>
-                            function openDuplicateModal(slot) {
-                              const modal = new bootstrap.Modal(document.getElementById('duplicateSlotModal'));
-                              document.getElementById('duplicateSlotId').value = slot.id;
-                              
-                              // Remove the current day from options
-                              const daySelect = document.getElementById('duplicate_day');
-                              for(let i = 0; i < daySelect.options.length; i++) {
-                                if(daySelect.options[i].value === slot.day) {
-                                  daySelect.options[i].disabled = true;
-                                } else {
-                                  daySelect.options[i].disabled = false;
-                                }
-                              }
-                              
-                              modal.show();
-                            }
-                          </script>
                           <button class="btn btn-link text-danger mb-0 p-1" onclick="deleteSlot({{ $slot->id }})">
                             <i class="fa fa-trash fa-lg"></i>
                           </button>
@@ -139,7 +106,74 @@
           </div>
         </div>
       </div>
+
+      <!-- Duplicate Modal -->
+      <div class="modal fade" id="duplicateSlotModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Duplicate Schedule Slot</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="duplicateForm" onsubmit="handleDuplicateSubmit(event)">
+              <input type="hidden" name="slot_id" id="duplicateSlotId">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="duplicate_day" class="form-label">Select Day to Duplicate To</label>
+                  <select class="form-select" id="duplicate_day" name="day" required>
+                    @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
+                      <option value="{{ $day }}">{{ ucfirst($day) }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Duplicate</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
+
+<script>
+function filterSlots() {
+  const serviceFilter = document.getElementById('serviceFilter').value;
+  const dayFilter = document.getElementById('dayFilter').value;
+  const rows = document.querySelectorAll('.slot-row');
+
+  rows.forEach(row => {
+    const serviceMatch = !serviceFilter || row.dataset.service === serviceFilter;
+    const dayMatch = !dayFilter || row.dataset.day === dayFilter;
+    
+    row.style.display = (serviceMatch && dayMatch) ? '' : 'none';
+  });
+}
+
+function handleDuplicateSubmit(e) {
+  e.preventDefault();
+  const slotId = document.getElementById('duplicateSlotId').value;
+  const day = document.getElementById('duplicate_day').value;
+  window.location.href = `{{ url('schedules/duplicate') }}/${slotId}/${day}`;
+}
+
+function openDuplicateModal(slot) {
+  const modal = new bootstrap.Modal(document.getElementById('duplicateSlotModal'));
+  document.getElementById('duplicateSlotId').value = slot.id;
+  
+  const daySelect = document.getElementById('duplicate_day');
+  for(let i = 0; i < daySelect.options.length; i++) {
+    if(daySelect.options[i].value === slot.day) {
+      daySelect.options[i].disabled = true;
+    } else {
+      daySelect.options[i].disabled = false;
+    }
+  }
+  
+  modal.show();
+}
+</script>
 </main>
 
 <!-- Add/Edit Slot Sidebar -->

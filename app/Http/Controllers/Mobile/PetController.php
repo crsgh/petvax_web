@@ -7,7 +7,7 @@ use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Clinic;
-use App\Models\Species;
+use App\Models\Specie;
 use App\Models\Breed;
 
 
@@ -125,8 +125,8 @@ class PetController extends Controller
     }
 
     function getDetails(){
-        $breeds = Breed::all();
-        $species = Species::all();
+        $breeds = Breed::all()->select(['id','name']);
+        $species = Specie::all()->select(['id','name']);
         return response()->json([
             'status' => 'success',
             'data' => [
