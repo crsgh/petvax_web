@@ -26,6 +26,11 @@ class DashboardController extends Controller
             if ($booking->status === 'completed') {
                 $client = User::find($booking->staff_id);
                 
+                // Skip if client not found
+                if (!$client) {
+                    continue;
+                }
+                
                 // Use client name consistently for both searching and storing
                 $clientName = $client->name;
                 

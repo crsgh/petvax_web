@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Clinic;
+use App\Models\Species;
+use App\Models\Breed;
+
 
 class PetController extends Controller
 {
@@ -48,8 +52,12 @@ class PetController extends Controller
             'gender' => 'required|string|in:male,female',
             'weight' => 'required|numeric|min:0',
             'owner_id' => 'required|exists:users,id',
-            'clinic_id' => 'required|exists:clinics,id'
+            'clinic_id' => 'nullable'
+
         ]);
+
+        $clinic = Clinic::find($request->clinic_id) ?? Clinic::first();
+        $request->merge(['clinic_id' => $clinic->id]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -113,6 +121,18 @@ class PetController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $pet
+        ]);
+    }
+
+    function getDetails(){
+        $breeds = Breed::all();
+        $species = Species::all();
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'species' => $species,
+                'breeds' => $breeds
+            ]
         ]);
     }
 }

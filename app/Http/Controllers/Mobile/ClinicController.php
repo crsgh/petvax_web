@@ -13,7 +13,7 @@ class ClinicController extends Controller
     {
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
-        $limit = $request->input('limit', 10);
+        $limit = $request->has('limit') ? $request->input('limit') : null;
 
         $query = Clinic::leftJoin('clinic_ratings', 'clinics.id', '=', 'clinic_ratings.clinic_id')
             ->select('clinics.*')
@@ -21,9 +21,17 @@ class ClinicController extends Controller
             ->where('clinics.status', 'active');
 
         if ($latitude && $longitude) {
-            $query->addSelect(DB::raw('(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) as distance'))
-                ->addBinding([$latitude, $longitude, $latitude], 'select')
-                ->orderBy('distance');
+            // Calculate distance using Haversine formula and sort by nearest first
+            $query->selectRaw('(
+                6371 * acos(
+                    cos(radians(?)) * 
+                    cos(radians(latitude)) * 
+                    cos(radians(longitude) - radians(?)) + 
+                    sin(radians(?)) * 
+                    sin(radians(latitude))
+                )
+            ) AS distance', [$latitude, $longitude, $latitude])
+            ->orderBy('distance', 'asc'); // Explicitly order by distance ascending
         }
 
         $clinics = $query->groupBy(
@@ -44,12 +52,20 @@ class ClinicController extends Controller
                 'clinics.tags',
                 'clinics.description'
             )
-            ->limit($limit)
+            ->when($limit, function($query) use ($limit) {
+                return $query->limit($limit);
+            })
             ->get();
 
         return response()->json([
             'status' => 'success',
-            'data' => $clinics
+            'data' => $clinics->map(function($clinic) {
+                // Round distance to 2 decimal places if it exists
+                if (isset($clinic->distance)) {
+                    $clinic->distance = round($clinic->distance, 2);
+                }
+                return $clinic;
+            })
         ]);
     }
 }

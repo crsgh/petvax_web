@@ -72,6 +72,7 @@ Route::get('/service/clinic/{id}', [ServiceController::class, 'servicesByClinic'
 
 Route::prefix('pet')->group(function () {
     Route::get('/all', [PetController::class, 'index']);
+    Route::get('/details', [PetController::class, 'getDetails']);
     Route::post('/edit/{id}', [PetController::class, 'update']);
     Route::get('/delete/{id}', [PetController::class, 'destroy']);
     Route::get('/owner/{id}', [PetController::class, 'getByOwner']);
