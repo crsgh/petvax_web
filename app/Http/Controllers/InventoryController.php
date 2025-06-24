@@ -19,7 +19,9 @@ class InventoryController extends Controller
                     return $query->where('inventory_items.clinic_id', auth()->user()->clinic_id);
                 })
 				->get(),
-			'categories' => Category::all(),
+			'categories' => Category::when(auth()->user()->role_id != 1, function($query) {
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
+                })->get(),
 			'clinics' => Clinic::all(),
 			'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
