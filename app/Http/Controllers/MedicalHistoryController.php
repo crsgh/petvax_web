@@ -24,7 +24,9 @@ class MedicalHistoryController extends Controller
 			'clinics' => Clinic::all(),
 			'pets' => Pet::with('owner')->get(),
 			'veterinarians' => User::where('role_id', 4)->get(),
-            'inventories' => InventoryItem::all(),
+            'inventories' => InventoryItem::when(auth()->user()->role_id != 1, function($query) {
+                return $query->where('clinic_id', auth()->user()->clinic_id);
+            })->get(),
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
