@@ -39,7 +39,7 @@
                     <td>
                       <div class="d-flex px-2 py-1">
                         <div>
-                          <img src="{{ $history->pet->image ?? '../assets/img/dog.png' }}" class="avatar avatar-sm me-3" alt="{{ $history->pet->name }}">
+                            <img src="{{ $history->pet->image ? asset('storage/' . $history->pet->image) : '../assets/img/dog.png' }}" class="avatar avatar-sm me-3" alt="{{ $history->pet->name }}">
                         </div>
                         <div class="d-flex flex-column justify-content-center">
                           <h6 class="mb-0 text-sm">{{ $history->pet->name }}</h6>

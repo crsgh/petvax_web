@@ -19,9 +19,9 @@ class PetController extends Controller
     {
         return view('pets', [
             'pets' => Pet::select('pets.*', 'clinics.name as clinic_name', 'users.name as owners_name')
-                ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('pets.clinic_id', auth()->user()->clinic_id);
-                })
+                // ->when(auth()->user()->role_id != 1, function($query) {
+                //     return $query->where('pets.clinic_id', auth()->user()->clinic_id);
+                // })
                 ->leftJoin('users', 'pets.owner_id', '=', 'users.id')
                 ->leftJoin('clinics', 'pets.clinic_id', '=', 'clinics.id')
                 ->paginate(8),
