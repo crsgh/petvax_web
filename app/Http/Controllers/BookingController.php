@@ -27,7 +27,7 @@ class BookingController extends Controller
 			'clinics' => Clinic::all(),
             'veterinarians' => User::where('role_id', 4)->get(),
             'inventoryItems' => InventoryItem::all(),
-           'notifications' => match(auth()->user()->role_id) {
+            'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->where('for_user' , 0)->get(),
                 default => Notification::where('user_id', auth()->id())->where('is_read', 0)->get(),
