@@ -152,7 +152,7 @@
         </div>
         <div class="mb-3">
           <label for="birthDate" class="form-label">Birth Date</label>
-          <input type="date" class="form-control" id="birthDate" name="birth_date" required>
+          <input type="date" class="form-control" id="birthDate" name="birth_date" max="<?php echo date('Y-m-d'); ?>" required>
         </div>
         <div class="mb-3">
           <label for="gender" class="form-label">Gender</label>
