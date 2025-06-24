@@ -11,6 +11,7 @@ use App\Models\InventoryItem;
 use App\Models\MedicalHistory;
 use App\Models\ActivityRecord;
 use App\Models\Service;
+use App\Models\Pet;
 
 class BookingController extends Controller
 {
@@ -98,7 +99,7 @@ $bookings->each(function($booking) {
                 'clinic_id' => $booking->clinic_id,
                 'action' => $id === null ? 'created booking' : 'updated booking',
                 'description' => $id === null 
-                    ? 'Created a new booking for pet ID ' . $booking->pet_id 
+                    ? 'Created a new booking for pet ' . Pet::find($booking->pet_id)->name 
                     : 'Updated booking ID ' . $booking->id,
             ]);
 
@@ -149,9 +150,9 @@ $bookings->each(function($booking) {
             Notification::create([
                 'user_id'    => $booking->client_id,
                 'clinic_id'  => $booking->clinic_id,
-                'pet_id'     => $booking->pet_id,
+                'pet_id'     => Pet::find($booking->pet_id)->name,
                 'title'      => 'Booking Completed',
-                'message'    => 'Your booking for pet ID ' . $booking->pet_id . ' has been completed.',
+                'message'    => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been completed.',
                 'type'       => 'booking',
                 'for_user'   => 1,
                 'is_read'    => 0,
@@ -162,7 +163,7 @@ $bookings->each(function($booking) {
                 'user_id' => auth()->id(),
                 'clinic_id' => $booking->clinic_id,
                 'action' => 'completed booking',
-                'description' => 'Completed booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
+                'description' => 'Completed booking ID ' . $booking->id . ' for pet ' . Pet::find($booking->pet_id)->name,
             ]);
 
             return redirect()->back()->with('success', 'Booking completed and medical history recorded successfully');
@@ -195,15 +196,15 @@ $bookings->each(function($booking) {
                 'user_id' => auth()->id(),
                 'clinic_id' => $booking->clinic_id,
                 'action' => $validatedData['action'] . ' booking',
-                'description' => ucfirst($validatedData['action']) . ' booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
+                'description' => ucfirst($validatedData['action']) . ' booking ID ' . $booking->id . ' for pet ' . Pet::find($booking->pet_id)->name,
             ]);
 
             Notification::create([
                 'user_id'    => $booking->client_id,
                 'clinic_id'  => $booking->clinic_id,
-                'pet_id'     => $booking->pet_id,
+                'pet_id'     => Pet::find($booking->pet_id)->name,
                 'title'      => 'Booking ' . ucfirst($validatedData['action']),
-                'message'    => 'Your booking for pet ID ' . $booking->pet_id . ' has been ' . $validatedData['action'] . '.',
+                'message'    => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been ' . $validatedData['action'] . '.',
                 'type'       => 'booking',
                 'for_user'   => 1,
                 'is_read'    => 0,
@@ -225,7 +226,7 @@ $bookings->each(function($booking) {
             'user_id' => auth()->id(),
             'clinic_id' => $booking->clinic_id,
             'action' => 'deleted booking',
-            'description' => 'Deleted booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id,
+            'description' => 'Deleted booking ID ' . $booking->id . ' for pet ' . Pet::find($booking->pet_id)->name,
         ]);
         
         return redirect()->back()->with('success', 'Booking deleted successfully');
@@ -249,16 +250,17 @@ public function decline(Request $request, $id)
             'user_id' => auth()->id(),
             'clinic_id' => $booking->clinic_id,
             'action' => 'declined booking',
-            'description' => 'Declined booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id . ' with reason: ' . $validatedData['notes']
+            'description' => 'Declined booking ID ' . $booking->id . ' for pet ' . Pet::find($booking->pet_id)->name . ' with reason: ' . $validatedData['notes']
+
         ]);
 
         // Create notification
         Notification::create([
             'user_id' => $booking->client_id,
             'clinic_id' => $booking->clinic_id,
-            'pet_id' => $booking->pet_id,
+            'pet_id' => Pet::find($booking->pet_id)->name,
             'title' => 'Booking Declined',
-            'message' => 'Your booking for pet ID ' . $booking->pet_id . ' has been declined. Reason: ' . $validatedData['notes'],
+            'message' => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been declined. Reason: ' . $validatedData['notes'],
             'type' => 'booking',
             'for_user' => 1,
             'is_read' => 0,
@@ -287,16 +289,17 @@ public function cancel(Request $request, $id)
             'user_id' => auth()->id(),
             'clinic_id' => $booking->clinic_id,
             'action' => 'cancelled booking',
-            'description' => 'Cancelled booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id . ' with reason: ' . $validatedData['notes']
+            'description' => 'Cancelled booking ID ' . $booking->id . ' for pet ' . Pet::find($booking->pet_id)->name . ' with reason: ' . $validatedData['notes']
+
         ]);
 
         // Create notification
         Notification::create([
             'user_id' => $booking->client_id,
             'clinic_id' => $booking->clinic_id,
-            'pet_id' => $booking->pet_id,
+            'pet_id' => Pet::find($booking->pet_id)->name,
             'title' => 'Booking Cancelled',
-            'message' => 'Your booking for pet ID ' . $booking->pet_id . ' has been cancelled. Reason: ' . $validatedData['notes'],
+            'message' => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been cancelled. Reason: ' . $validatedData['notes'],
             'type' => 'booking',
             'for_user' => 1,
             'is_read' => 0,
