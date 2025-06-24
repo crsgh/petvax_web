@@ -72,10 +72,11 @@ class BookingController extends Controller
             ]);
     
             $booking = $id == null ? new Booking : Booking::findOrFail($id);
+            $pet = \App\Models\Pet::findOrFail($validatedData['pet_id']);
     
             $booking->pet_id = $validatedData['pet_id'];
             $booking->clinic_id = $validatedData['clinic_id'];
-            $booking->client_id = '1';
+            $booking->client_id = $pet->owner_id;
             $booking->service_id = $validatedData['service_id'];
             $booking->staff_id = $validatedData['staff_id'];
             $booking->appointment_datetime = $validatedData['appointment_date'];
