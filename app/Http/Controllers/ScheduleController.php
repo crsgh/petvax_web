@@ -23,8 +23,12 @@ class ScheduleController extends Controller
                     return $query->where('schedules.clinic_id', auth()->user()->clinic_id);
                 })->get(),
                 'clinics' => Clinic::all(),
-            'clinic' => auth()->user()->role_id != 1 ? Clinic::where('id', auth()->user()->clinic_id)->first() : null,
-            'services' => Service::all(),
+            'clinic' => Clinic::when(auth()->user()->role_id != 1, function($query) {
+                    return $query->where('id', auth()->user()->clinic_id);
+                })->first(),
+            'services' => Service::when(auth()->user()->role_id != 1, function($query) {
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
+                })->get(),
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
