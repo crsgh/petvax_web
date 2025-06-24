@@ -115,7 +115,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::group(['prefix' => 'bookings'], function () {
 		Route::get('/', [BookingController::class,'index'])->name('bookings');
 		Route::post('/action', [BookingController::class, 'action'])->name('update-bookings');
-		
+		Route::post('/{id}/cancel', [BookingController::class, 'cancel'])->name('cancel-bookings');
 		Route::post('/{id?}', [BookingController::class, 'upsert'])->name('upsert-bookings');
 		Route::get('/{id}/delete', [BookingController::class, 'delete'])->name('delete-bookings');
 		Route::get('/{id}/approve', [BookingController::class, 'approve'])->name('approve-bookings');

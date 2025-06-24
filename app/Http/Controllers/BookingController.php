@@ -15,15 +15,23 @@ use App\Models\Service;
 class BookingController extends Controller
 {
     public function index () {
-		return view('bookings',[
-            'bookings' => Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
+        $bookings = Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
                 ->select('bookings.*')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
                 })
                 ->orderBy('created_at', 'desc')
                 ->paginate(8)
-                ->withQueryString(),
+                ->withQueryString();
+
+$bookings->each(function($booking) {
+    $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
+                   // ->where('service_id', $booking->service_id)
+                    ->first();
+    $booking->isHomeService = !is_null($homeService);
+});
+		return view('bookings',[
+            'bookings' => $bookings,
 			'clinics' => Clinic::all(),
             'veterinarians' => User::where('role_id', 4)->get(),
             'inventoryItems' => InventoryItem::all(),
@@ -260,4 +268,43 @@ public function decline(Request $request, $id)
         return redirect()->back()->with('error', 'Failed to decline booking: ' . $e->getMessage());
     }
 }
+public function cancel(Request $request, $id)
+{
+    try {
+        $booking = Booking::findOrFail($id);
+        
+        $validatedData = $request->validate([
+            'notes' => 'required|string'
+        ]);
+
+        $booking->status = 'cancelled';
+        $booking->notes = $validatedData['notes'];
+        $booking->save();
+
+        // Create activity record
+        ActivityRecord::create([
+            'user_id' => auth()->id(),
+            'clinic_id' => $booking->clinic_id,
+            'action' => 'cancelled booking',
+            'description' => 'Cancelled booking ID ' . $booking->id . ' for pet ID ' . $booking->pet_id . ' with reason: ' . $validatedData['notes']
+        ]);
+
+        // Create notification
+        Notification::create([
+            'user_id' => $booking->client_id,
+            'clinic_id' => $booking->clinic_id,
+            'pet_id' => $booking->pet_id,
+            'title' => 'Booking Cancelled',
+            'message' => 'Your booking for pet ID ' . $booking->pet_id . ' has been cancelled. Reason: ' . $validatedData['notes'],
+            'type' => 'booking',
+            'for_user' => 1,
+            'is_read' => 0,
+        ]);
+
+        return redirect()->back()->with('success', 'Booking cancelled successfully');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to cancel booking: ' . $e->getMessage());
+    }
+}
+
 }

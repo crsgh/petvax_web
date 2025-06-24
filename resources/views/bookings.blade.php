@@ -63,6 +63,7 @@
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Veterinarian</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Payment Method</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Service Type</th>
                       @if(auth()->user()->role_id != 4)
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                       @endif
@@ -145,17 +146,17 @@
                                   bg-gradient-secondary
                           @endswitch
                         ">
-                        @if($booking->status == 'declined')
+                        @if($booking->status == 'declined' || $booking->status == 'cancelled')
                           <a href="#" data-bs-toggle="modal" data-bs-target="#declineReasonModal_{{ $booking->id }}" style="color: inherit; text-decoration: none;">
                             {{ ucfirst($booking->status) }}
                           </a>
 
-                          <!-- Decline Reason Modal -->
+                          <!-- Decline/Cancel Reason Modal -->
                           <div class="modal fade" id="declineReasonModal_{{ $booking->id }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
                                 <div class="modal-header">
-                                  <h5 class="modal-title">Decline Reason</h5>
+                                  <h5 class="modal-title">{{ ucfirst($booking->status) }} Reason</h5>
                                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
@@ -168,6 +169,11 @@
                           {{ ucfirst($booking->status) }}
                         @endif
                         </span>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        @if($booking->isHomeService)
+                          <span class="badge badge-sm bg-gradient-primary">Home Service</span>
+                        @endif
                       </td>
                       @if(auth()->user()->role_id != 4)
                       <td class="align-middle text-center">
@@ -543,13 +549,13 @@
                             } else if (action === 'delete') {
                               deleteBooking(bookingId);
                             } else if (action === 'confirmed') {
-                              if (!{{ $booking->staff_id ?? 'null' }}) {
                                 const modal = new bootstrap.Modal(document.getElementById('assignStaffModal_' + bookingId));
                                 modal.show();
-                              } else {
-                                submitAction(action, bookingId);
-                              }
-                            } else if (action === 'completed') {
+                            }else if (action === 'cancelled') {
+  const modal = new bootstrap.Modal(document.getElementById('declineModal'));
+  document.getElementById('declineForm').action = "/bookings/" + bookingId + "/cancel/";
+  modal.show();
+}else if (action === 'completed') {
                               const modal = new bootstrap.Modal(document.getElementById('completeBookingModal_' + bookingId));
                               modal.show();
                             }else if (action === 'declined') {
