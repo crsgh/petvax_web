@@ -125,7 +125,7 @@ class BookingController extends Controller
             $medicalHistory->treatment = $validatedData['treatment'];
             $medicalHistory->treatment_date = now();
             $medicalHistory->item_used = $request->inventory_id;
-            $medicalHistory->attending_vet = $booking->staff_id;
+            $medicalHistory->staff_id = $booking->staff_id;
             $medicalHistory->save();
 
             // Decrease inventory item quantity
