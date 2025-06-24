@@ -125,7 +125,7 @@ class PetController extends Controller
     }
 
     function getDetails(){
-        $breeds = Breed::all()->select(['id','name']);
+        $breeds = Breed::all()->select(['id','name','species_id']);
         $species = Specie::all()->select(['id','name']);
         return response()->json([
             'status' => 'success',
