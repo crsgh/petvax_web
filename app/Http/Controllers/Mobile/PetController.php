@@ -85,12 +85,14 @@ class PetController extends Controller
         $pet = Pet::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'string|max:255',
-            'species' => 'string|max:100',
-            'breed' => 'string|max:100',
-            'birth_date' => 'date',
-            'owner_id' => 'exists:users,id',
-            'clinic_id' => 'exists:clinics,id',
+            'name' => 'required|string|max:255',
+            'species' => 'required|string|max:100',
+            'breed' => 'nullable|string|max:100',
+            'birth_date' => 'required|date',
+            'gender' => 'required|string|in:male,female',
+            'weight' => 'required|numeric|min:0',
+            'owner_id' => 'required|exists:users,id',
+            'clinic_id' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
