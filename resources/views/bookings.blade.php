@@ -561,7 +561,7 @@
   modal.show();
 }else if (action === 'completed') {
                               const serviceCategory = document.querySelector(`tr[data-booking-id="${bookingId}"] .service-category`).textContent;
-                              if (serviceCategory !== 'vaccine') {
+                              if (serviceCategory !== 'vaccination') {
                                 submitAction(action, bookingId);
                               } else {
                                 const modal = new bootstrap.Modal(document.getElementById('completeBookingModal_' + bookingId));
