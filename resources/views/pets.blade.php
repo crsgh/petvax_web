@@ -63,7 +63,7 @@
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Birth Date</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gender</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Weight</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Owner</th>
+                    
                       <!-- @if(auth()->user()->role_id != 4)
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                       @endif -->
@@ -98,11 +98,7 @@
                           {{ $pet->weight ? $pet->weight . ' kg' : 'N/A' }}
                         </span>
                       </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-secondary text-xs font-weight-bold">
-                          {{ $pet->owners_name }}
-                        </span>
-                      </td>
+                      
                     
                     </tr>
                     @endforeach
