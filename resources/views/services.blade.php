@@ -161,6 +161,11 @@
             <option value="deworming">Deworming</option>
           </select>
         </div>
+        <div class="mb-3">
+          <label class="form-label">GCash Number</label>
+          <input type="text" class="form-control" id="serviceGcash" name="gcash_number" pattern="[0-9]{11}" placeholder="09XXXXXXXXX" title="Please enter a valid 11-digit phone number">
+          <div class="form-text">Enter your GCash number (11 digits)</div>
+        </div>
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label">Species</label>
