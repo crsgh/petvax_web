@@ -173,6 +173,8 @@
                       <td class="align-middle text-center text-sm">
                         @if($booking->isHomeService)
                           <span class="badge badge-sm bg-gradient-primary">Home Service</span>
+                        @else
+                          <span class="badge badge-sm bg-gradient-info">Clinic Visit</span>
                         @endif
                       </td>
                       @if(auth()->user()->role_id != 4)
