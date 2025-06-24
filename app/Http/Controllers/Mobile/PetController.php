@@ -52,8 +52,8 @@ class PetController extends Controller
             'gender' => 'required|string|in:male,female',
             'weight' => 'required|numeric|min:0',
             'owner_id' => 'required|exists:users,id',
-            'clinic_id' => 'nullable'
-
+            'clinic_id' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         $clinic = Clinic::find($request->clinic_id) ?? Clinic::first();
@@ -66,14 +66,19 @@ class PetController extends Controller
             ], 422);
         }
 
-        $pet = Pet::create($request->all());
+        $data = $request->all();
+        
+        if ($request->hasFile('image')) {
+            $data['image'] = $this->uploadImage($request->file('image'), 'pets');
+        }
+
+        $pet = Pet::create($data);
 
         return response()->json([
             'status' => 'success',
             'data' => $pet
         ], 201);
     }
-
 
     public function update(Request $request, $id)
     {
@@ -85,7 +90,8 @@ class PetController extends Controller
             'breed' => 'string|max:100',
             'birth_date' => 'date',
             'owner_id' => 'exists:users,id',
-            'clinic_id' => 'exists:clinics,id'
+            'clinic_id' => 'exists:clinics,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -95,7 +101,14 @@ class PetController extends Controller
             ], 422);
         }
 
-        $pet->update($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $this->uploadImage($request->file('image'), 'pets');
+
+        }
+
+        $pet->update($data);
 
         return response()->json([
             'status' => 'success',
