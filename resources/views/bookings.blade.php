@@ -72,6 +72,7 @@
                   <tbody id="bookingsTableBody">
                     @foreach($bookings as $booking)
                     <tr class="booking-row" 
+                        data-booking-id="{{ $booking->id }}"
                         data-status="{{ $booking->status }}"
                         data-clinic="{{ $booking->clinic_id }}"
                         data-date="{{ \Carbon\Carbon::parse($booking->appointment_datetime)->format('Y-m-d') }}">
@@ -83,6 +84,7 @@
                         </div>
                       </td>
                       <td>
+                        <p class="text-xs text-secondary mb-0 service-category">{{ $booking->service->category }}</p>
                         <p class="text-xs text-secondary mb-0">{{ $booking->service->name }}</p>
                       </td>
                       @if(auth()->user()->role_id == 1)
@@ -558,8 +560,13 @@
   document.getElementById('declineForm').action = "/bookings/" + bookingId + "/cancel/";
   modal.show();
 }else if (action === 'completed') {
-                              const modal = new bootstrap.Modal(document.getElementById('completeBookingModal_' + bookingId));
-                              modal.show();
+                              const serviceCategory = document.querySelector(`tr[data-booking-id="${bookingId}"] .service-category`).textContent;
+                              if (serviceCategory !== 'vaccine') {
+                                submitAction(action, bookingId);
+                              } else {
+                                const modal = new bootstrap.Modal(document.getElementById('completeBookingModal_' + bookingId));
+                                modal.show();
+                              }
                             }else if (action === 'declined') {
                               const modal = new bootstrap.Modal(document.getElementById('declineModal'));
                               document.getElementById('declineForm').action = "/bookings/" + bookingId + "/decline/";

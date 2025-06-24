@@ -15,7 +15,7 @@ use App\Models\Service;
 class BookingController extends Controller
 {
     public function index () {
-        $bookings = Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
+        $bookings = Booking::with(['pet:id,name', 'service:id,name,category', 'clinic:id,name'])
                 ->select('bookings.*')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
@@ -28,6 +28,7 @@ $bookings->each(function($booking) {
     $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
                    // ->where('service_id', $booking->service_id)
                     ->first();
+
     $booking->isHomeService = !is_null($homeService);
 });
 		return view('bookings',[
