@@ -106,7 +106,7 @@ $menuItems = [
     ],
     [
         'id' => 'sales-report',
-        'label' => 'Sales Report',
+        'label' => 'Report',
         'color' => 'text-cyan-500',
         'route' => '/sales-report',
         'permission' => [1,2],
