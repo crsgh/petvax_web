@@ -9,7 +9,7 @@
                     <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-white border-0">
                         <div class="rounded-t mb-0 px-6 py-6">
                             <div class="flex justify-center mb-4">
-                                <img src="{{ asset('assets/img/logo.png') }}" alt="PetVax Logo" class="h-20">
+                                <img src="{{ asset('assets/img/logo.png') }}" alt="PetVax Logo" class="w-25">
                             </div>
                             <div class="text-center mb-0">
                                 <h4 class="text-2xl font-bold text-gray-700">PetVax Techies!</h4>
