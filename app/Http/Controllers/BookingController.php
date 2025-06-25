@@ -150,7 +150,7 @@ $bookings->each(function($booking) {
             Notification::create([
                 'user_id'    => $booking->client_id,
                 'clinic_id'  => $booking->clinic_id,
-                'pet_id'     => Pet::find($booking->pet_id)->name,
+                'pet_id'     => $booking->pet_id,
                 'title'      => 'Booking Completed',
                 'message'    => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been completed.',
                 'type'       => 'booking',
@@ -202,7 +202,7 @@ $bookings->each(function($booking) {
             Notification::create([
                 'user_id'    => $booking->client_id,
                 'clinic_id'  => $booking->clinic_id,
-                'pet_id'     => Pet::find($booking->pet_id)->name,
+                'pet_id'     => $booking->pet_id,
                 'title'      => 'Booking ' . ucfirst($validatedData['action']),
                 'message'    => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been ' . $validatedData['action'] . '.',
                 'type'       => 'booking',
@@ -258,7 +258,7 @@ public function decline(Request $request, $id)
         Notification::create([
             'user_id' => $booking->client_id,
             'clinic_id' => $booking->clinic_id,
-            'pet_id' => Pet::find($booking->pet_id)->name,
+            'pet_id' => $booking->pet_id,
             'title' => 'Booking Declined',
             'message' => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been declined. Reason: ' . $validatedData['notes'],
             'type' => 'booking',
@@ -297,7 +297,7 @@ public function cancel(Request $request, $id)
         Notification::create([
             'user_id' => $booking->client_id,
             'clinic_id' => $booking->clinic_id,
-            'pet_id' => Pet::find($booking->pet_id)->name,
+            'pet_id' => $booking->pet_id,
             'title' => 'Booking Cancelled',
             'message' => 'Your booking for pet ' . Pet::find($booking->pet_id)->name . ' has been cancelled. Reason: ' . $validatedData['notes'],
             'type' => 'booking',
