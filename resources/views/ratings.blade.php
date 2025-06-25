@@ -38,7 +38,7 @@
                 <table class="table align-items-center mb-0" id="ratingsTable">
                   <thead>
                     <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Clinic Info</th>
+                      
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Rating</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Review</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
@@ -48,16 +48,6 @@
                   <tbody>
                     @foreach($ratings as $rating)
                     <tr data-rating="{{ $rating->rating }}" data-date="{{ $rating->created_at->format('Y-m-d') }}">
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="{{ $rating->clinic->image ?? '../assets/img/clinic.png' }}" class="avatar avatar-sm me-3" alt="{{ $rating->clinic_name }}">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $rating->clinic_name }}</h6>
-                          </div>
-                        </div>
-                      </td>
                       <td>
                         <div class="rating-stars">
                           @for($i = 1; $i <= 5; $i++)
