@@ -19,6 +19,9 @@ class BookingController extends Controller
         $bookings = Booking::with(['pet:id,name', 'service:id,name,category', 'clinic:id,name'])
                 ->select('bookings.*')
                 ->when(auth()->user()->role_id != 1, function($query) {
+                    if (auth()->user()->role_id == 4) {
+                        return $query->where('bookings.staff_id', auth()->id());
+                    }
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
                 })
                 ->orderBy('created_at', 'desc')
