@@ -60,11 +60,19 @@ class AuthController extends Controller {
         //     ], 422);
         // }
 
+        $clinic = Clinic::first();
+        if (!$clinic) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No clinic found'
+            ], 404);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'clinic_id' => 2,
+            'clinic_id' => $clinic->id,
 
         ]);
 
