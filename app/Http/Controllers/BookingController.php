@@ -27,10 +27,15 @@ class BookingController extends Controller
 
 $bookings->each(function($booking) {
     $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
-                   // ->where('service_id', $booking->service_id)
+                   
                     ->first();
+    if ($homeService) {
+        $booking->latitude = $homeService->latitude;
+        $booking->longitude = $homeService->longitude;
+        $booking->isHomeService = !is_null($homeService);
+    }
 
-    $booking->isHomeService = !is_null($homeService);
+    
 });
 		return view('bookings',[
             'bookings' => $bookings,
@@ -83,6 +88,7 @@ $bookings->each(function($booking) {
     
             $booking = $id == null ? new Booking : Booking::findOrFail($id);
             $pet = \App\Models\Pet::findOrFail($validatedData['pet_id']);
+            $service = \App\Models\Service::findOrFail($validatedData['service_id']);
     
             $booking->pet_id = $validatedData['pet_id'];
             $booking->clinic_id = $validatedData['clinic_id'];
@@ -91,7 +97,7 @@ $bookings->each(function($booking) {
             $booking->staff_id = $validatedData['staff_id'];
             $booking->appointment_datetime = $validatedData['appointment_date'];
             $booking->notes = $validatedData['notes'];
-            $booking->total_amount = 0;
+            $booking->total_amount = $service->price;
             $booking->save();   
 
             ActivityRecord::create([

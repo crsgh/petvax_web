@@ -375,57 +375,67 @@
       sidebar.hide();
     }
 
-    function editHistory(id, petId, clinicId, diagnosis, treatment, treatmentDate, veterinarian, notes,inventory) {
+function editHistory(id, petId, clinicId, diagnosis, treatment, treatmentDate, veterinarian, notes, inventory) {
+    openSidebar('edit');
     
-      openSidebar('edit');
-      
-      // Populate form fields
-      document.getElementById('recordId').value = id;
-      document.getElementById('petSelect').value = petId;
-      @if(auth()->user()->role_id == 1)
-      document.getElementById('clinicSelect').value = clinicId;
-      @endif
-      document.getElementById('diagnosis').value = diagnosis;
-      document.getElementById('treatment').value = treatment;
-      document.getElementById('treatmentDate').value = treatmentDate;
-      document.getElementById('vetInCharge').value = veterinarian;
-      document.getElementById('inventorySelect').value = inventory;
-      
-      // Handle veterinarian selection
-      if (document.getElementById('vetSelect').querySelector(`option[value="${veterinarian}"]`)) {
-        document.getElementById('useVetList').checked = true;
-        toggleVetInput();
-        document.getElementById('vetSelect').value = veterinarian;
-      } else {
+    // Populate form fields
+    document.getElementById('recordId').value = id;
+    document.getElementById('petSelect').value = petId;
+    @if(auth()->user()->role_id == 1)
+    document.getElementById('clinicSelect').value = clinicId;
+    @endif
+    document.getElementById('diagnosis').value = diagnosis;
+    document.getElementById('treatment').value = treatment;
+    document.getElementById('treatmentDate').value = treatmentDate;
+    document.getElementById('inventorySelect').value = inventory;
+    
+    // Handle veterinarian selection
+    try {
+        const vetData = JSON.parse(veterinarian);
+        if (vetData && vetData.id) {
+            document.getElementById('useVetList').checked = true;
+            toggleVetInput();
+            document.getElementById('vetSelect').value = vetData.id;
+            document.getElementById('vetId').value = vetData.id;
+        } else {
+            document.getElementById('useVetList').checked = false;
+            toggleVetInput();
+            document.getElementById('vetInCharge').value = veterinarian;
+        }
+    } catch (e) {
+        // If veterinarian is not JSON, treat as plain text
         document.getElementById('useVetList').checked = false;
         toggleVetInput();
         document.getElementById('vetInCharge').value = veterinarian;
-      }
-      
-      document.getElementById('notes').value = notes;
+    }
+    
+    document.getElementById('notes').value = notes;
 
-      // Trigger Select2 update with proper initialization check
-      if (typeof jQuery !== 'undefined' && jQuery('#petSelect').data('select2')) {
+    // Trigger Select2 update with proper initialization check
+    if (typeof jQuery !== 'undefined' && jQuery('#petSelect').data('select2')) {
         jQuery('#petSelect').val(petId).trigger('change');
-      }
-      @if(auth()->user()->role_id == 1)
-      if (typeof jQuery !== 'undefined' && jQuery('#clinicSelect').data('select2')) {
+    }
+    @if(auth()->user()->role_id == 1)
+    if (typeof jQuery !== 'undefined' && jQuery('#clinicSelect').data('select2')) {
         jQuery('#clinicSelect').val(clinicId).trigger('change');
-      }
-      @endif
+    }
+    @endif
 
-      // Update form action for edit
-      document.getElementById('addMedicalHistoryForm').action = "/medical-histories/" + id;
-      
-      // Add method spoofing for PUT request
-      if (!document.querySelector('input[name="_method"]')) {
-        const methodField = document.createElement('input');
+    // Update form action for edit
+    document.getElementById('addMedicalHistoryForm').action = "/medical-histories/" + id;
+    
+    // Add method spoofing for PUT request
+    let methodField = document.querySelector('input[name="_method"]');
+    if (!methodField) {
+        methodField = document.createElement('input');
         methodField.type = 'hidden';
         methodField.name = '_method';
-        methodField.value = 'POST';
+        
         document.getElementById('addMedicalHistoryForm').appendChild(methodField);
-      }
+    } else {
+        
     }
+}
 
     function deleteHistory(id) {
       if (confirm('Are you sure you want to delete this medical record?')) {

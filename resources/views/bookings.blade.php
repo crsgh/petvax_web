@@ -174,7 +174,7 @@
                       </td>
                       <td class="align-middle text-center text-sm">
                         @if($booking->isHomeService)
-                          <span class="badge badge-sm bg-gradient-primary">Home Service</span>
+<a href="https://www.google.com/maps?q={{ $booking->latitude }},{{ $booking->longitude }}" target="_blank" class="badge badge-sm bg-gradient-primary text-decoration-none">Home Service</a>
                         @else
                           <span class="badge badge-sm bg-gradient-info">Clinic Visit</span>
                         @endif

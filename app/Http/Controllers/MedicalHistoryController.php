@@ -50,7 +50,7 @@ class MedicalHistoryController extends Controller
                 'notes' => 'required|string|max:255',
                 'treatment_date' => 'required|date',
                  'vet_id' => 'nullable|exists:users,id',
-                 'veterinarian' => 'nullable|exists:users,id',
+                 'veterinarian' => 'nullable',
             ]);
 
             $history = $id == null ? new MedicalHistory : MedicalHistory::findOrFail($id);
