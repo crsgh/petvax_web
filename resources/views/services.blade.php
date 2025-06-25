@@ -159,7 +159,7 @@
             <option value="vaccination">Vaccination</option>
             <option value="grooming">Grooming</option>
             <option value="deworming">Deworming</option>
-            <option value="Others">Others</option>
+            <option value="others">Others</option>
           </select>
         </div>
         <div class="mb-3">
