@@ -43,7 +43,11 @@ $bookings->each(function($booking) {
 		return view('bookings',[
             'bookings' => $bookings,
 			'clinics' => Clinic::all(),
-            'veterinarians' => User::where('role_id', 4)->get(),
+            'veterinarians' => User::where('role_id', 4)
+                ->when(auth()->user()->role_id != 1, function($query) {
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
+                })
+                ->get(),
             'inventoryItems' => InventoryItem::all(),
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
