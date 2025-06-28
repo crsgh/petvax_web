@@ -28,7 +28,7 @@
                                            name="email"
                                            id="email"
                                            placeholder="Enter your email"
-                                           value="admin@petvax.com">
+                                           value="">
                                     @error('email')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
@@ -43,7 +43,7 @@
                                            name="password"
                                            id="password"
                                            placeholder="Enter your password"
-                                           value="asdasd123">
+                                           value="">
                                     @error('password')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
