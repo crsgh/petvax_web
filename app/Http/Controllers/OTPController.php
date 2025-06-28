@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\OTP;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -10,10 +11,11 @@ class OTPController extends Controller
     public function sendMail  (Request $request) {
     // Generate a random 4 digit OTP
     $otp = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+    $user = User::where('email' , $request->email)->first();
     
     // Create OTP record with 10 minutes expiry
     OTP::create([
-        'user_id' => $request->id,
+        'user_id' => $user->id,
         'otp_code' => $otp,
         'expires_at' => now()->addMinutes(10),
         'is_verified' => false
@@ -29,7 +31,8 @@ class OTPController extends Controller
 }
     public function verify (Request $request) {
     // Find the OTP record
-    $otpRecord = OTP::where('user_id', $request->id)
+    $user = User::where('email' , $request->email)->first();
+    $otpRecord = OTP::where('user_id', $user->id)
                    ->where('otp_code', $request->otp)
                    ->where('is_verified', false)
                    ->first();
