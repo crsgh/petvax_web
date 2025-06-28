@@ -7,16 +7,25 @@ use App\Models\Booking;
 use App\Models\User;
 use App\Models\Notification;
 
-
 class DashboardController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::all();
+        $user = auth()->user();
+        
+        // Get bookings based on user role
+        $bookings = $user->role_id === 1 
+            ? Booking::all()
+            : Booking::where('clinic_id', $user->clinic_id)->get();
+
         $topBookings = [];
         $todayBookingCounts = 0;
         $todayIncome = 0;
-        $totalUser = User::all()->count();
+        
+        // Get total users based on role
+        $totalUser = $user->role_id === 1 
+            ? User::all()->count()
+            : User::where('clinic_id', $user->clinic_id)->count();
 
         $weeklyBookings = [];
         $dailyBookings = []; // Added missing dailyBookings array
@@ -87,8 +96,10 @@ class DashboardController extends Controller
             return $b['completed_count'] - $a['completed_count'];
         });
 
-        // Get today's new users
-        $todayUsers = User::whereDate('created_at', today())->get();
+        // Get today's new users based on role
+        $todayUsers = $user->role_id === 1 
+            ? User::whereDate('created_at', today())->get()
+            : User::where('clinic_id', $user->clinic_id)->whereDate('created_at', today())->get();
 
         // Get major statistics for today
         $todayStats = [
@@ -106,10 +117,10 @@ class DashboardController extends Controller
             'todayIncome' => $todayIncome,
             'weeklyBookings' => $weeklyBookings,
             'dailyBookings' => $dailyBookings, // Added dailyBookings to view data
-            'notifications' => match(auth()->user()->role_id) {
+            'notifications' => match($user->role_id) {
                 1 => collect([]),
-                2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
-                default => Notification::where('user_id', auth()->id())->where('is_read', 0)->get(),
+                2, 3 => Notification::where('clinic_id', $user->clinic_id)->where('is_read', 0)->get(),
+                default => Notification::where('user_id', $user->id)->where('is_read', 0)->get(),
             },
         ]);
     }
