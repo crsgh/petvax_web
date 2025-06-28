@@ -19,6 +19,7 @@ use App\Http\Controllers\Mobile\ScheduleController;
 use App\Http\Controllers\Mobile\RatingController;
 use App\Http\Controllers\Mobile\MedicalHistoryController;
 use App\Http\Controllers\Mobile\HomeServiceController;
+use App\Http\Controllers\OTPController;
 
 
 /*
@@ -31,6 +32,10 @@ use App\Http\Controllers\Mobile\HomeServiceController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::post('/mail', [OTPController::class, 'sendMail']);
+
+Route::post('/verify', [OTPController::class, 'verify']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

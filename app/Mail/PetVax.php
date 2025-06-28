@@ -9,16 +9,22 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PetVax extends Mailable
+class OTPMail extends Mailable
 {
     use Queueable, SerializesModels;
+
+    public $otp;
+    public $type;
+    public $name;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($otp, $type, $name)
     {
-        //
+        $this->otp = $otp;
+        $this->type = $type;
+        $this->name = $name;
     }
 
     /**
@@ -26,8 +32,10 @@ class PetVax extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = $this->type === 'signup' ? 'Complete Your Registration' : 'Reset Password Request';
+        
         return new Envelope(
-            subject: 'Pet Vax',
+            subject: $subject,
         );
     }
 
@@ -36,8 +44,14 @@ class PetVax extends Mailable
      */
     public function content(): Content
     {
+        $view = $this->type === 'signup' ? 'mail.signup-otp' : 'mail.forgot-password-otp';
+        
         return new Content(
-            view: 'mail.pet-vax',
+            view: $view,
+            with: [
+                'otp' => $this->otp,
+                'name' => $this->name
+            ]
         );
     }
 

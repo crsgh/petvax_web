@@ -20,7 +20,8 @@ use App\Http\Controllers\{
 	BreedController,
 	SpecieController,
 	ScheduleController,
-	NotificationController
+	NotificationController,
+	OTPController,
 };
 use Illuminate\Support\Facades\{Route, Password};
 use App\Models\{
@@ -36,6 +37,7 @@ use App\Models\{
 
 };
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +49,7 @@ use Illuminate\Http\Request;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 
 
 
