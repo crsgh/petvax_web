@@ -45,7 +45,7 @@ Route::get('/clinics/{id}/services', function ($id) {
 });
 
 Route::get('/clinics/{id}/staffs', function ( $id) {
-    return User::where("clinic_id", $id)->get();
+    return User::where("clinic_id", $id)->where("role_id",4)->get();
 });
 
 // User Authentication Routes
