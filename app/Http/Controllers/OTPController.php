@@ -57,9 +57,16 @@ class OTPController extends Controller
         'is_verified' => true
     ]);
 
+    // Update password if new password is provided
+    if ($request->has('new_password')) {
+        $user->update([
+            'password' => bcrypt($request->new_password)
+        ]);
+    }
+
     return response()->json([
         'success' => true,
-        'message' => 'OTP verified successfully'
+        'message' => 'OTP verified successfully' . ($request->has('new_password') ? ' and password updated' : '')
     ]);
     }
 }
