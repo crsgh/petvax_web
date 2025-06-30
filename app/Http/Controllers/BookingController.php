@@ -70,7 +70,9 @@ $bookings->each(function($booking) {
                 })
                 ->get(),
 			
-            'services' => Service::all(),
+            'services' => Service::when(auth()->user()->role_id != 1, function($query) {
+                return $query->where('clinic_id', auth()->user()->clinic_id);
+            })->get(),
           
            
             'notifications' => match(auth()->user()->role_id) {
