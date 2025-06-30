@@ -48,7 +48,9 @@ $bookings->each(function($booking) {
                     return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
                 ->get(),
-            'inventoryItems' => InventoryItem::all(),
+            'inventoryItems' => InventoryItem::when(auth()->user()->role_id != 1, function($query) {
+                return $query->where('clinic_id', auth()->user()->clinic_id);
+            })->get(),
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->where('for_user' , 0)->get(),
