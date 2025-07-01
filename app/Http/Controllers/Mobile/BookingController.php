@@ -163,7 +163,12 @@ class BookingController extends Controller
                 'message' => 'Invalid booking status provided'
             ], 422);
         }
-
+        if ($request->has('reason')) {
+            $booking->notes = $request->reason;
+        }
+        if ($request->has('total_amount')) {
+            $booking->total_amount = $request->total_amount;
+        }   
         $booking->status = strtolower($status);
         $booking->save();
 
