@@ -23,6 +23,7 @@ class PetController extends Controller
             $query->where('clinic_id', auth()->user()->clinic_id);
         }
         $completedPetIds = $query->distinct()->pluck('pet_id')->toArray();
+        
 
         // Build pets query with joins and conditions
         $petsQuery = Pet::select('pets.*', 'clinics.name as clinic_name', 'users.name as owners_name')

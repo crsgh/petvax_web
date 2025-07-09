@@ -10,11 +10,28 @@ use App\Models\User;
 use App\Models\Notification;
 use App\Models\InventoryItem;
 use App\Models\Specie;
+use App\Models\Booking;
+
 
 
 class MedicalHistoryController extends Controller
 {
     public function index () {
+        
+        // Get completed booking pet IDs for non-admin users
+        $query = Booking::where('status', 'completed');
+        if (auth()->user()->role_id != 1) {
+            $query->where('clinic_id', auth()->user()->clinic_id);
+        }
+        $completedPetIds = $query->distinct()->pluck('pet_id')->toArray();
+
+        // Build pets query with joins and conditions
+        $petsQuery = Pet::with(['owner']);
+
+        if (auth()->user()->role_id != 1) {
+            $petsQuery->whereIn('pets.id', $completedPetIds);
+        }
+
 		return view('medical-histories',[
             'medicalHistories' => MedicalHistory::
                 with(['pet', 'veterinarian'])
@@ -24,8 +41,14 @@ class MedicalHistoryController extends Controller
                 ->orderBy('medical_histories.treatment_date', 'desc')
                 ->get(),
 			'clinics' => Clinic::all(),
-			'pets' => Pet::with('owner')->get(),
-			'veterinarians' => User::where('role_id', 4)->get(),
+			'pets' => auth()->user()->role_id == 5 
+                ? Pet::where('owner_id', auth()->id())->paginate(8)
+                : $petsQuery->get(),
+			'veterinarians' => User::where('role_id', 4)
+                ->when(auth()->user()->role_id != 1, function($query) {
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
+                })
+                ->get(),
             'species' => Specie::all(),
             'inventories' => InventoryItem::when(auth()->user()->role_id != 1, function($query) {
                 return $query->where('clinic_id', auth()->user()->clinic_id);

@@ -408,19 +408,14 @@
                                     <div class="text-error">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="clinicStatus" class="form-label-custom">Status *</label>
-                                    <select class="form-control form-control-custom @error('clinic_status') is-invalid @enderror" 
-                                            id="clinicStatus" 
-                                            name="clinic_status" 
-                                            required>
-                                        <option value="active" {{ old('clinic_status') == 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ old('clinic_status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                    </select>
-                                    @error('clinic_status')
-                                    <div class="text-error">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <input type="hidden" 
+                                       id="clinicStatus" 
+                                       name="clinic_status" 
+                                       value="inactive">
+                                <input type="hidden" 
+                                       id="signup" 
+                                       name="signup" 
+                                       value="true">
                             </div>
 
                             <!-- Contact Information -->
@@ -597,6 +592,14 @@
                                 <button type="submit" class="btn btn-gradient-custom" id="submitBtn">
                                     <i class="fas fa-save me-2"></i>Register Clinic
                                 </button>
+                            </div>
+
+                            <!-- Already have an account -->
+                            <div class="text-center mt-4">
+                                <p class="mb-0">
+                                    Already have an account? 
+                                    <a href="{{ route('login') }}" class="text-primary fw-bold">Sign in</a>
+                                </p>
                             </div>
                         </form>
                     </div>

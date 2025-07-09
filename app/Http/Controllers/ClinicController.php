@@ -48,16 +48,7 @@ class ClinicController extends Controller
             ]);
             $clinic = $id == null ? new Clinic() : Clinic::findOrFail($id);
             
-            // Generate random password if new clinic
-            if ($id == null) {
-                $password = \Str::random(8);
-                
-                // Send password email to clinic
-                \Mail::raw("Your PetVax clinic account password is: " . $password, function ($message) use ($validatedData) {
-                    $message->to($validatedData['clinic_email'])
-                            ->subject("PetVax Clinic Account Password");
-                });
-            }
+            
 
             
             
@@ -78,6 +69,25 @@ class ClinicController extends Controller
             $clinic->description = "";
 
             $clinic->save();
+
+            // Generate random password if new clinic
+            if ($id == null && $request->signup) {
+                 $password = \Str::random(8);
+               
+                $user = \App\Models\User::create([
+                    'name' => $validatedData['clinic_name'] . ' Admin',
+                    'email' => $validatedData['clinic_email'],
+                    'password' => bcrypt($password),
+                    'role_id' => 2,
+                    'clinic_id' => $clinic->id 
+                ]);
+                
+                // Send password email to clinic
+                \Mail::raw("Your PetVax clinic account password is: " . $password, function ($message) use ($validatedData) {
+                    $message->to($validatedData['clinic_email'])
+                            ->subject("PetVax Clinic Account Password");
+                });
+            }
 
             return back()->with('success', 'Clinic saved successfully');
 

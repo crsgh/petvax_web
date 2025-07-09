@@ -131,6 +131,8 @@
     <form id="serviceForm" method="POST" action="" enctype="multipart/form-data" onsubmit="return validateForm()">
       @csrf
       <input type="hidden" id="serviceId" name="id">
+      <input type="hidden" id="serviceSpecies" name="species" value="{{ $species[0]->id }}">
+      <input type="hidden" id="servicePetSize" name="pet_size" value="small">
       @if(Auth::user()->role_id == 1)
       <div class="mb-3">
         <label class="form-label">Clinic</label>
@@ -168,30 +170,6 @@
         </select>
         <div class="invalid-feedback" id="categoryError"></div>
         <div class="valid-feedback">Looks good!</div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Species</label>
-          <select class="form-select" id="serviceSpecies" name="species" required onchange="validateField(this)">
-            <option value="">Select a species</option>
-            @foreach($species as $specie)
-              <option value="{{ $specie->id }}">{{ $specie->name }}</option>
-            @endforeach
-          </select>
-          <div class="invalid-feedback" id="speciesError"></div>
-          <div class="valid-feedback">Looks good!</div>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Pet Size</label>
-          <select class="form-select" id="servicePetSize" name="pet_size" required onchange="validateField(this)">
-            <option value="">Select a size</option>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-          </select>
-          <div class="invalid-feedback" id="sizeError"></div>
-          <div class="valid-feedback">Looks good!</div>
-        </div>
       </div>
       <div class="row">
         <div class="col-md-6 mb-3">
@@ -261,22 +239,6 @@ function validateForm() {
     isValid = false;
   }
 
-  // Validate Species
-  const species = document.getElementById('serviceSpecies');
-  if (!species.value) {
-    species.classList.add('is-invalid');
-    document.getElementById('speciesError').textContent = 'Please select a species';
-    isValid = false;
-  }
-
-  // Validate Pet Size
-  const size = document.getElementById('servicePetSize');
-  if (!size.value) {
-    size.classList.add('is-invalid');
-    document.getElementById('sizeError').textContent = 'Please select a pet size';
-    isValid = false;
-  }
-
   // Validate Price
   const price = document.getElementById('servicePrice');
   if (!price.value || price.value <= 0) {
@@ -322,43 +284,43 @@ function validateForm() {
 }
 </script>
 
-  <script>
-    function filterServices() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
-      const rows = document.getElementsByClassName('service-row');
+<script>
+  function filterServices() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+    const rows = document.getElementsByClassName('service-row');
 
-      Array.from(rows).forEach(row => {
-        const name = row.getAttribute('data-name');
-        const category = row.getAttribute('data-category');
-        const matchesSearch = name.includes(searchTerm);
-        const matchesCategory = !categoryFilter || category === categoryFilter;
-        
-        row.style.display = matchesSearch && matchesCategory ? '' : 'none';
-      });
-    }
+    Array.from(rows).forEach(row => {
+      const name = row.getAttribute('data-name');
+      const category = row.getAttribute('data-category');
+      const matchesSearch = name.includes(searchTerm);
+      const matchesCategory = !categoryFilter || category === categoryFilter;
+      
+      row.style.display = matchesSearch && matchesCategory ? '' : 'none';
+    });
+  }
 
-    function openAddServiceSidebar() {
-      document.getElementById('sidebarTitle').textContent = 'Add New Service';
-      document.getElementById('serviceForm').reset();
-      document.getElementById('serviceForm').action = '';
-      document.getElementById('submitBtn').textContent = 'Add Service';
-      new bootstrap.Offcanvas(document.getElementById('serviceSidebar')).show();
-    }
+  function openAddServiceSidebar() {
+    document.getElementById('sidebarTitle').textContent = 'Add New Service';
+    document.getElementById('serviceForm').reset();
+    document.getElementById('serviceForm').action = '';
+    document.getElementById('submitBtn').textContent = 'Add Service';
+    new bootstrap.Offcanvas(document.getElementById('serviceSidebar')).show();
+  }
 
-    function openEditServiceSidebar(service) {
-      document.getElementById('sidebarTitle').textContent = 'Edit Service';
-      document.getElementById('serviceId').value = service.id;
-      document.getElementById('serviceName').value = service.name;
-      document.getElementById('serviceCategory').value = service.category;
-      document.getElementById('serviceDescription').value = service.description;
-      document.getElementById('servicePrice').value = service.price;
-      document.getElementById('serviceStatus').value = service.status;
-      document.getElementById('serviceForm').action = `/services/${service.id}`;
-      document.getElementById('submitBtn').textContent = 'Update Service';
-      document.getElementById('homeServiceSwitch').checked = service.home_service == 1 ? true : false;
-      new bootstrap.Offcanvas(document.getElementById('serviceSidebar')).show();
-    }
-  </script>
-  
+  function openEditServiceSidebar(service) {
+    document.getElementById('sidebarTitle').textContent = 'Edit Service';
+    document.getElementById('serviceId').value = service.id;
+    document.getElementById('serviceName').value = service.name;
+    document.getElementById('serviceCategory').value = service.category;
+    document.getElementById('serviceDescription').value = service.description;
+    document.getElementById('servicePrice').value = service.price;
+    document.getElementById('serviceStatus').value = service.status;
+    document.getElementById('serviceForm').action = `/services/${service.id}`;
+    document.getElementById('submitBtn').textContent = 'Update Service';
+    document.getElementById('homeServiceSwitch').checked = service.home_service == 1 ? true : false;
+    new bootstrap.Offcanvas(document.getElementById('serviceSidebar')).show();
+  }
+</script>
+
 @endsection

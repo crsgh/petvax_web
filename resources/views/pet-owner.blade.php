@@ -16,7 +16,7 @@
               <div class="col-md-6">
                 <input type="text" class="form-control" id="searchClinic" placeholder="Search clinics...">
               </div>
-              <div class="col-md-3">
+              <div class="col-md-3" style="display: none;">
                 <select class="form-select" id="serviceFilter">
                   <option value="">All Services</option>
                   @foreach($services as $service)
@@ -24,7 +24,7 @@
                   @endforeach
                 </select>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-3" style="display: none;">
                 <select class="form-select" id="locationFilter">
                   <option value="">All Locations</option>
                   @foreach($clinics->pluck('address')->unique() as $address)

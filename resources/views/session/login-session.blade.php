@@ -84,8 +84,8 @@
                             </form>
                             
                             <div class="text-center mt-4">
-                                <a href="#" class="text-sm text-blue-500 hover:text-blue-700">
-                                    Forgot your password?
+                                <a href="/register" class="text-sm text-blue-500 hover:text-blue-700">
+                                    Register your clinic?
                                 </a>
                             </div>
                         </div>

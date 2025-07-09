@@ -77,6 +77,7 @@
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $pet->name }}</h6>
+                            <p class="text-xs text-secondary mb-0">Owner: {{ $pet->owner->name }}</p>
                           </div>
                         </div>
                       </td>

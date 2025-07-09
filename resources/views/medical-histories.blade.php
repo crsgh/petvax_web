@@ -57,9 +57,9 @@
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Treatment Date</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Veterinarian</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Follow-up Date</th>
-                                        @if(auth()->user()->role_id != 4)
+                                        {{-- @if(auth()->user()->role_id != 4)
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                                        @endif
+                                        @endif --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -117,7 +117,7 @@
                                                     </div>
                                                 @endif
                                             </td>
-                                            <td class="align-middle text-center">
+                                            {{-- <td class="align-middle text-center">
                                                 @if(auth()->user()->role_id != 4)
                                                     <div class="d-flex gap-1 justify-content-center">
                                                         <button class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center"
@@ -144,7 +144,7 @@
                                                         </form>
                                                     </div>
                                                 @endif
-                                            </td>
+                                            </td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>

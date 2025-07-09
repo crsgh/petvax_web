@@ -104,28 +104,32 @@
                         <div class="d-flex flex-column align-items-center">
                           <span class="text-secondary text-xs font-weight-bold">{{ $booking->payment_method }}</span>
                           @if($booking->payment_method == 'gcash')
-                            <button type="button" class="btn btn-link btn-sm p-0 mt-1" data-bs-toggle="modal" data-bs-target="#paymentProofModal_{{ $booking->id }}">
-                              View Proof
-                            </button>
+                            @if($booking->is_paid)
+                              <span class="badge badge-sm bg-gradient-success mt-1">Paid</span>
+                            @else
+                              <button type="button" class="btn btn-link btn-sm p-0 mt-1" data-bs-toggle="modal" data-bs-target="#paymentProofModal_{{ $booking->id }}">
+                                View Proof
+                              </button>
 
-                            <!-- Payment Proof Modal -->
-                            <div class="modal fade" id="paymentProofModal_{{ $booking->id }}" tabindex="-1" aria-hidden="true">
-                              <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <h5 class="modal-title">Payment Proof<br><span class="text-muted">Reference #{{ $booking->payment_reference }}</span></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body text-center p-0">
-                                    <div style="width: 100%; height: 700px; position: relative; overflow: hidden;">
-                                      <img src="{{ asset('storage/' . $booking->payment_proof) }}" 
-                                           style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" 
-                                           alt="Payment Proof">
+                              <!-- Payment Proof Modal -->
+                              <div class="modal fade" id="paymentProofModal_{{ $booking->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title">Payment Proof<br><span class="text-muted">Reference #{{ $booking->payment_reference }}</span></h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center p-0">
+                                      <div style="width: 100%; height: 700px; position: relative; overflow: hidden;">
+                                        <img src="{{ asset('storage/' . $booking->payment_proof) }}" 
+                                             style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" 
+                                             alt="Payment Proof">
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            @endif
                           @endif
                         </div>
                       </td>
@@ -228,16 +232,126 @@
                                     <input type="text" class="form-control" id="treatment_{{ $booking->id }}" name="treatment" required>
                                   </div>
 
-                                  <div class="mb-3">
-                                    <label for="inventoryItems_{{ $booking->id }}" class="form-label">Inventory Items Used</label>
-                                    <select class="form-select" id="inventoryItems_{{ $booking->id }}" name="inventory_id" required>
-                                      <option value="" selected disabled>Select an item</option>
-                                      @foreach($inventoryItems as $item)
-                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                      @endforeach
-                                    </select>
+                                  <!-- Inventory Selection -->
+                                  <div class="mb-4">
+                                    <label class="form-label fw-bold">Selected Inventory Items</label>
+                                    <div class="table-responsive mb-3">
+                                        <table class="table table-hover table-bordered" id="selectedInventoryTable_{{ $booking->id }}">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="text-center">Item Name</th>
+                                                    <th class="text-center" style="width: 20%;">Available Stock</th>
+                                                    <th class="text-center" style="width: 20%;">Quantity</th>
+                                                    <th class="text-center" style="width: 15%;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="card shadow-sm p-3 bg-light">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <select class="form-select select2" id="inventorySelect_{{ $booking->id }}">
+                                                    <option value="" selected disabled>Select inventory item...</option>
+                                                    @foreach($inventoryItems as $item)
+                                                        <option value="{{ $item->id }}" 
+                                                                data-name="{{ $item->name }}"
+                                                                data-quantity="{{ $item->quantity }}"
+                                                                {{ $item->quantity <= 0 ? 'disabled' : '' }}>
+                                                            {{ $item->name }} 
+                                                            <small class="text-muted">(Available: {{ $item->quantity }})</small>
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="input-group">
+                                                    <span class="input-group-text">Qty</span>
+                                                    <input type="number" class="form-control" id="quantityInput_{{ $booking->id }}" min="1" value="1">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-primary w-100" type="button" onclick="addInventoryItem({{ $booking->id }})">
+                                                    <i class="fas fa-plus-circle me-1"></i> Add Item
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Hidden input to store selected inventory data -->
+                                    <input type="hidden" id="selectedInventories_{{ $booking->id }}" name="selected_inventories" value="">
                                   </div>
 
+                                  <script>
+                                    let selectedItems_{{ $booking->id }} = [];
+
+                                    function addInventoryItem(bookingId) {
+                                        const select = document.getElementById('inventorySelect_' + bookingId);
+                                        const quantityInput = document.getElementById('quantityInput_' + bookingId);
+                                        const option = select.options[select.selectedIndex];
+
+                                        if (!select.value) return;
+
+                                        const itemId = select.value;
+                                        const itemName = option.dataset.name;
+                                        const availableQuantity = parseInt(option.dataset.quantity);
+                                        const requestedQuantity = parseInt(quantityInput.value);
+
+                                        if (requestedQuantity > availableQuantity) {
+                                            alert('Requested quantity exceeds available stock!');
+                                            return;
+                                        }
+
+                                        const existingItem = selectedItems_{{ $booking->id }}.find(item => item.id === itemId);
+                                        if (existingItem) {
+                                            alert('This item is already added!');
+                                            return;
+                                        }
+
+                                        selectedItems_{{ $booking->id }}.push({
+                                            id: itemId,
+                                            name: itemName,
+                                            quantity: requestedQuantity,
+                                            available: availableQuantity
+                                        });
+
+                                        updateTable(bookingId);
+                                        updateHiddenInput(bookingId);
+                                    }
+
+                                    function removeItem(bookingId, itemId) {
+                                        selectedItems_{{ $booking->id }} = selectedItems_{{ $booking->id }}.filter(item => item.id !== itemId);
+                                        updateTable(bookingId);
+                                        updateHiddenInput(bookingId);
+                                    }
+
+                                    function updateTable(bookingId) {
+                                        const tbody = document.querySelector('#selectedInventoryTable_' + bookingId + ' tbody');
+                                        tbody.innerHTML = '';
+
+                                        selectedItems_{{ $booking->id }}.forEach(item => {
+                                            const row = document.createElement('tr');
+                                            row.innerHTML = `
+                                                <td>${item.name}</td>
+                                                <td>${item.available}</td>
+                                                <td>${item.quantity}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-danger btn-sm" 
+                                                            onclick="removeItem(${bookingId}, '${item.id}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            `;
+                                            tbody.appendChild(row);
+                                        });
+                                    }
+
+                                    function updateHiddenInput(bookingId) {
+                                        document.getElementById('selectedInventories_' + bookingId).value = JSON.stringify(selectedItems_{{ $booking->id }});
+                                    }
+                                  </script>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary" onclick="submitCompletedBooking({{ $booking->id }})">Complete Booking</button>

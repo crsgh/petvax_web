@@ -51,7 +51,7 @@
                         @if(is_numeric($question->yes))
                         Link to QID: {{ $question->yes }}
                         @else
-                        {{ $question->no }}
+                        {{ $question->yes }}
                         @endif
                       </p>
                     </td>

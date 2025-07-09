@@ -22,24 +22,27 @@ class BookingController extends Controller
                     if (auth()->user()->role_id == 4) {
                         return $query->where('bookings.staff_id', auth()->id());
                     }
+                    if (auth()->user()->role_id == 5) {
+                        return $query->where('bookings.client_id', auth()->user()->id);
+                    }
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
                 })
                 ->orderBy('created_at', 'desc')
                 ->paginate(8)
                 ->withQueryString();
 
-$bookings->each(function($booking) {
-    $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
-                   
-                    ->first();
-    if ($homeService) {
-        $booking->latitude = $homeService->latitude;
-        $booking->longitude = $homeService->longitude;
-        $booking->isHomeService = !is_null($homeService);
-    }
+            $bookings->each(function($booking) {
+                $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
+                            
+                                ->first();
+                if ($homeService) {
+                    $booking->latitude = $homeService->latitude;
+                    $booking->longitude = $homeService->longitude;
+                    $booking->isHomeService = !is_null($homeService);
+                }
 
-    
-});
+                
+            });
 		return view('bookings',[
             'bookings' => $bookings,
 			'clinics' => Clinic::all(),
@@ -132,13 +135,25 @@ $bookings->each(function($booking) {
 
     public function complete(Request $request, $id){
         try {
+           
             $booking = Booking::findOrFail($id);
             
             $validatedData = $request->validate([
                 'diagnosis' => 'required|string',
                 'treatment' => 'required|string',
-                'inventory_id' => 'required|exists:inventory_items,id',
+                //'inventory_id' => 'required|exists:inventory_items,id',
             ]);
+
+            // Decode the selected inventories JSON string
+            $selectedInventories = json_decode($request->input('selected_inventories'), true);
+
+            // Loop through each selected inventory and deduct quantities
+            foreach ($selectedInventories as $inventory) {
+                $inventoryItem = InventoryItem::find($inventory['id']);
+                if ($inventoryItem) {
+                    $inventoryItem->decrement('quantity', $inventory['quantity']);
+                }
+            }
 
             // Update booking status and amount
             $booking->status = 'completed';
@@ -155,13 +170,7 @@ $bookings->each(function($booking) {
             $medicalHistory->staff_id = $booking->staff_id;
             $medicalHistory->save();
 
-            // Decrease inventory item quantity
-            $inventoryItem = InventoryItem::findOrFail($request->inventory_id);
-            if ($inventoryItem->quantity > 0) {
-                $inventoryItem->decrement('quantity');
-            } else {
-                throw new \Exception('Insufficient inventory quantity');
-            }
+        
 
             // add notif 
             Notification::create([
