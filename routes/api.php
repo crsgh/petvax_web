@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Pet;
 use App\Models\Clinic;
 use App\Models\Service;
+use App\Models\Booking;
 
 use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\ClinicController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Mobile\RatingController;
 use App\Http\Controllers\Mobile\MedicalHistoryController;
 use App\Http\Controllers\Mobile\HomeServiceController;
 use App\Http\Controllers\OTPController;
+use App\Http\Controllers\Mobile\RuleBaseController;
 
 
 /*
@@ -36,6 +38,50 @@ use App\Http\Controllers\OTPController;
 Route::post('/mail', [OTPController::class, 'sendMail']);
 
 Route::post('/verify', [OTPController::class, 'verify']);
+
+Route::get('/rule-base',[RuleBaseController::class,'getRulebase']);
+
+
+// Payment callback routes
+Route::get('/payment/success', function (Request $request) {
+    $booking = Booking::findOrFail($request->id);
+
+    $booking->is_paid = 1;
+    $booking->save();
+
+    return view('payment',['success' => true]);
+});
+
+Route::get('/payment/closed/{id}', function (Request $request) {
+    $booking = Booking::findOrFail($request->id);
+    if(!$booking->is_paid){
+        $booking->delete();
+    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Booking is deleted',
+    ]);
+});
+
+
+Route::get('/payment/{id}', function (Request $request) {
+    $booking = Booking::findOrFail($request->id);
+    return response()->json([
+        'success' => $booking->is_paid ? true : false,
+        'message' => 'Payment is paid',
+    ]);
+});
+
+
+
+Route::get('/payment/failed', function (Request $request) {
+    return response()->json([
+        'status' => 'failed', 
+        'message' => 'Payment failed',
+        'data' => $request->all()
+    ]);
+});
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

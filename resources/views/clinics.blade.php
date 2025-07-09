@@ -1,7 +1,6 @@
-@extends('layouts.user_type.auth')
+  @extends('layouts.user_type.auth')
 
-@section('content')
-
+  @section('content')
   <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg ">
     <div class="container-fluid py-4">
       <div class="row">
@@ -75,7 +74,6 @@
                               <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                             </svg>
                           </button>
-                          
                           <form action="clinics/{{ $clinic->id }}/delete" method="GET" style="display: inline;">
                             @csrf
                             <button type="submit" class="btn btn-icon-only btn-rounded btn-outline-danger mb-0 p-2 d-flex align-items-center justify-content-center"
@@ -127,10 +125,24 @@
         </div>
         <div class="mb-3">
           <label for="clinicAddress" class="form-label">Location</label>
-          <div id="map" style="height: 300px;" class="mb-2"></div>
-          <input type="text" class="form-control" id="clinicAddress" name="clinic_address" required>
+          <!-- Location Search Input -->
+          <div class="input-group mb-2">
+            <input type="text" class="form-control" id="locationSearch" placeholder="Search for a location..." onkeypress="handleSearchKeyPress(event)">
+            <button class="btn btn-outline-secondary" type="button" onclick="searchLocation()">
+              <i class="fas fa-search"></i>
+            </button>
+            <button class="btn btn-outline-info" type="button" onclick="getCurrentLocation()" title="Use current location">
+              <i class="fas fa-location-arrow"></i>
+            </button>
+          </div>
+          <!-- Search Results Dropdown -->
+          <div id="searchResults" class="list-group mb-2" style="display: none; max-height: 200px; overflow-y: auto;"></div>
+          <!-- Map Container -->
+          <div id="map" style="height: 300px;" class="mb-2 border rounded"></div>
+          <input type="text" class="form-control" id="clinicAddress" name="clinic_address" required readonly>
           <input type="hidden" id="latitude" name="latitude">
           <input type="hidden" id="longitude" name="longitude">
+          <small class="text-muted">Click on the map to set the exact location</small>
         </div>
         <div class="row mb-3">
           <div class="col-md-6">
@@ -201,49 +213,6 @@
           <div id="tagContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
           <input type="hidden" id="clinicTags" name="tags">
         </div>
-
-        <script>
-          let tags = [];
-
-          function addTag() {
-            const input = document.getElementById('tagInput');
-            const tag = input.value.trim();
-            
-            if (tag && !tags.includes(tag)) {
-              tags.push(tag);
-              updateTags();
-            }
-            
-            input.value = '';
-          }
-
-          function removeTag(tag) {
-            tags = tags.filter(t => t !== tag);
-            updateTags();
-          }
-
-          function updateTags() {
-            const container = document.getElementById('tagContainer');
-            const hiddenInput = document.getElementById('clinicTags');
-            
-            container.innerHTML = tags.map(tag => `
-              <div class="badge bg-primary d-flex align-items-center gap-2">
-                ${tag}
-                <i class="fas fa-times cursor-pointer" onclick="removeTag('${tag}')"></i>
-              </div>
-            `).join('');
-            
-            hiddenInput.value = JSON.stringify(tags);
-          }
-          
-          // Handle enter key press
-          document.getElementById('tagInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              addTag();
-            }
-          });
-        </script>
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary" id="submitBtn">Save Clinic</button>
         </div>
@@ -253,41 +222,189 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <script>
     let map;
     let marker;
+    let tags = [];
 
+    // Initialize map with Google Maps tiles
     function initMap() {
-      const defaultLocation = [14.5995, 120.9842];
+      const defaultLocation = [14.5995, 120.9842]; // Philippines coordinates
       map = L.map('map').setView(defaultLocation, 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
+      
+      // Google Maps tiles (Roadmap)
+      L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        attribution: '© Google Maps'
       }).addTo(map);
-
+      
+      // Alternative Google Maps tile layers you can use:
+      // Satellite: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+      // Hybrid: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
+      // Terrain: 'https://mt1.google.com/vt/lyrs=t&x={x}&y={y}&z={z}'
+      
+      // Map click event
       map.on('click', function(e) {
         const latlng = e.latlng;
-        if (marker) {
-          marker.setLatLng(latlng);
-        } else {
-          marker = L.marker(latlng).addTo(map);
-        }
-
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`)
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById('clinicAddress').value = data.display_name;
-            document.getElementById('latitude').value = latlng.lat;
-            document.getElementById('longitude').value = latlng.lng;
-          });
+        setMarkerAndAddress(latlng.lat, latlng.lng);
       });
     }
-
+    
+    // Set marker and get address
+    function setMarkerAndAddress(lat, lng) {
+      if (marker) {
+        marker.setLatLng([lat, lng]);
+      } else {
+        marker = L.marker([lat, lng]).addTo(map);
+      }
+      
+      // Reverse geocoding to get address
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('clinicAddress').value = data.display_name;
+          document.getElementById('latitude').value = lat;
+          document.getElementById('longitude').value = lng;
+        })
+        .catch(error => {
+          console.error('Error getting address:', error);
+          document.getElementById('clinicAddress').value = `${lat}, ${lng}`;
+          document.getElementById('latitude').value = lat;
+          document.getElementById('longitude').value = lng;
+        });
+    }
+    
+    // Search location function
+    function searchLocation() {
+      const query = document.getElementById('locationSearch').value.trim();
+      if (!query) return;
+      
+      // Show loading state
+      const searchResults = document.getElementById('searchResults');
+      searchResults.innerHTML = '<div class="list-group-item">Searching...</div>';
+      searchResults.style.display = 'block';
+      
+      // Use Nominatim for geocoding
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=ph`)
+        .then(response => response.json())
+        .then(data => {
+          displaySearchResults(data);
+        })
+        .catch(error => {
+          console.error('Search error:', error);
+          searchResults.innerHTML = '<div class="list-group-item text-danger">Error searching location</div>';
+        });
+    }
+    
+    // Display search results
+    function displaySearchResults(results) {
+      const searchResults = document.getElementById('searchResults');
+      
+      if (results.length === 0) {
+        searchResults.innerHTML = '<div class="list-group-item">No results found</div>';
+        return;
+      }
+      
+      searchResults.innerHTML = results.map(result => `
+        <button type="button" class="list-group-item list-group-item-action" onclick="selectSearchResult(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')">
+          <div class="fw-bold">${result.display_name.split(',')[0]}</div>
+          <small class="text-muted">${result.display_name}</small>
+        </button>
+      `).join('');
+    }
+    
+    // Select search result
+    function selectSearchResult(lat, lon, address) {
+      map.setView([lat, lon], 16);
+      setMarkerAndAddress(lat, lon);
+      document.getElementById('locationSearch').value = address.split(',')[0];
+      document.getElementById('searchResults').style.display = 'none';
+    }
+    
+    // Handle search input key press
+    function handleSearchKeyPress(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        searchLocation();
+      }
+    }
+    
+    // Get current location
+    function getCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            map.setView([lat, lng], 16);
+            setMarkerAndAddress(lat, lng);
+            document.getElementById('locationSearch').value = 'Current Location';
+          },
+          function(error) {
+            alert('Error getting current location: ' + error.message);
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    }
+    
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(event) {
+      const searchResults = document.getElementById('searchResults');
+      const locationSearch = document.getElementById('locationSearch');
+      
+      if (!searchResults.contains(event.target) && event.target !== locationSearch) {
+        searchResults.style.display = 'none';
+      }
+    });
+    
+    // Initialize map when sidebar is shown
     document.getElementById('clinicSidebar').addEventListener('shown.bs.offcanvas', function () {
       setTimeout(initMap, 250);
     });
-
+    
+    // Tag management functions
+    function addTag() {
+      const input = document.getElementById('tagInput');
+      const tag = input.value.trim();
+      
+      if (tag && !tags.includes(tag)) {
+        tags.push(tag);
+        updateTags();
+      }
+      
+      input.value = '';
+    }
+    
+    function removeTag(tag) {
+      tags = tags.filter(t => t !== tag);
+      updateTags();
+    }
+    
+    function updateTags() {
+      const container = document.getElementById('tagContainer');
+      const hiddenInput = document.getElementById('clinicTags');
+      
+      container.innerHTML = tags.map(tag => `
+        <div class="badge bg-primary d-flex align-items-center gap-2">
+          ${tag}
+          <i class="fas fa-times cursor-pointer" onclick="removeTag('${tag}')"></i>
+        </div>
+      `).join('');
+      
+      hiddenInput.value = JSON.stringify(tags);
+    }
+    
+    // Handle enter key press for tags
+    document.getElementById('tagInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addTag();
+      }
+    });
+    
+    // Image preview function
     function previewImage(input) {
       if (input.files && input.files[0]) {
         var reader = new FileReader();
@@ -297,16 +414,23 @@
         reader.readAsDataURL(input.files[0]);
       }
     }
-
+    
+    // Open sidebar for new clinic
     function openSidebar() {
       document.getElementById('sidebarTitle').textContent = 'Add New Clinic';
       document.getElementById('clinicId').value = '';
       document.getElementById('clinicForm').reset();
       document.getElementById('imagePreview').src = '../assets/img/dog.png';
+      document.getElementById('locationSearch').value = '';
+      document.getElementById('searchResults').style.display = 'none';
+      tags = [];
+      updateTags();
+      
       var sidebar = new bootstrap.Offcanvas(document.getElementById('clinicSidebar'));
       sidebar.show();
     }
-
+    
+    // Edit clinic function
     function editClinic(data) {
       console.log(data);
       document.getElementById('sidebarTitle').textContent = 'Edit Clinic';
@@ -319,6 +443,7 @@
       document.getElementById('openingTime').value = data.opening_time;
       document.getElementById('closingTime').value = data.closing_time;
       document.getElementById('clinicStatus').value = data.status;
+      
       // Set tags if they exist
       if (data.tags) {
         tags = JSON.parse(data.tags);
@@ -328,11 +453,12 @@
         document.getElementById('tagContainer').innerHTML = '';
         document.getElementById('clinicTags').value = '[]';
       }
+      
       if (data.latitude && data.longitude) {
         document.getElementById('latitude').value = data.latitude;
         document.getElementById('longitude').value = data.longitude;
       }
-
+      
       const operatingDays = JSON.parse(data.operation_days);
       document.querySelectorAll('input[name="operating_days[]"]').forEach(checkbox => {
         checkbox.checked = operatingDays.some(day => 
@@ -343,11 +469,16 @@
       if (data.image) {
         document.getElementById('imagePreview').src = data.image;
       }
+      
+      // Clear search
+      document.getElementById('locationSearch').value = '';
+      document.getElementById('searchResults').style.display = 'none';
           
       var sidebar = new bootstrap.Offcanvas(document.getElementById('clinicSidebar'));
       sidebar.show();
     }
-
+    
+    // Delete clinic function
     function deleteClinic(id) {
       if (confirm('Are you sure you want to delete this clinic?')) {
         fetch(`/clinics/delete/${id}`, {
@@ -361,7 +492,8 @@
         });
       }
     }
-
+    
+    // Handle form submission
     function handleSubmit(event) {
       event.preventDefault();
       
@@ -369,7 +501,7 @@
       const id = document.getElementById('clinicId').value;
       const url = id ? `/clinics/${id}` : '/clinics';
       const method = id ? 'POST' : 'POST';
-
+      
       // Format time to H:i before sending
       const openingTime = document.getElementById('openingTime').value;
       const closingTime = document.getElementById('closingTime').value;
@@ -385,10 +517,9 @@
       })
       .then(response => response.json())
       .then(data => {
-      
         location.reload();
       });
     }
   </script>
-  
+
   @endsection

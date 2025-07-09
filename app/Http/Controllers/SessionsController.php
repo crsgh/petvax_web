@@ -18,7 +18,7 @@ class SessionsController extends Controller
     {
         $attributes = $request->only(['email', 'password']);
 
-        $user = User::where('email', $attributes['email'])->where('role_id', '!=', 5)->first();
+        $user = User::where('email', $attributes['email'])->first();
 
         if ($user && Hash::check($attributes['password'], $user->password)) {
             session()->regenerate();

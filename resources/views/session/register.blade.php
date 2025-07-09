@@ -1,111 +1,905 @@
 @extends('layouts.user_type.guest')
 
 @section('content')
+<style>
+/* Custom styles matching the preview design */
+.min-vh-100 {
+    min-height: 100vh;
+}
 
-  <section class="min-vh-100 mb-8">
-    <div class="page-header align-items-start min-vh-50 pt-5 pb-11 mx-3 border-radius-lg" style="background-image: url('../assets/img/curved-images/curved14.jpg');">
-      <span class="mask bg-gradient-dark opacity-6"></span>
-      <div class="container">
+.bg-gradient-custom {
+    background: linear-gradient(135deg, #dbeafe 0%, #ffffff 50%, #d1fae5 100%);
+}
+
+.header-section {
+    background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+    color: white;
+    padding: 4rem 0;
+    position: relative;
+}
+
+.header-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.form-section {
+    margin-top: -2rem;
+    position: relative;
+    z-index: 10;
+    padding: 2rem 0;
+}
+
+.card-custom {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: none;
+    border-radius: 1rem;
+}
+
+.card-header-custom {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 1rem 1rem 0 0 !important;
+    padding: 2rem;
+}
+
+.card-body-custom {
+    padding: 2rem;
+}
+
+.form-label-custom {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-control-custom {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control-custom:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+.form-control-custom.is-invalid {
+    border-color: #ef4444;
+}
+
+.btn-gradient-custom {
+    background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-gradient-custom:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #047857 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.btn-gradient-custom:disabled {
+    opacity: 0.7;
+    transform: none;
+}
+
+.image-preview-container {
+    position: relative;
+    display: inline-block;
+    margin: 1rem 0;
+}
+
+.image-preview {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.image-upload-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #2563eb;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 2px solid white;
+}
+
+.image-upload-overlay:hover {
+    background: #1d4ed8;
+}
+
+.search-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #f9fafb;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.map-container {
+    height: 320px;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.map-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    background: #f8f9fa;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    color: #6b7280;
+}
+
+.spinner {
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #2563eb;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    animation: spin 1s linear infinite;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.day-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.day-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.day-checkbox-container:hover {
+    background-color: #f9fafb;
+    border-color: #2563eb;
+}
+
+.day-checkbox-container input:checked + label {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.tag-badge {
+    background-color: #e5e7eb;
+    color: #374151;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tag-remove {
+    cursor: pointer;
+    color: #6b7280;
+    font-weight: bold;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.tag-remove:hover {
+    color: #dc2626;
+    background-color: rgba(220, 38, 38, 0.1);
+}
+
+.input-group-custom {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.input-group-custom input {
+    flex: 1;
+}
+
+.btn-outline-custom {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-outline-custom:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    background-color: #f8fafc;
+}
+
+.section-spacing {
+    margin-bottom: 2rem;
+}
+
+.text-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.text-helper {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.alert-custom {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-custom ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.alert-custom li {
+    margin-bottom: 0.25rem;
+}
+
+.alert-custom li:last-child {
+    margin-bottom: 0;
+}
+</style>
+
+<div class="min-vh-100 bg-gradient-custom">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="header-overlay"></div>
+        <div class="container position-relative">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <i class="fas fa-hospital-alt" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                    <h1 class="display-4 fw-bold mb-4">Register Your Clinic</h1>
+                    <p class="fs-5 text-light opacity-75">Join our network of healthcare providers and help us serve the community better</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="container form-section">
         <div class="row justify-content-center">
-          <div class="col-lg-5 text-center mx-auto">
-            <h1 class="text-white mb-2 mt-5">Welcome!</h1>
-            <p class="text-lead text-white">Use these awesome forms to login or create new account in your project for free.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="row mt-lg-n10 mt-md-n11 mt-n10">
-        <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
-          <div class="card z-index-0">
-            <div class="card-header text-center pt-4">
-              <h5>Register with</h5>
-            </div>
-            <div class="row px-xl-5 px-sm-4 px-3">
-              <div class="col-3 ms-auto px-1">
-                <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink32">
-                    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g id="facebook-3" transform="translate(3.000000, 3.000000)" fill-rule="nonzero">
-                        <circle id="Oval" fill="#3C5A9A" cx="29.5091719" cy="29.4927506" r="29.4882047"></circle>
-                        <path d="M39.0974944,9.05587273 L32.5651312,9.05587273 C28.6886088,9.05587273 24.3768224,10.6862851 24.3768224,16.3054653 C24.395747,18.2634019 24.3768224,20.1385313 24.3768224,22.2488655 L19.8922122,22.2488655 L19.8922122,29.3852113 L24.5156022,29.3852113 L24.5156022,49.9295284 L33.0113092,49.9295284 L33.0113092,29.2496356 L38.6187742,29.2496356 L39.1261316,22.2288395 L32.8649196,22.2288395 C32.8649196,22.2288395 32.8789377,19.1056932 32.8649196,18.1987181 C32.8649196,15.9781412 35.1755132,16.1053059 35.3144932,16.1053059 C36.4140178,16.1053059 38.5518876,16.1085101 39.1006986,16.1053059 L39.1006986,9.05587273 L39.0974944,9.05587273 L39.0974944,9.05587273 Z" id="Path" fill="#FFFFFF"></path>
-                      </g>
-                    </g>
-                  </svg>
-                </a>
-              </div>
-              <div class="col-3 px-1">
-                <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g id="apple-black" transform="translate(7.000000, 0.564551)" fill="#000000" fill-rule="nonzero">
-                        <path d="M40.9233048,32.8428307 C41.0078713,42.0741676 48.9124247,45.146088 49,45.1851909 C48.9331634,45.4017274 47.7369821,49.5628653 44.835501,53.8610269 C42.3271952,57.5771105 39.7241148,61.2793611 35.6233362,61.356042 C31.5939073,61.431307 30.2982233,58.9340578 25.6914424,58.9340578 C21.0860585,58.9340578 19.6464932,61.27947 15.8321878,61.4314159 C11.8738936,61.5833617 8.85958554,57.4131833 6.33064852,53.7107148 C1.16284874,46.1373849 -2.78641926,32.3103122 2.51645059,22.9768066 C5.15080028,18.3417501 9.85858819,15.4066355 14.9684701,15.3313705 C18.8554146,15.2562145 22.5241194,17.9820905 24.9003639,17.9820905 C27.275104,17.9820905 31.733383,14.7039812 36.4203248,15.1854154 C38.3824403,15.2681959 43.8902255,15.9888223 47.4267616,21.2362369 C47.1417927,21.4153043 40.8549638,25.1251794 40.9233048,32.8428307 M33.3504628,10.1750144 C35.4519466,7.59650964 36.8663676,4.00699306 36.4804992,0.435448578 C33.4513624,0.558856931 29.7884601,2.48154382 27.6157341,5.05863265 C25.6685547,7.34076135 23.9632549,10.9934525 24.4233742,14.4943068 C27.7996959,14.7590956 31.2488715,12.7551531 33.3504628,10.1750144" id="Shape"></path>
-                      </g>
-                    </g>
-                  </svg>
-                </a>
-              </div>
-              <div class="col-3 me-auto px-1">
-                <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g id="google-icon" transform="translate(3.000000, 2.000000)" fill-rule="nonzero">
-                        <path d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267" id="Path" fill="#4285F4"></path>
-                        <path d="M29.4960833,58.9921667 C37.4599129,58.9921667 44.1456164,56.3701671 49.0290201,51.8475849 L39.7213169,44.6372555 C37.2305867,46.3742596 33.887622,47.5868638 29.4960833,47.5868638 C21.6960582,47.5868638 15.0758763,42.4415991 12.7159637,35.3297782 L12.3700541,35.3591501 L3.26524241,42.4054492 L3.14617358,42.736447 C7.9965904,52.3717589 17.959737,58.9921667 29.4960833,58.9921667" id="Path" fill="#34A853"></path>
-                        <path d="M12.7159637,35.3297782 C12.0932812,33.4944915 11.7329116,31.5279353 11.7329116,29.4960833 C11.7329116,27.4640054 12.0932812,25.4976752 12.6832029,23.6623884 L12.6667095,23.2715173 L3.44779955,16.1120237 L3.14617358,16.2554937 C1.14708246,20.2539019 0,24.7439491 0,29.4960833 C0,34.2482175 1.14708246,38.7380388 3.14617358,42.736447 L12.7159637,35.3297782" id="Path" fill="#FBBC05"></path>
-                        <path d="M29.4960833,11.4050769 C35.0347044,11.4050769 38.7707997,13.7975244 40.9011602,15.7968415 L49.2255853,7.66898166 C44.1130815,2.91684746 37.4599129,0 29.4960833,0 C17.959737,0 7.9965904,6.62018183 3.14617358,16.2554937 L12.6832029,23.6623884 C15.0758763,16.5505675 21.6960582,11.4050769 29.4960833,11.4050769" id="Path" fill="#EB4335"></path>
-                      </g>
-                    </g>
-                  </svg>
-                </a>
-              </div>
-              <div class="mt-2 position-relative text-center">
-                <p class="text-sm font-weight-bold mb-2 text-secondary text-border d-inline z-index-2 bg-white px-3">
-                  or
-                </p>
-              </div>
-            </div>
-            <div class="card-body">
-              <form role="form text-left" method="POST" action="/register">
-                @csrf
-                <div class="mb-3">
-                  <input type="text" class="form-control" placeholder="Name" name="name" id="name" aria-label="Name" aria-describedby="name" value="{{ old('name') }}">
-                  @error('name')
-                    <p class="text-danger text-xs mt-2">{{ $message }}</p>
-                  @enderror
-                </div>
-                <div class="mb-3">
-                  <input type="email" class="form-control" placeholder="Email" name="email" id="email" aria-label="Email" aria-describedby="email-addon" value="{{ old('email') }}">
-                  @error('email')
-                    <p class="text-danger text-xs mt-2">{{ $message }}</p>
-                  @enderror
-                </div>
-                <div class="mb-3">
-                  <input type="password" class="form-control" placeholder="Password" name="password" id="password" aria-label="Password" aria-describedby="password-addon">
-                  @error('password')
-                    <p class="text-danger text-xs mt-2">{{ $message }}</p>
-                  @enderror
-                </div>
-                <div class="form-check form-check-info text-left">
-                  <input class="form-check-input" type="checkbox" name="agreement" id="flexCheckDefault" checked>
-                  <label class="form-check-label" for="flexCheckDefault">
-                    I agree the <a href="javascript:;" class="text-dark font-weight-bolder">Terms and Conditions</a>
-                  </label>
-                  @error('agreement')
-                    <p class="text-danger text-xs mt-2">First, agree to the Terms and Conditions, then try register again.</p>
-                  @enderror
-                </div>
-                <div class="text-center">
-                  <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Sign up</button>
-                </div>
-                <p class="text-sm mt-3 mb-0">Already have an account? <a href="login" class="text-dark font-weight-bolder">Sign in</a></p>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+            <div class="col-xl-8 col-lg-10">
+                <div class="card card-custom">
+                    <div class="card-header card-header-custom text-center">
+                        <h2 class="fw-bold text-dark mb-2">Clinic Registration Form</h2>
+                        <p class="text-muted mb-0">Please fill out all required information to register your clinic</p>
+                    </div>
 
+                    <div class="card-body card-body-custom">
+                        @if ($errors->any())
+                        <div class="alert-custom">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+
+                        <form id="clinicForm" action="/clinics" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+                            @csrf
+
+                            <!-- Clinic Image -->
+                            <div class="text-center section-spacing">
+                                <label class="form-label-custom justify-content-center">Clinic Image</label>
+                                <div class="image-preview-container">
+                                    <img id="imagePreview" 
+                                         src="{{ asset('assets/img/dog.png') }}" 
+                                         alt="Clinic Preview" 
+                                         class="image-preview">
+                                    <label class="image-upload-overlay">
+                                        <i class="fas fa-upload"></i>
+                                        <input type="file" 
+                                               class="d-none @error('clinic_image') is-invalid @enderror" 
+                                               id="clinicImage" 
+                                               name="clinic_image" 
+                                               accept="image/*" 
+                                               onchange="previewImage(this)">
+                                    </label>
+                                </div>
+                                @error('clinic_image')
+                                <div class="text-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Basic Information -->
+                            <div class="row section-spacing">
+                                <div class="col-md-6">
+                                    <label for="clinicName" class="form-label-custom">
+                                        <i class="fas fa-hospital"></i>Clinic Name *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-custom @error('clinic_name') is-invalid @enderror" 
+                                           id="clinicName" 
+                                           name="clinic_name" 
+                                           value="{{ old('clinic_name') }}" 
+                                           required 
+                                           maxlength="255"
+                                           placeholder="Enter clinic name">
+                                    @error('clinic_name')
+                                    <div class="text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="clinicStatus" class="form-label-custom">Status *</label>
+                                    <select class="form-control form-control-custom @error('clinic_status') is-invalid @enderror" 
+                                            id="clinicStatus" 
+                                            name="clinic_status" 
+                                            required>
+                                        <option value="active" {{ old('clinic_status') == 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ old('clinic_status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                    @error('clinic_status')
+                                    <div class="text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="row section-spacing">
+                                <div class="col-md-6">
+                                    <label for="clinicPhone" class="form-label-custom">
+                                        <i class="fas fa-phone"></i>Contact Number *
+                                    </label>
+                                    <input type="tel" 
+                                           class="form-control form-control-custom @error('clinic_phone') is-invalid @enderror" 
+                                           id="clinicPhone" 
+                                           name="clinic_phone" 
+                                           value="{{ old('clinic_phone') }}" 
+                                           required 
+                                           maxlength="11"
+                                           placeholder="09123456789">
+                                    @error('clinic_phone')
+                                    <div class="text-error">{{ $message }}</div>
+                                    @enderror
+                                    <div class="text-helper">Format: 09XXXXXXXXX (11 digits)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="clinicEmail" class="form-label-custom">
+                                        <i class="fas fa-envelope"></i>Email Address *
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control form-control-custom @error('clinic_email') is-invalid @enderror" 
+                                           id="clinicEmail" 
+                                           name="clinic_email" 
+                                           value="{{ old('clinic_email') }}" 
+                                           required 
+                                           maxlength="255"
+                                           placeholder="clinic@example.com">
+                                    @error('clinic_email')
+                                    <div class="text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="section-spacing">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-map-marker-alt"></i>Location *
+                                </label>
+                                
+                                <!-- Search Bar -->
+                                <div class="input-group-custom">
+                                    <div class="search-container" style="flex: 1;">
+                                        <input type="text" 
+                                               class="form-control form-control-custom" 
+                                               id="locationSearch" 
+                                               placeholder="Search for a location..."
+                                               onkeypress="handleSearchKeyPress(event)">
+                                        <div id="searchResults" class="search-results" style="display: none;"></div>
+                                    </div>
+                                    <button class="btn btn-outline-custom" type="button" onclick="searchLocation()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn btn-outline-custom" type="button" onclick="getCurrentLocation()" title="Use current location">
+                                        <i class="fas fa-location-arrow"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Map -->
+                                <div id="mapLoading" class="map-loading">
+                                    <div class="text-center">
+                                        <div class="spinner"></div>
+                                        <p>Loading map...</p>
+                                    </div>
+                                </div>
+                                <div id="map" class="map-container" style="display: none;"></div>
+
+                                <!-- Address Display -->
+                                <input type="text" 
+                                       class="form-control form-control-custom @error('clinic_address') is-invalid @enderror" 
+                                       id="clinicAddress" 
+                                       name="clinic_address" 
+                                       value="{{ old('clinic_address') }}" 
+                                       required 
+                                       maxlength="255" 
+                                       readonly
+                                       placeholder="Address will appear here when you select a location"
+                                       style="background-color: #f9fafb;">
+                                <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}" required>
+                                <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}" required>
+                                
+                                @error('clinic_address')
+                                <div class="text-error">{{ $message }}</div>
+                                @enderror
+                                
+                                <div class="text-helper">Click on the map to set the exact location of your clinic</div>
+                            </div>
+
+                            <!-- Operating Schedule -->
+                            <div class="section-spacing">
+                                <label class="form-label-custom">
+                                    <i class="fas fa-clock"></i>Operating Schedule *
+                                </label>
+                                
+                                <!-- Operating Days -->
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label class="form-label" style="font-weight: 500; color: #374151;">Operating Days</label>
+                                    <div class="day-grid">
+                                        @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
+                                        <div class="day-checkbox-container">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   id="{{ $day }}" 
+                                                   name="operating_days[]" 
+                                                   value="{{ $day }}" 
+                                                   {{ (is_array(old('operating_days')) && in_array($day, old('operating_days'))) ? 'checked' : '' }}>
+                                            <label class="form-check-label text-capitalize" for="{{ $day }}">
+                                                {{ ucfirst($day) }}
+                                            </label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    @error('operating_days')
+                                    <div class="text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Operating Hours -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="openingTime" class="form-label" style="font-weight: 500; color: #374151;">Opening Time</label>
+                                        <input type="time" 
+                                               class="form-control form-control-custom @error('opening_time') is-invalid @enderror" 
+                                               id="openingTime" 
+                                               name="opening_time" 
+                                               value="{{ old('opening_time') }}" 
+                                               required>
+                                        @error('opening_time')
+                                        <div class="text-error">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="closingTime" class="form-label" style="font-weight: 500; color: #374151;">Closing Time</label>
+                                        <input type="time" 
+                                               class="form-control form-control-custom @error('closing_time') is-invalid @enderror" 
+                                               id="closingTime" 
+                                               name="closing_time" 
+                                               value="{{ old('closing_time') }}" 
+                                               required>
+                                        @error('closing_time')
+                                        <div class="text-error">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="section-spacing">
+                                <label class="form-label-custom">Tags</label>
+                                <div class="input-group-custom">
+                                    <input type="text" 
+                                           class="form-control form-control-custom" 
+                                           id="tagInput" 
+                                           placeholder="Add tags (e.g., pediatrics, emergency, 24/7)"
+                                           onkeypress="handleTagKeyPress(event)">
+                                    <button class="btn btn-outline-custom" type="button" onclick="addTag()">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                                <div id="tagContainer" class="tag-container"></div>
+                                <input type="hidden" id="clinicTags" name="tags" value="{{ old('tags') }}">
+                                @error('tags')
+                                <div class="text-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div style="padding-top: 1.5rem;">
+                                <button type="submit" class="btn btn-gradient-custom" id="submitBtn">
+                                    <i class="fas fa-save me-2"></i>Register Clinic
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
+
+<script>
+let map, marker;
+let tags = [];
+
+// Initialize map with Google Maps tiles
+function initMap() {
+    const defaultLocation = [14.5995, 120.9842]; // Manila, Philippines
+    
+    // Hide loading and show map
+    document.getElementById('mapLoading').style.display = 'none';
+    document.getElementById('map').style.display = 'block';
+    
+    // Initialize map
+    map = L.map('map').setView(defaultLocation, 13);
+    
+    // Add Google Maps tile layer
+    L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+        attribution: '© Google Maps',
+        maxZoom: 20
+    }).addTo(map);
+    
+    // Add marker
+    marker = L.marker(defaultLocation, {
+        draggable: true
+    }).addTo(map);
+    
+    // Set initial location
+    document.getElementById('latitude').value = defaultLocation[0];
+    document.getElementById('longitude').value = defaultLocation[1];
+    reverseGeocode(defaultLocation[0], defaultLocation[1]);
+    
+    // Map click event
+    map.on('click', function(e) {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        reverseGeocode(lat, lng);
+    });
+    
+    // Marker drag event
+    marker.on('dragend', function(e) {
+        const { lat, lng } = e.target.getLatLng();
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        reverseGeocode(lat, lng);
+    });
+    
+    // Force map resize
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 100);
+}
+
+// Reverse geocoding using Nominatim
+async function reverseGeocode(lat, lng) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await response.json();
+        document.getElementById('clinicAddress').value = data.display_name;
+    } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        document.getElementById('clinicAddress').value = `${lat}, ${lng}`;
+    }
+}
+
+// Search location using Nominatim
+async function searchLocation() {
+    const query = document.getElementById('locationSearch').value.trim();
+    if (!query) return;
+    
+    const searchResults = document.getElementById('searchResults');
+    searchResults.innerHTML = '<div class="search-result-item">Searching...</div>';
+    searchResults.style.display = 'block';
+    
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=ph`);
+        const data = await response.json();
+        displaySearchResults(data);
+    } catch (error) {
+        console.error('Search error:', error);
+        searchResults.innerHTML = '<div class="search-result-item text-danger">Error searching location</div>';
+    }
+}
+
+// Display search results
+function displaySearchResults(results) {
+    const searchResults = document.getElementById('searchResults');
+    
+    if (results.length === 0) {
+        searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+        return;
+    }
+    
+    searchResults.innerHTML = results.map(result => `
+        <div class="search-result-item" onclick="selectSearchResult(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')">
+            <div style="font-weight: 600;">${result.display_name.split(',')[0]}</div>
+            <small style="color: #6b7280;">${result.display_name}</small>
+        </div>
+    `).join('');
+}
+
+// Select search result
+function selectSearchResult(lat, lon, address) {
+    map.setView([lat, lon], 16);
+    marker.setLatLng([lat, lon]);
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lon;
+    document.getElementById('clinicAddress').value = address;
+    document.getElementById('locationSearch').value = address.split(',')[0];
+    document.getElementById('searchResults').style.display = 'none';
+}
+
+// Handle search key press
+function handleSearchKeyPress(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchLocation();
+    }
+}
+
+// Get current location
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 16);
+                marker.setLatLng([lat, lng]);
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                reverseGeocode(lat, lng);
+                document.getElementById('locationSearch').value = 'Current Location';
+            },
+            function(error) {
+                alert('Error getting current location: ' + error.message);
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+
+// Hide search results when clicking outside
+document.addEventListener('click', function(event) {
+    const searchResults = document.getElementById('searchResults');
+    const locationSearch = document.getElementById('locationSearch');
+    
+    if (!searchResults.contains(event.target) && event.target !== locationSearch) {
+        searchResults.style.display = 'none';
+    }
+});
+
+// Image preview
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image size must be less than 5MB');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Tag management
+function addTag() {
+    const tagInput = document.getElementById('tagInput');
+    const tagValue = tagInput.value.trim();
+    if (tagValue && !tags.includes(tagValue)) {
+        tags.push(tagValue);
+        updateTagsDisplay();
+        tagInput.value = '';
+    }
+}
+
+function removeTag(tagToRemove) {
+    tags = tags.filter(tag => tag !== tagToRemove);
+    updateTagsDisplay();
+}
+
+function updateTagsDisplay() {
+    const tagContainer = document.getElementById('tagContainer');
+    const hiddenInput = document.getElementById('clinicTags');
+    
+    tagContainer.innerHTML = tags.map(tag => `
+        <span class="tag-badge">
+            ${tag}
+            <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
+        </span>
+    `).join('');
+    
+    hiddenInput.value = tags.join(',');
+}
+
+function handleTagKeyPress(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        addTag();
+    }
+}
+
+// Form validation
+function validateForm() {
+    const errors = [];
+    
+    // Basic validation
+    const clinicName = document.getElementById('clinicName').value.trim();
+    if (!clinicName) {
+        errors.push('Clinic name is required');
+    } else if (clinicName.length < 2) {
+        errors.push('Clinic name must be at least 2 characters');
+    }
+    
+    // Phone validation
+    const phone = document.getElementById('clinicPhone').value.trim();
+    if (!phone) {
+        errors.push('Phone number is required');
+    } else if (!/^09\d{9}$/.test(phone.replace(/\s+/g, ''))) {
+        errors.push('Phone number must be in format 09XXXXXXXXX');
+    }
+    
+    // Email validation
+    const email = document.getElementById('clinicEmail').value.trim();
+    if (!email) {
+        errors.push('Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Please enter a valid email address');
+    }
+    
+    // Time validation
+    const openingTime = document.getElementById('openingTime').value;
+    const closingTime = document.getElementById('closingTime').value;
+    if (!openingTime) {
+        errors.push('Opening time is required');
+    }
+    if (!closingTime) {
+        errors.push('Closing time is required');
+    }
+    if (openingTime && closingTime && openingTime >= closingTime) {
+        errors.push('Closing time must be after opening time');
+    }
+    
+    // Operating days validation
+    const operatingDays = document.querySelectorAll('input[name="operating_days[]"]:checked');
+    if (operatingDays.length === 0) {
+        errors.push('Please select at least one operating day');
+    }
+    
+    // Location validation
+    const latitude = document.getElementById('latitude').value;
+    const longitude = document.getElementById('longitude').value;
+    if (!latitude || !longitude) {
+        errors.push('Please select a location on the map');
+    }
+    
+    if (errors.length > 0) {
+        alert('Please fix the following errors:\n\n' + errors.join('\n'));
+        return false;
+    }
+    
+    // Show loading state
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registering Clinic...';
+    submitBtn.disabled = true;
+    
+    return true;
+}
+
+// Initialize map when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initMap, 500);
+    
+    // Initialize tags from old input if available
+    const oldTags = document.getElementById('clinicTags').value;
+    if (oldTags) {
+        tags = oldTags.split(',').filter(tag => tag.trim());
+        updateTagsDisplay();
+    }
+});
+</script>
 @endsection
-

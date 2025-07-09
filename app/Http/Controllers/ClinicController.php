@@ -32,9 +32,6 @@ class ClinicController extends Controller
 
     public function upsert(Request $request, $id = null)
     {
-    //    dd($request->all());
-       
-     
         try {
             $validatedData = $request->validate([
                 'clinic_name' => 'required|max:255',
@@ -50,6 +47,19 @@ class ClinicController extends Controller
                 'clinic_status' => 'required|in:active,inactive',
             ]);
             $clinic = $id == null ? new Clinic() : Clinic::findOrFail($id);
+            
+            // Generate random password if new clinic
+            if ($id == null) {
+                $password = \Str::random(8);
+                
+                // Send password email to clinic
+                \Mail::raw("Your PetVax clinic account password is: " . $password, function ($message) use ($validatedData) {
+                    $message->to($validatedData['clinic_email'])
+                            ->subject("PetVax Clinic Account Password");
+                });
+            }
+
+            
             
             if ($request->hasFile('clinic_image')) {
                 $clinic->image = $this->uploadImage($request->file('clinic_image'), 'clinics');
@@ -69,11 +79,7 @@ class ClinicController extends Controller
 
             $clinic->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Clinic saved successfully',
-                'data' => $clinic
-            ]);
+            return back()->with('success', 'Clinic saved successfully');
 
             // add record
         } catch (\Illuminate\Validation\ValidationException $e) {

@@ -9,6 +9,8 @@ use App\Models\Pet;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\InventoryItem;
+use App\Models\Specie;
+
 
 class MedicalHistoryController extends Controller
 {
@@ -24,6 +26,7 @@ class MedicalHistoryController extends Controller
 			'clinics' => Clinic::all(),
 			'pets' => Pet::with('owner')->get(),
 			'veterinarians' => User::where('role_id', 4)->get(),
+            'species' => Specie::all(),
             'inventories' => InventoryItem::when(auth()->user()->role_id != 1, function($query) {
                 return $query->where('clinic_id', auth()->user()->clinic_id);
             })->get(),
@@ -46,13 +49,22 @@ class MedicalHistoryController extends Controller
                 'diagnosis' => 'required|string|max:255',
                 'treatment' => 'required|string|max:255',
                
-                'inventory_id' => 'required|exists:inventory_items,id',
+                //'inventory_id' => 'required|exists:inventory_items,id',
                 'notes' => 'required|string|max:255',
                 'treatment_date' => 'required|date',
                  'vet_id' => 'nullable|exists:users,id',
                  'veterinarian' => 'nullable',
             ]);
+            // Decode the selected inventories JSON string
+            $selectedInventories = json_decode($request->input('selected_inventories'), true);
 
+            // Loop through each selected inventory and deduct quantities
+            foreach ($selectedInventories as $inventory) {
+                $inventoryItem = InventoryItem::find($inventory['id']);
+                if ($inventoryItem) {
+                    $inventoryItem->decrement('quantity', $inventory['quantity']);
+                }
+            }
             $history = $id == null ? new MedicalHistory : MedicalHistory::findOrFail($id);
 
             $history->pet_id = $validatedData['pet_id'];
@@ -66,8 +78,8 @@ class MedicalHistoryController extends Controller
             $history->clinic_id = $request->input('clinic_id');
             $history->save();
 
-            $inventory = InventoryItem::find($validatedData['inventory_id']);
-            $inventory->decrement('quantity');
+            //$inventory = InventoryItem::find($validatedData['inventory_id']);
+            //$inventory->decrement('quantity');
 
             // add record
            

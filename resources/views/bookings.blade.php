@@ -64,7 +64,7 @@
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Payment Method</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Service Type</th>
-                      @if(auth()->user()->role_id != 4)
+                      @if(auth()->user()->role_id != 4 && auth()->user()->role_id != 5)
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                       @endif
                     </tr>
@@ -179,7 +179,7 @@
                           <span class="badge badge-sm bg-gradient-info">Clinic Visit</span>
                         @endif
                       </td>
-                      @if(auth()->user()->role_id != 4)
+                      @if(auth()->user()->role_id != 4 && auth()->user()->role_id != 5)
                       <td class="align-middle text-center">
                         <div class="d-flex gap-2 justify-content-center">
                           <select class="form-select form-select-sm" style="width: auto;" id="actionSelect_{{ $booking->id }}" onchange="handleAction(this.value, {{ $booking->id }})">
@@ -289,67 +289,109 @@
     </div>
   </main>
 
-  <!-- Add/Edit Booking Sidebar -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="addClinicSidebar" style="width: 600px;">
-    <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title" id="sidebarTitle">Add New Booking</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
-        <span aria-hidden="true" class="text-3xl">&times;</span>
-      </button>
-    </div>
-    <div class="offcanvas-body">
-      <form id="bookingForm" action="" method="POST">
-        @csrf
-        <input type="hidden" id="bookingId" name="booking_id">
-        <div class="mb-3">
-          <label for="clinicSelect" class="form-label">Select Clinic</label>
-          <select class="form-select" id="clinicSelect" required onchange="loadPetsAndServicesAndStaff()" name="clinic_id">
-            <option value="" selected disabled>Choose a clinic</option>
-            @if(auth()->user()->role_id == 1)
-              @foreach($clinics as $clinic)
-                <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-              @endforeach
-            @else
-              @foreach($clinics as $clinic)
-                @if($clinic->id == auth()->user()->clinic_id)
-                  <option value="{{ $clinic->id }}" selected>{{ $clinic->name }}</option>
-                @endif
-              @endforeach
-            @endif
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="petSelect" class="form-label">Select Pet</label>
-          <select class="form-select" id="petSelect" name="pet_id" required disabled>
-            <option value="" selected disabled>Choose a pet</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="serviceSelect" class="form-label">Select Service</label>
-          <select class="form-select" id="serviceSelect" name="service_id" required disabled>
-            <option value="" selected disabled>Choose a service</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="staffSelect" class="form-label">Assign Staff</label>
-          <select class="form-select" id="staffSelect" name="staff_id" required disabled>
-            <option value="" selected disabled>Choose a staff member</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="appointmentDate" class="form-label">Appointment Date & Time</label>
-          <input type="datetime-local" class="form-control" id="appointmentDate" name="appointment_date" required>
-        </div>
-        <div class="mb-3">
-          <label for="bookingNotes" class="form-label">Notes</label>
-          <textarea class="form-control" id="bookingNotes" name="notes" rows="3"></textarea>
-        </div>
-        <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary" id="submitBtn">Save Booking</button>
-        </div>
-      </form>
-    </div>
+<!-- Add/Edit Booking Sidebar -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addClinicSidebar" style="width: 600px;">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title" id="sidebarTitle">Add New Booking</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span aria-hidden="true" class="text-3xl">&times;</span>
+    </button>
   </div>
+  <div class="offcanvas-body">
+    <form id="bookingForm" action="" method="POST" class="needs-validation" novalidate>
+      @csrf
+      <input type="hidden" id="bookingId" name="booking_id">
+      <div class="mb-3">
+        <label for="clinicSelect" class="form-label">Select Clinic</label>
+        <select class="form-select" id="clinicSelect" required onchange="loadPetsAndServicesAndStaff()" name="clinic_id">
+          <option value="" selected disabled>Choose a clinic</option>
+          @if(auth()->user()->role_id == 1)
+            @foreach($clinics as $clinic)
+              <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+            @endforeach
+          @else
+            @foreach($clinics as $clinic)
+              @if($clinic->id == auth()->user()->clinic_id)
+                <option value="{{ $clinic->id }}" selected>{{ $clinic->name }}</option>
+              @endif
+            @endforeach
+          @endif
+        </select>
+        <div class="invalid-feedback">
+          Please select a clinic.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="petSelect" class="form-label">Select Pet</label>
+        <select class="form-select" id="petSelect" name="pet_id" required disabled>
+          <option value="" selected disabled>Choose a pet</option>
+        </select>
+        <div class="invalid-feedback">
+          Please select a pet.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="serviceSelect" class="form-label">Select Service</label>
+        <select class="form-select" id="serviceSelect" name="service_id" required disabled>
+          <option value="" selected disabled>Choose a service</option>
+        </select>
+        <div class="invalid-feedback">
+          Please select a service.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="staffSelect" class="form-label">Assign Staff</label>
+        <select class="form-select" id="staffSelect" name="staff_id" required disabled>
+          <option value="" selected disabled>Choose a staff member</option>
+        </select>
+        <div class="invalid-feedback">
+          Please select a staff member.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="appointmentDate" class="form-label">Appointment Date & Time</label>
+        <input type="datetime-local" class="form-control" id="appointmentDate" name="appointment_date" required 
+               min="{{ date('Y-m-d\TH:i') }}">
+        <div class="invalid-feedback">
+          Please select a valid appointment date and time.
+        </div>
+      </div>
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary" id="submitBtn">Save Booking</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Form validation
+(function () {
+  'use strict'
+  var forms = document.querySelectorAll('.needs-validation')
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+
+// Additional date-time validation
+document.getElementById('appointmentDate').addEventListener('change', function(e) {
+  const selectedDate = new Date(e.target.value);
+  const now = new Date();
+  
+  if (selectedDate < now) {
+    e.target.setCustomValidity('Please select a future date and time');
+  } else {
+    e.target.setCustomValidity('');
+  }
+});
+</script>
 
 <div class="modal fade" id="declineModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">

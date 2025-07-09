@@ -40,14 +40,21 @@ class UserController extends Controller
                 'email' => 'required|email|unique:users,email,' . $request->id,
                 'role_id' => 'required|exists:roles,id',
                 'clinic_id' => 'required|exists:clinics,id',
-                'password' => 'nullable|string|min:8',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
             
             $user = $id == null ? new User : User::findOrFail($request->id);
 
-            if ($validated['password']) {
-                $user->password = bcrypt($validated['password']);
+            if ($id == null) {
+                // Generate random password for new owners
+                $password = \Str::random(8);
+                $user->password = bcrypt($password);
+                            
+                // Send password email to owner
+                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
+                    $message->to($request->email)
+                            ->subject("PetVax Account Password");
+                });
             }
 
             if ($request->hasFile('avatar')) {
@@ -113,8 +120,16 @@ class UserController extends Controller
             
             $user = $id == null ? new User : User::findOrFail($request->id);
 
-            if ($validated['password']) {
-                $user->password = bcrypt($validated['password']);
+           if ($id == null) {
+                // Generate random password for new owners
+                $password = \Str::random(8);
+                $user->password = bcrypt($password);
+                            
+                // Send password email to owner
+                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
+                    $message->to($request->email)
+                            ->subject("PetVax Account Password");
+                });
             }
 
             if ($request->hasFile('avatar')) {

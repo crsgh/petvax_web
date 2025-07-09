@@ -4,6 +4,15 @@
 
 $menuItems = [
     [
+        'id' => 'clinics',
+        'label' => 'All Clinics',
+        'color' => 'text-blue-500',
+        'route' => '/owner', 
+        'permission' => [5],
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>',
+        
+    ],
+    [
         'id' => 'dashboard',
         'label' => 'Dashboard',
         'color' => 'text-blue-500',
@@ -54,7 +63,7 @@ $menuItems = [
                 'id' => 'all-pets', 
                 'label' => 'All Pets', 
                 'route' => '/pets',
-                'permission' => [1,2,3,4],
+                'permission' => [1,2,3,4,5],
                 'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L9.5 7.5v2.5m4.5 0V10h-4m0 0L7 9m0 0v6a2 2 0 01-2 2H3m2-8h2m0 0h2v4H5v-4z"></path></svg>'
             ],
             [
@@ -101,7 +110,7 @@ $menuItems = [
         'label' => 'Bookings',
         'color' => 'text-orange-500',
         'route' => '/bookings',
-        'permission' => [1,2,3,4],
+        'permission' => [1,2,3,4,5],
         'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>'
     ],
     [
@@ -142,6 +151,14 @@ $menuItems = [
                 'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>'
             ]
         ]
+    ],
+    [
+        'id' => 'rule-base',
+        'label' => 'Rulebase',
+        'color' => 'text-rose-500',
+        'route' => '/rule-base',
+        'permission' => [1,2],
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>'
     ],
     [
         'id' => 'clinic-rating',

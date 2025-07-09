@@ -73,20 +73,25 @@
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-      <form id="addSpeciesForm" action="" method="POST">
+      <form id="addSpeciesForm" action="" method="POST" onsubmit="return validateAddSpeciesForm()">
         @csrf
         <div class="mb-3">
           <label for="speciesName" class="form-label">Name</label>
-          <input type="text" class="form-control" id="speciesName" name="name" required>
+          <input type="text" class="form-control" id="speciesName" name="name" required
+                 oninput="validateSpeciesName(this)">
+          <div class="invalid-feedback" id="speciesNameFeedback"></div>
         </div>
         @if(auth()->user()->role_id == 1)
         <div class="mb-3">
           <label for="clinic" class="form-label">Clinic</label>
-          <select class="form-control" id="clinic" name="clinic_id" required>
+          <select class="form-control" id="clinic" name="clinic_id" required
+                  onchange="validateClinicSelection(this)">
+            <option value="">Select a clinic</option>
             @foreach($clinics as $clinic)
               <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
             @endforeach
           </select>
+          <div class="invalid-feedback" id="clinicFeedback"></div>
         </div>
         @else
         <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
@@ -98,6 +103,61 @@
     </div>
   </div>
 
+  <script>
+    function validateSpeciesName(input) {
+      const name = input.value.trim();
+      const feedback = document.getElementById('speciesNameFeedback');
+      
+      if (name.length < 2) {
+        input.classList.add('is-invalid');
+        feedback.textContent = 'Species name must be at least 2 characters long';
+        return false;
+      }
+      
+      if (name.length > 50) {
+        input.classList.add('is-invalid');
+        feedback.textContent = 'Species name cannot exceed 50 characters';
+        return false;
+      }
+      
+      if (!/^[A-Za-z\s]+$/.test(name)) {
+        input.classList.add('is-invalid');
+        feedback.textContent = 'Species name can only contain letters and spaces';
+        return false;
+      }
+      
+      input.classList.remove('is-invalid');
+      input.classList.add('is-valid');
+      return true;
+    }
+
+    function validateClinicSelection(select) {
+      const feedback = document.getElementById('clinicFeedback');
+      
+      if (!select.value) {
+        select.classList.add('is-invalid');
+        feedback.textContent = 'Please select a clinic';
+        return false;
+      }
+      
+      select.classList.remove('is-invalid');
+      select.classList.add('is-valid');
+      return true;
+    }
+
+    function validateAddSpeciesForm() {
+      const nameInput = document.getElementById('speciesName');
+      const isNameValid = validateSpeciesName(nameInput);
+      
+      @if(auth()->user()->role_id == 1)
+      const clinicSelect = document.getElementById('clinic');
+      const isClinicValid = validateClinicSelection(clinicSelect);
+      return isNameValid && isClinicValid;
+      @else
+      return isNameValid;
+      @endif
+    }
+  </script>
   <!-- Edit Species Sidebar -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="editSpeciesSidebar">
     <div class="offcanvas-header border-bottom">

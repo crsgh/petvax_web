@@ -151,7 +151,7 @@ class BookingController extends Controller
         ]);
     }
 
-    public function updateBookingStatus($id, $status)
+    public function updateBookingStatus(Request $request,$id, $status)
     {
         $booking = Booking::findOrFail($id);
         
@@ -168,6 +168,9 @@ class BookingController extends Controller
         }
      
         $booking->status = strtolower($status);
+        if ($request->has('reason')) {
+            $booking->notes = $request->reason;
+        }
         $booking->save();
 
         $message = ucfirst($booking->status) . ' booking successfully';

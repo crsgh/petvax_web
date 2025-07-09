@@ -121,95 +121,206 @@
     </div>
   </main>
 
-  <!-- Add/Edit Service Sidebar -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="serviceSidebar">
-    <div class="offcanvas-header">
-      <h5 id="sidebarTitle">Add New Service</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <form id="serviceForm" method="POST" action="" enctype="multipart/form-data">
-        @csrf
-        <input type="hidden" id="serviceId" name="id">
-        @if(Auth::user()->role_id == 1)
-        <div class="mb-3">
-          <label class="form-label">Clinic</label>
-          <select class="form-select" id="serviceClinic" name="clinic_id" required>
-            @foreach($clinics as $clinic)
-              <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+<!-- Add/Edit Service Sidebar -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="serviceSidebar">
+  <div class="offcanvas-header">
+    <h5 id="sidebarTitle">Add New Service</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form id="serviceForm" method="POST" action="" enctype="multipart/form-data" onsubmit="return validateForm()">
+      @csrf
+      <input type="hidden" id="serviceId" name="id">
+      @if(Auth::user()->role_id == 1)
+      <div class="mb-3">
+        <label class="form-label">Clinic</label>
+        <select class="form-select" id="serviceClinic" name="clinic_id" required onchange="validateField(this)">
+          @foreach($clinics as $clinic)
+            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+          @endforeach
+        </select>
+        <div class="invalid-feedback" id="clinicError"></div>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      @else
+      <input type="hidden" name="clinic_id" value="{{ Auth::user()->clinic_id }}">
+      @endif
+      <div class="mb-3">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="homeServiceSwitch" name="home_service">
+          <label class="form-check-label" for="homeServiceSwitch">Available for Home Service</label>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Service Name</label>
+        <input type="text" class="form-control" id="serviceName" name="name" required minlength="3" maxlength="50" onkeyup="validateField(this)">
+        <div class="invalid-feedback" id="nameError"></div>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="serviceCategory" name="category" required onchange="validateField(this)">
+          <option value="">Select a category</option>
+          <option value="vaccination">Vaccination</option>
+          <option value="grooming">Grooming</option>
+          <option value="deworming">Deworming</option>
+          <option value="others">Others</option>
+        </select>
+        <div class="invalid-feedback" id="categoryError"></div>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Species</label>
+          <select class="form-select" id="serviceSpecies" name="species" required onchange="validateField(this)">
+            <option value="">Select a species</option>
+            @foreach($species as $specie)
+              <option value="{{ $specie->id }}">{{ $specie->name }}</option>
             @endforeach
           </select>
+          <div class="invalid-feedback" id="speciesError"></div>
+          <div class="valid-feedback">Looks good!</div>
         </div>
-        @else
-        <input type="hidden" name="clinic_id" value="{{ Auth::user()->clinic_id }}">
-        @endif
-        <div class="mb-3">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="homeServiceSwitch" name="home_service">
-            <label class="form-check-label" for="homeServiceSwitch">Available for Home Service</label>
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Service Name</label>
-          <input type="text" class="form-control" id="serviceName" name="name" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Category</label>
-          <select class="form-select" id="serviceCategory" name="category" required>
-            <option value="vaccination">Vaccination</option>
-            <option value="grooming">Grooming</option>
-            <option value="deworming">Deworming</option>
-            <option value="others">Others</option>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Pet Size</label>
+          <select class="form-select" id="servicePetSize" name="pet_size" required onchange="validateField(this)">
+            <option value="">Select a size</option>
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
           </select>
+          <div class="invalid-feedback" id="sizeError"></div>
+          <div class="valid-feedback">Looks good!</div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">GCash Number</label>
-          <input type="text" class="form-control" id="serviceGcash" name="gcash_number" pattern="[0-9]{11}" placeholder="09XXXXXXXXX" title="Please enter a valid 11-digit phone number">
-          <div class="form-text">Enter your GCash number (11 digits)</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Price</label>
+          <input type="number" step="0.01" class="form-control" id="servicePrice" name="price" required min="0" onchange="validateField(this)">
+          <div class="invalid-feedback" id="priceError"></div>
+          <div class="valid-feedback">Looks good!</div>
         </div>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Species</label>
-            <select class="form-select" id="serviceSpecies" name="species" required>
-              @foreach($species as $specie)
-                <option value="{{ $specie->id }}">{{ $specie->name }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Pet Size</label>
-            <select class="form-select" id="servicePetSize" name="pet_size" required>
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </select>
-          </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="serviceStatus" name="status" required onchange="validateField(this)">
+            <option value="">Select a status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <div class="invalid-feedback" id="statusError"></div>
+          <div class="valid-feedback">Looks good!</div>
         </div>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Price</label>
-            <input type="number" step="0.01" class="form-control" id="servicePrice" name="price" required>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Status</label>
-            <select class="form-select" id="serviceStatus" name="status" required>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Image</label>
-          <input type="file" class="form-control" id="serviceImage" name="image" accept="image/*">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea class="form-control" id="serviceDescription" name="description" rows="3" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary w-100" id="submitBtn">Add Service</button>
-      </form>
-    </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Image</label>
+        <input type="file" class="form-control" id="serviceImage" name="image" accept="image/*" onchange="validateField(this)">
+        <div class="invalid-feedback" id="imageError"></div>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="serviceDescription" name="description" rows="3" maxlength="500"></textarea>
+        <div class="invalid-feedback" id="descriptionError"></div>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100" id="submitBtn">Add Service</button>
+    </form>
   </div>
+</div>
+
+<script>
+function validateForm() {
+  let isValid = true;
+  const form = document.getElementById('serviceForm');
+
+  // Reset previous error states
+  const feedbacks = form.getElementsByClassName('invalid-feedback');
+  Array.from(feedbacks).forEach(feedback => feedback.textContent = '');
+  const inputs = form.getElementsByClassName('form-control');
+  Array.from(inputs).forEach(input => input.classList.remove('is-invalid'));
+  const selects = form.getElementsByClassName('form-select');
+  Array.from(selects).forEach(select => select.classList.remove('is-invalid'));
+
+  // Validate Service Name
+  const name = document.getElementById('serviceName');
+  if (!name.value.trim()) {
+    name.classList.add('is-invalid');
+    document.getElementById('nameError').textContent = 'Service name is required';
+    isValid = false;
+  } else if (name.value.length < 3) {
+    name.classList.add('is-invalid');
+    document.getElementById('nameError').textContent = 'Service name must be at least 3 characters';
+    isValid = false;
+  }
+
+  // Validate Category
+  const category = document.getElementById('serviceCategory');
+  if (!category.value) {
+    category.classList.add('is-invalid');
+    document.getElementById('categoryError').textContent = 'Please select a category';
+    isValid = false;
+  }
+
+  // Validate Species
+  const species = document.getElementById('serviceSpecies');
+  if (!species.value) {
+    species.classList.add('is-invalid');
+    document.getElementById('speciesError').textContent = 'Please select a species';
+    isValid = false;
+  }
+
+  // Validate Pet Size
+  const size = document.getElementById('servicePetSize');
+  if (!size.value) {
+    size.classList.add('is-invalid');
+    document.getElementById('sizeError').textContent = 'Please select a pet size';
+    isValid = false;
+  }
+
+  // Validate Price
+  const price = document.getElementById('servicePrice');
+  if (!price.value || price.value <= 0) {
+    price.classList.add('is-invalid');
+    document.getElementById('priceError').textContent = 'Please enter a valid price';
+    isValid = false;
+  }
+
+  // Validate Status
+  const status = document.getElementById('serviceStatus');
+  if (!status.value) {
+    status.classList.add('is-invalid');
+    document.getElementById('statusError').textContent = 'Please select a status';
+    isValid = false;
+  }
+
+  // Validate Description
+  const description = document.getElementById('serviceDescription');
+  if (!description.value.trim()) {
+    description.classList.add('is-invalid');
+    document.getElementById('descriptionError').textContent = 'Description is required';
+    isValid = false;
+  } 
+
+  // Validate Image (if provided)
+  const image = document.getElementById('serviceImage');
+  if (image.files.length > 0) {
+    const file = image.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      image.classList.add('is-invalid');
+      document.getElementById('imageError').textContent = 'Please select a valid image file (JPEG, PNG, or GIF)';
+      isValid = false;
+    }
+    if (file.size > 5242880) { // 5MB
+      image.classList.add('is-invalid');
+      document.getElementById('imageError').textContent = 'Image size should not exceed 5MB';
+      isValid = false;
+    }
+  }
+
+  return isValid;
+}
+</script>
 
   <script>
     function filterServices() {

@@ -148,6 +148,12 @@
       <form id="userForm" enctype="multipart/form-data" method="POST">
         @csrf
         <input type="hidden" name="user_id" id="userId">
+        
+        <!-- Error Alert -->
+        <div class="alert alert-danger d-none" id="validationErrors">
+          <ul id="errorList"></ul>
+        </div>
+
         <div class="mb-3">
           <label for="userImage" class="form-label">Profile Image</label>
           <div class="d-flex align-items-center">
@@ -155,16 +161,19 @@
             <div class="upload-btn-wrapper">
               <button class="btn btn-outline-primary btn-sm">Upload Photo</button>
               <input type="file" name="avatar" id="userImage" accept="image/*" onchange="previewImage(this)"/>
+              <small class="text-danger d-none" id="avatarError"></small>
             </div>
           </div>
         </div>
         <div class="mb-3">
           <label for="userName" class="form-label">Name</label>
-          <input type="text" class="form-control" name="name" id="userName" required>
+          <input type="text" class="form-control" name="name" id="userName" required minlength="3" maxlength="50">
+          <small class="text-danger d-none" id="nameError"></small>
         </div>
         <div class="mb-3">
           <label for="userEmail" class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" id="userEmail" required>
+          <input type="email" class="form-control" name="email" id="userEmail" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+          <small class="text-danger d-none" id="emailError"></small>
         </div>
         <div class="mb-3">
           <label for="userRole" class="form-label">Role</label>
@@ -176,6 +185,7 @@
               @endif
             @endforeach
           </select>
+          <small class="text-danger d-none" id="roleError"></small>
         </div>
        
         <div class="mb-3">
@@ -187,21 +197,13 @@
                 <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
               @endforeach
             </select>
+            <small class="text-danger d-none" id="clinicError"></small>
           @else
             <input type="hidden" id="userClinic" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
-            @endif
+          @endif
         </div>
        
-        <div class="mb-3">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="use_default_password" id="defaultPasswordSwitch">
-            <label class="form-check-label" for="defaultPasswordSwitch">Use Default Password</label>
-          </div>
-        </div>
-        <div class="mb-3" id="passwordField">
-          <label for="userPassword" class="form-label">Password</label>
-          <input type="password" class="form-control" name="password" id="userPassword">
-        </div>
+
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary" id="saveButton">Save User</button>
         </div>

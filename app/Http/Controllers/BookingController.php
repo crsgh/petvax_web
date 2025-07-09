@@ -107,7 +107,7 @@ $bookings->each(function($booking) {
             $booking->service_id = $validatedData['service_id'];
             $booking->staff_id = $validatedData['staff_id'];
             $booking->appointment_datetime = $validatedData['appointment_date'];
-            $booking->notes = $validatedData['notes'];
+            $booking->notes = $validatedData['notes'] ?? '';
             $booking->total_amount = $service->price;
             $booking->save();   
 

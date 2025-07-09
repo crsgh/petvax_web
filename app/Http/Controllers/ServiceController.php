@@ -43,7 +43,7 @@ class ServiceController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category' => 'nullable|string|max:255',
             'home_service' => 'nullable|string|max:255',
-            'gcash_number' => 'nullable|string|max:255',
+            // 'gcash_number' => 'nullable|string|max:255',
         ]);
 
         $service = $id == null ? new Service : Service::findOrFail($id);
@@ -68,7 +68,7 @@ class ServiceController extends Controller
         $service->status = $validatedData['status'];
         $service->category = $validatedData['category'];
         $service->home_service = isset($validatedData['home_service']) ? 1 : 0;
-        $service->gcash_number = $validatedData['gcash_number'];
+       
         $service->save();
 
        } catch(\Illuminate\Validation\ValidationException $e) {

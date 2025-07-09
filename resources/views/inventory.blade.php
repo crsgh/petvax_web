@@ -127,7 +127,7 @@
       </button>
     </div>
     <div class="offcanvas-body">
-      <form id="inventoryItemForm" method="POST" action="">
+      <form id="inventoryItemForm" method="POST" action="" class="needs-validation" novalidate onsubmit="return validateInventoryForm(this, event)">
         @csrf
         <input type="hidden" id="item_id" name="item_id">
         <div class="mb-3">
@@ -201,6 +201,67 @@
     function closeSidebar() {
       var sidebar = bootstrap.Offcanvas.getInstance(document.getElementById('addClinicSidebar'));
       sidebar.hide();
+      
+      // Reset validation states
+      const form = document.getElementById('inventoryItemForm');
+      const formElements = form.elements;
+      for (let i = 0; i < formElements.length; i++) {
+        formElements[i].classList.remove('is-invalid');
+      }
+    }
+
+    function validateInventoryForm(form, event) {
+      event.preventDefault();
+      let isValid = true;
+      const formElements = form.elements;
+      
+      // Reset all validation states
+      for (let i = 0; i < formElements.length; i++) {
+        const element = formElements[i];
+        element.classList.remove('is-invalid');
+      }
+
+      // Validate item name
+      const itemName = document.getElementById('name');
+      if (!itemName.value || itemName.value.trim().length < 3) {
+        itemName.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Validate category
+      const category = document.getElementById('category_id');
+      if (!category.value) {
+        category.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Validate quantity
+      const quantity = document.getElementById('quantity');
+      if (!quantity.value || isNaN(quantity.value) || parseInt(quantity.value) < 0) {
+        quantity.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Validate clinic if applicable
+      const clinic = document.getElementById('clinic_id');
+      if (clinic && !clinic.value) {
+        clinic.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // If form is valid, submit it
+      if (isValid) {
+        form.submit();
+        return true;
+      } else {
+        // Scroll to first invalid field
+        const firstInvalid = form.querySelector('.is-invalid');
+        if (firstInvalid) {
+          firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstInvalid.focus();
+        }
+        return false;
+      }
     }
 
     function deleteItem(id) {
