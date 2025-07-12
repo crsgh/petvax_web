@@ -5,13 +5,13 @@ use App\Http\Controllers\Controller;
 use App\Models\ClinicRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Rulebase;
+use App\Models\RuleBase;
 
 
 class RuleBaseController extends Controller
 {
     public function getRulebase(){
-        $rulebases = Rulebase::all();
+        $rulebases = RuleBase::all();
         return response()->json([
             'status' => 'success',
             'data' => $rulebases
