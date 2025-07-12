@@ -725,7 +725,7 @@ document.getElementById('appointmentDate').addEventListener('change', function(e
                               }
                             }else if (action === 'declined') {
                               const modal = new bootstrap.Modal(document.getElementById('declineModal'));
-                              document.getElementById('declineForm').action = "/bookings/" + bookingId + "/decline/";
+                              document.getElementById('declineForm').action = "/bookings/" + bookingId + "/decline";
                               modal.show();
                             } else if (action) {
                               submitAction(action, bookingId);
