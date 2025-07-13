@@ -39,6 +39,11 @@ Route::post('/mail', [OTPController::class, 'sendMail']);
 
 Route::post('/verify', [OTPController::class, 'verify']);
 
+Route::post('/check-email', [AuthController::class, 'checkEmail']);
+
+Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+
+
 Route::get('/rule-base',[RuleBaseController::class,'getRulebase']);
 
 
