@@ -407,7 +407,7 @@
 <div class="offcanvas offcanvas-end" tabindex="-1" id="addClinicSidebar" style="width: 600px;">
   <div class="offcanvas-header border-bottom">
     <h5 class="offcanvas-title" id="sidebarTitle">Add New Booking</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="visibility: visible; opacity: 1;">
       <span aria-hidden="true" class="text-3xl">&times;</span>
     </button>
   </div>

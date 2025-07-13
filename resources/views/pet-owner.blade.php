@@ -47,7 +47,8 @@
                       <i class="fas fa-map-marker-alt"></i> {{ $clinic->address }}
                     </p>
                     <p class="card-text text-sm mb-2">
-                      <i class="fas fa-phone"></i> {{ $clinic->contact_number }}
+                      <i class="fas fa-phone"></i> {{ $clinic->contact }}
+                      <i class="fas fa-ambulance ms-2"></i>
                     </p>
                     <div class="d-flex justify-content-between align-items-center mt-3">
                       <div class="clinic-rating">

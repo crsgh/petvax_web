@@ -125,7 +125,7 @@
 <div class="offcanvas offcanvas-end" tabindex="-1" id="serviceSidebar">
   <div class="offcanvas-header">
     <h5 id="sidebarTitle">Add New Service</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"><span aria-hidden="true" class="text-3xl">&times;</span></button>
   </div>
   <div class="offcanvas-body">
     <form id="serviceForm" method="POST" action="" enctype="multipart/form-data" onsubmit="return validateForm()">

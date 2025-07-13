@@ -181,7 +181,7 @@ function openDuplicateModal(slot) {
 <div class="sidebar" id="addSlotSidebar">
   <div class="sidebar-header p-3">
     <h5 id="sidebarTitle">Customize Schedule Slots</h5>
-    <button type="button" class="btn-close" onclick="closeSidebar()"></button>
+    <button type="button" class="btn-close" onclick="closeSidebar()"><span aria-hidden="true" class="text-3xl">&times;</span></button>
   </div>
   <div class="sidebar-body p-3">
     <form id="addSlotForm" method="POST" action="" onsubmit="return validateForm()">

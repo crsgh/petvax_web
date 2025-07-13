@@ -92,7 +92,9 @@
 <div class="offcanvas offcanvas-end" tabindex="-1" id="addQuestionSidebar" aria-labelledby="addQuestionSidebarLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="addQuestionSidebarLabel">Add New Question</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span aria-hidden="true" class="text-3xl">&times;</span>
+    </button>
   </div>
   <div class="offcanvas-body">
     <form id="addQuestionForm" action="" method="POST">

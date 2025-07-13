@@ -78,7 +78,9 @@
   <div class="offcanvas offcanvas-end" tabindex="-1" id="addBreedSidebar">
     <div class="offcanvas-header border-bottom">
       <h5 class="offcanvas-title">Add New Breed</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
+        <span aria-hidden="true" class="text-3xl">&times;</span>
+      </button>
     </div>
     <div class="offcanvas-body">
       <form id="addBreedForm" action="" method="POST" class="needs-validation" novalidate>
