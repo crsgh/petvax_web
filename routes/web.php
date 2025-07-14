@@ -61,7 +61,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [HomeController::class, 'home']);
 
 	Route::get('/owner', function() {
-		$clinics = Clinic::where('status', 'active');
+		$clinics = Clinic::where('status', 'active')->get()	;
         $clinics = $clinics->map(function($clinic) {
 			$rating = ClinicRating::where('clinic_id', $clinic->id);
 			$clinic->reviews_count = $rating->count();

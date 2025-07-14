@@ -711,13 +711,19 @@ document.getElementById('appointmentDate').addEventListener('change', function(e
                             } else if (action === 'confirmed') {
                                 // Check if staff is not yet assigned
                                 const staffName = document.querySelector(`tr[data-booking-id="${bookingId}"] td:nth-child({{ auth()->user()->role_id == 1 ? 5 : 4 }})`).textContent.trim();
-                                console.log(staffName);
-                                if (staffName === 'Not Assigned') {
-                                    const modal = new bootstrap.Modal(document.getElementById('assignStaffModal_' + bookingId));
-                                    modal.show();
-                                } else {
-                                    submitAction('confirmed', bookingId);
+                                const modal = new bootstrap.Modal(document.getElementById('assignStaffModal_' + bookingId));
+                                
+                                // Pre-select staff if already assigned
+                                if (staffName !== 'Not Assigned') {
+                                    const staffSelect = document.getElementById('staffSelect_' + bookingId);
+                                    const options = Array.from(staffSelect.options);
+                                    const matchingOption = options.find(option => option.text === staffName);
+                                    if (matchingOption) {
+                                        matchingOption.selected = true;
+                                    }
                                 }
+                                
+                                modal.show();
                             }else if (action === 'cancelled') {
   const modal = new bootstrap.Modal(document.getElementById('declineModal'));
   document.getElementById('declineForm').action = "/bookings/" + bookingId + "/cancel/";
