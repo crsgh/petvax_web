@@ -10,7 +10,7 @@
             <div class="card-header pb-0">
               <div class="d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Bookings Table</h6>
-                @if(auth()->user()->role_id != 4)
+                @if(in_array(auth()->user()->role_id, [1, 2, 3]))
                 <button class="btn btn-primary btn-sm" onclick="openSidebar()" title="Add New Booking">
                   <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Booking
                 </button>
@@ -709,8 +709,15 @@ document.getElementById('appointmentDate').addEventListener('change', function(e
                             } else if (action === 'delete') {
                               deleteBooking(bookingId);
                             } else if (action === 'confirmed') {
-                                const modal = new bootstrap.Modal(document.getElementById('assignStaffModal_' + bookingId));
-                                modal.show();
+                                // Check if staff is not yet assigned
+                                const staffName = document.querySelector(`tr[data-booking-id="${bookingId}"] td:nth-child({{ auth()->user()->role_id == 1 ? 5 : 4 }})`).textContent.trim();
+                                console.log(staffName);
+                                if (staffName === 'Not Assigned') {
+                                    const modal = new bootstrap.Modal(document.getElementById('assignStaffModal_' + bookingId));
+                                    modal.show();
+                                } else {
+                                    submitAction('confirmed', bookingId);
+                                }
                             }else if (action === 'cancelled') {
   const modal = new bootstrap.Modal(document.getElementById('declineModal'));
   document.getElementById('declineForm').action = "/bookings/" + bookingId + "/cancel/";

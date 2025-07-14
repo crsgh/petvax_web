@@ -35,7 +35,7 @@
                   <select class="form-select" id="speciesFilter" onchange="filterTable()">
                     <option value="">All Species</option>
                     @foreach($species as $specie)
-                      <option value="{{ strtolower($specie) }}">{{ ucfirst($specie) }}</option>
+                      <option value="{{ $specie->name }}">{{ ucfirst($specie->name) }}</option>
                     @endforeach
                   </select>
                 </div>

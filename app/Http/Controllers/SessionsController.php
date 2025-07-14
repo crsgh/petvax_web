@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Clinic;
 
 class SessionsController extends Controller
 {
@@ -21,8 +22,13 @@ class SessionsController extends Controller
         $user = User::where('email', $attributes['email'])->first();
 
         if ($user && Hash::check($attributes['password'], $user->password)) {
+            $clinic = Clinic::find($user->clinic_id);
+            if ($user->role_id != 1 && $clinic->status != 'active') {
+                return back()->withErrors(['email' => 'Your clinic account is inactive. Please contact support.']);
+            }
+
             session()->regenerate();
-            auth()->login($user); 
+            auth()->login($user);
             return redirect('dashboard')->with(['success' => 'You are logged in.']);
         }
 
