@@ -102,7 +102,10 @@ class BookingController extends Controller
                 'service_id' => 'required|exists:services,id',
                 'staff_id' => 'required|exists:users,id',
                 'appointment_date' => 'required|date',
-                'notes' => 'nullable|string'
+                'notes' => 'nullable|string',
+                'payment_method' => 'nullable|string',
+                'payment_reference' => 'nullable|string',
+                'total_amount' => 'nullable|numeric'
             ]);
     
             $booking = $id == null ? new Booking : Booking::findOrFail($id);
@@ -116,7 +119,15 @@ class BookingController extends Controller
             $booking->staff_id = $validatedData['staff_id'];
             $booking->appointment_datetime = $validatedData['appointment_date'];
             $booking->notes = $validatedData['notes'] ?? '';
-            $booking->total_amount = $service->price;
+            $booking->total_amount = $validatedData['total_amount'] ?? $service->price;
+            $booking->payment_method = $validatedData['payment_method'] ?? 'cash';
+            $booking->payment_reference = $validatedData['payment_reference'] ?? null;
+            
+            // Handle payment proof upload
+            if ($request->hasFile('proof')) {
+                $booking->payment_proof = $this->uploadImage($request->file('proof'), 'payment_proofs');
+            }
+            
             $booking->save();   
 
             ActivityRecord::create([
@@ -127,13 +138,40 @@ class BookingController extends Controller
                     ? 'Created a new booking for pet ' . Pet::find($booking->pet_id)->name 
                     : 'Updated booking ID ' . $booking->id,
             ]);
+            
+            // Create notification for new booking
+            if ($id === null) {
+                Notification::create([
+                    'user_id' => $booking->client_id,
+                    'clinic_id' => $booking->clinic_id,
+                    'pet_id' => $booking->pet_id,
+                    'title' => 'Booking Submitted',
+                    'message' => $booking->payment_proof
+                        ? 'Your booking with payment proof has been submitted.'
+                        : 'Your booking has been submitted.',
+                    'type' => 'booking',
+                    'for_user' => 1,
+                    'is_read' => 0,
+                ]);
+                
+                // Notification for clinic staff
+                Notification::create([
+                    'clinic_id' => $booking->clinic_id,
+                    'pet_id' => $booking->pet_id,
+                    'title' => 'New Booking',
+                    'message' => 'New booking has been submitted for your clinic.',
+                    'type' => 'booking',
+                    'for_user' => 0,
+                    'is_read' => 0,
+                ]);
+            }
 
         }catch(\Illuminate\Validation\ValidationException $e){
             dd($e->errors());
        }
         
 
-        return redirect()->route('bookings')->with('success', 'Pet saved successfully');
+        return redirect()->route('bookings')->with('success', 'Booking saved successfully');
     }
 
 
@@ -261,6 +299,20 @@ class BookingController extends Controller
         ]);
         
         return redirect()->back()->with('success', 'Booking deleted successfully');
+    }
+    
+    /**
+     * Upload an image file to the specified directory
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param string $directory
+     * @return string The path to the uploaded image
+     */
+    protected function uploadImage($file, $directory = 'uploads')
+    {
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('public/' . $directory, $filename);
+        return str_replace('public/', 'storage/', $path);
     }
 
 public function decline(Request $request, $id)

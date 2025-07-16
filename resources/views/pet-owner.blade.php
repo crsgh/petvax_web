@@ -104,10 +104,13 @@
     </button>
   </div>
   <div class="offcanvas-body">
-    <form id="bookingForm" action="" method="POST" class="needs-validation" novalidate>
+    <form id="bookingForm" action="/owner" method="POST" class="needs-validation" enctype="multipart/form-data" novalidate>
       @csrf
       <input type="hidden" id="bookingId" name="booking_id">
       <input type="hidden" id="clinicSelect" name="clinic_id">
+      <input type="hidden" name="client_id" value="{{ auth()->id() }}">
+      <input type="hidden" name="status" value="pending">
+      <input type="hidden" id="totalAmount" name="total_amount" value="0">
       
       <div class="mb-3">
         <label for="petSelect" class="form-label">Select Pet</label>
@@ -147,8 +150,58 @@
           Please select a valid appointment date and time.
         </div>
       </div>
+      
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes (Optional)</label>
+        <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+      </div>
+      
+      <div class="mb-3">
+        <label for="paymentMethod" class="form-label">Payment Method</label>
+        <select class="form-select" id="paymentMethod" name="payment_method" required onchange="togglePaymentFields()">
+          <option value="" selected disabled>Select Payment Method</option>
+          <option value="cash">Cash</option>
+          <option value="gcash">GCash</option>
+          <option value="online">Online Payment</option>
+        </select>
+        <div class="invalid-feedback">
+          Please select a payment method.
+        </div>
+      </div>
+      
+      <!-- GCash Fields -->
+      <div id="gcashFields" style="display: none;">
+        <div class="mb-3">
+          <label class="form-label">GCash Number</label>
+          <p class="form-control-static" id="gcashNumber"></p>
+          <small class="text-muted">Send payment to this GCash number</small>
+        </div>
+        <div class="mb-3">
+          <label for="paymentProofRef" class="form-label">Reference Number</label>
+          <input type="text" class="form-control" id="paymentProofRef" name="payment_reference">
+          <div class="invalid-feedback">
+            Please enter the reference number.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="paymentProofImage" class="form-label">Upload Receipt</label>
+          <input type="file" class="form-control" id="paymentProofImage" name="proof">
+          <div class="invalid-feedback">
+            Please upload a receipt image.
+          </div>
+        </div>
+      </div>
+      
+      <!-- Online Payment Button -->
+      <div id="onlinePaymentFields" style="display: none;">
+        <div class="mb-3">
+          <button type="button" class="btn btn-info w-100">Proceed to Online Payment</button>
+          <small class="text-muted">You will be redirected to our payment gateway</small>
+        </div>
+      </div>
+      
       <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-primary" id="submitBtn">Save Booking</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Book Now</button>
       </div>
     </form>
   </div>
@@ -218,14 +271,33 @@ function filterClinics() {
   Array.prototype.slice.call(forms)
     .forEach(function (form) {
       form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-          event.preventDefault()
-          event.stopPropagation()
+        console.log('Form submission attempted');
+        
+        // Log form data for debugging
+        const formData = new FormData(form);
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
         }
-        form.classList.add('was-validated')
-      }, false)
-    })
-})()
+        
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+          console.log('Form validation failed');
+        } else {
+          console.log('Form validation passed');
+          // Show loading indicator or disable submit button to prevent double submission
+          const submitBtn = document.getElementById('submitBtn');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+          }
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+})();
 
 // Additional date-time validation
 document.getElementById('appointmentDate').addEventListener('change', function(e) {
@@ -251,26 +323,65 @@ async function loadServicesAndStaff() {
   }
 
   try {
-    const [servicesResponse, staffsResponse] = await Promise.all([
+    const [servicesResponse, staffsResponse, clinicResponse] = await Promise.all([
       fetch(`/api/clinics/${clinicId}/services`).then(response => response.json()),
-      fetch(`/api/clinics/${clinicId}/staffs`).then(response => response.json())
+      fetch(`/api/clinics/${clinicId}/staffs`).then(response => response.json()),
+      fetch(`/api/clinics/${clinicId}`).then(response => response.json())
     ]);
 
     serviceSelect.innerHTML = '<option value="" selected disabled>Choose a Service</option>';
     servicesResponse.forEach(service => {
-      serviceSelect.innerHTML += `<option value="${service.id}">${service.name}</option>`;
+      serviceSelect.innerHTML += `<option value="${service.id}" data-price="${service.price}">${service.name} - ₱${service.price}</option>`;
     });
     serviceSelect.disabled = false;
+    
+    // Add event listener to update total amount when service is selected
+    serviceSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const price = selectedOption.dataset.price || 0;
+      document.getElementById('totalAmount').value = price;
+    });
 
     staffSelect.innerHTML = '<option value="" selected disabled>Choose a Staff</option>';
     staffsResponse.forEach(staff => {
       staffSelect.innerHTML += `<option value="${staff.id}">${staff.name}</option>`;
     });
     staffSelect.disabled = false;
+    
+    // Set GCash number to clinic contact
+    if (clinicResponse && clinicResponse.contact) {
+      document.getElementById('gcashNumber').textContent = clinicResponse.contact;
+    }
 
   } catch (error) {
     console.error('Error loading dropdown data:', error);
     alert('Failed to load dropdown data. Please try again.');
+  }
+}
+
+// Function to toggle payment fields based on selected payment method
+function togglePaymentFields() {
+  const paymentMethod = document.getElementById('paymentMethod').value;
+  const gcashFields = document.getElementById('gcashFields');
+  const onlinePaymentFields = document.getElementById('onlinePaymentFields');
+  
+  // Hide all payment fields first
+  gcashFields.style.display = 'none';
+  onlinePaymentFields.style.display = 'none';
+  
+  // Show fields based on selected payment method
+  if (paymentMethod === 'gcash') {
+    gcashFields.style.display = 'block';
+    document.getElementById('paymentProofRef').setAttribute('required', 'required');
+    document.getElementById('paymentProofImage').setAttribute('required', 'required');
+  } else if (paymentMethod === 'online') {
+    onlinePaymentFields.style.display = 'block';
+  }
+  
+  // Remove required attribute if not GCash
+  if (paymentMethod !== 'gcash') {
+    document.getElementById('paymentProofRef').removeAttribute('required');
+    document.getElementById('paymentProofImage').removeAttribute('required');
   }
 }
 </script>

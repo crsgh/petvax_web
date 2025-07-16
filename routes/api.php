@@ -107,6 +107,25 @@ Route::get('/clinics/{id}/staffs', function ( $id) {
     return User::where("clinic_id", $id)->where("role_id",4)->get();
 });
 
+Route::get('/clinics/{id}', function ($id) {
+    return Clinic::findOrFail($id);
+});
+
+Route::get('/clinics/{id}/details', function ($id) {
+    $clinic = Clinic::findOrFail($id);
+    $services = Service::where('clinic_id', $id)->get();
+    
+    return response()->json([
+        'id' => $clinic->id,
+        'name' => $clinic->name,
+        'address' => $clinic->address,
+        'contact_number' => $clinic->contact,
+        'operating_hours' => $clinic->operating_hours ?? '9:00 AM - 5:00 PM',
+        'image' => asset('storage/' . $clinic->image),
+        'services' => $services
+    ]);
+});
+
 // User Authentication Routes
 Route::post('/login', [AuthController::class, 'login']);
 
