@@ -16,6 +16,7 @@ class PetController extends Controller
     public function index(Request $request)
     {
         $pets = Pet::with(['owner', 'clinic'])
+            ->whereNull('deleted_at')
             ->when($request->owner_id, function($query, $owner_id) {
                 return $query->where('owner_id', $owner_id);
             })

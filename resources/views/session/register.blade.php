@@ -448,10 +448,23 @@
                                            value="{{ old('clinic_email') }}" 
                                            required 
                                            maxlength="255"
+                                           oninput="validateClinicEmail(this.value)"
                                            placeholder="clinic@example.com">
+                                    <div class="text-error" id="emailError" style="display: none;">Please enter a valid email address (e.g., clinic@gmail.com)</div>
                                     @error('clinic_email')
                                     <div class="text-error">{{ $message }}</div>
                                     @enderror
+                                    <script>
+                                    function validateClinicEmail(email) {
+                                        const emailError = document.getElementById('emailError');
+                                        const atIndex = email.indexOf('@');
+                                        if (atIndex > 0 && email.indexOf('.', atIndex) === -1) {
+                                            emailError.style.display = 'block';
+                                        } else {
+                                            emailError.style.display = 'none';
+                                        }
+                                    }
+                                    </script>
                                 </div>
                             </div>
 
@@ -791,32 +804,34 @@ function previewImage(input) {
 
 // Tag management
 function addTag() {
-    const tagInput = document.getElementById('tagInput');
-    const tagValue = tagInput.value.trim();
-    if (tagValue && !tags.includes(tagValue)) {
-        tags.push(tagValue);
-        updateTagsDisplay();
-        tagInput.value = '';
+    const input = document.getElementById('tagInput');
+    const tag = input.value.trim();
+    
+    if (tag && !tags.includes(tag)) {
+        tags.push(tag);
+        updateTags();
     }
+    
+    input.value = '';
 }
 
 function removeTag(tagToRemove) {
     tags = tags.filter(tag => tag !== tagToRemove);
-    updateTagsDisplay();
+    updateTags();
 }
 
-function updateTagsDisplay() {
-    const tagContainer = document.getElementById('tagContainer');
+function updateTags() {
+    const container = document.getElementById('tagContainer');
     const hiddenInput = document.getElementById('clinicTags');
     
-    tagContainer.innerHTML = tags.map(tag => `
-        <span class="tag-badge">
+    container.innerHTML = tags.map(tag => `
+        <div class="badge bg-primary d-flex align-items-center gap-2">
             ${tag}
-            <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
-        </span>
+            <i class="fas fa-times cursor-pointer" onclick="removeTag('${tag}')"></i>
+        </div>
     `).join('');
     
-    hiddenInput.value = tags.join(',');
+    hiddenInput.value = JSON.stringify(tags);
 }
 
 function handleTagKeyPress(event) {

@@ -33,12 +33,15 @@ class MedicalHistoryController extends Controller
         }
 
 		return view('medical-histories',[
-            'medicalHistories' => MedicalHistory::
-                with(['pet', 'veterinarian'])
+            'medicalHistories' => MedicalHistory::with(['pet' => function($query) {
+                    $query->withTrashed()->with(['owner']);
+                }, 'veterinarian'])
+                ->select('medical_histories.*', 'pets.deleted_at as pet_deleted_at')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('medical_histories.clinic_id', auth()->user()->clinic_id);
                 })
-                ->orderBy('medical_histories.treatment_date', 'desc')
+                ->join('pets', 'medical_histories.pet_id', '=', 'pets.id')
+                ->orderBy('medical_histories.id', 'desc')
                 ->get(),
 			'clinics' => Clinic::all(),
 			'pets' => auth()->user()->role_id == 5 

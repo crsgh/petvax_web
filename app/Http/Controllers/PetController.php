@@ -28,7 +28,8 @@ class PetController extends Controller
         // Build pets query with joins and conditions
         $petsQuery = Pet::select('pets.*', 'clinics.name as clinic_name', 'users.name as owners_name')
             ->leftJoin('users', 'pets.owner_id', '=', 'users.id')
-            ->leftJoin('clinics', 'pets.clinic_id', '=', 'clinics.id');
+            ->leftJoin('clinics', 'pets.clinic_id', '=', 'clinics.id')
+            ->whereNull('pets.deleted_at');
 
         // Filter by completed pets for non-admin users    
         if (auth()->user()->role_id != 1) {
@@ -37,7 +38,7 @@ class PetController extends Controller
 
         return view('pets', [
             'pets' => auth()->user()->role_id == 5 
-                ? Pet::where('owner_id', auth()->id())->paginate(8)
+                ? Pet::where('owner_id', auth()->id())->whereNull('deleted_at')->paginate(8)
                 : $petsQuery->paginate(8),
             'owners' => User::where('role_id', 5)->get(),
             'clinics' => Clinic::all(),

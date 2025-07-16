@@ -72,7 +72,7 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('pet-owner',[
 			'clinics' => $clinics,
 			'services' => Service::all(),
-			'pets' => Pet::where('owner_id', auth()->id())->get(),
+			'pets' => Pet::where('owner_id', auth()->id())->whereNull('deleted_at')->get(),
 			'vets' => User::where('role_id', 4)->get(),
 			
 			'notifications' => match(auth()->user()->role_id) {

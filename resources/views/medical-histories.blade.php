@@ -27,7 +27,7 @@
         <div class="col-md-2">
             <select id="filterSpecies" class="form-select">
                 <option value="">All Species</option>
-                @foreach($pets->pluck('species')->unique() as $species)
+                @foreach($pets->pluck('species')->filter()->unique() as $species)
                     <option value="{{ $species }}">{{ $species }}</option>
                 @endforeach
             </select>
@@ -65,19 +65,19 @@
                                 <tbody>
                                     @foreach($medicalHistories as $history)
                                        <tr 
-    data-pet-name="{{ strtolower($history->pet->name) }}" 
-    data-owner-name="{{ strtolower($history->pet->owner->name) }}" 
-    data-species="{{ strtolower($history->pet->species ?? '') }}" 
-    data-gender="{{ strtolower($history->pet->gender ?? '') }}"
+    data-pet-name="{{ $history->pet ? strtolower($history->pet->name) : '' }}" 
+    data-owner-name="{{ $history->pet && $history->pet->owner ? strtolower($history->pet->owner->name) : '' }}" 
+    data-species="{{ $history->pet ? strtolower($history->pet->species ?? '') : '' }}" 
+    data-gender="{{ $history->pet ? strtolower($history->pet->gender ?? '') : '' }}"
 >
                                             <td>
                                                 <div class="d-flex px-2 py-1">
                                                     <div>
-                                                        <img src="{{ $history->pet->image ? asset('storage/' . $history->pet->image) : '../assets/img/dog.png' }}" class="avatar avatar-sm me-3" alt="{{ $history->pet->name }}">
+                                                        <img src="{{ $history->pet && $history->pet->image ? asset('storage/' . $history->pet->image) : '../assets/img/dog.png' }}" class="avatar avatar-sm me-3" alt="{{ $history->pet ? $history->pet->name : 'Pet' }}">
                                                     </div>
                                                     <div class="d-flex flex-column justify-content-center">
-                                                        <h6 class="mb-0 text-sm">{{ $history->pet->name }}</h6>
-                                                        <p class="text-xs text-secondary mb-0">Owner: {{ $history->pet->owner->name }}</p>
+                                                        <h6 class="mb-0 text-sm">{{ $history->pet ? $history->pet->name : 'Unknown Pet' }}</h6>
+                                                        <p class="text-xs text-secondary mb-0">Owner: {{ $history->pet && $history->pet->owner ? $history->pet->owner->name : 'Unknown Owner' }}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -110,7 +110,7 @@
                                                             style="width: 22px; height: 22px; border-radius: 8px;"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#followUpModal"
-                                                            onclick="prepareFollowUp('{{ $history->pet_id }}', '{{ $history->pet->name }}', '{{ $history->id }}')"
+                                                            onclick="prepareFollowUp('{{ $history->pet_id }}', '{{ $history->pet ? $history->pet->name : 'Unknown Pet' }}', '{{ $history->id }}')"
                                                             title="Schedule Follow-up">
                                                             <i class="fas fa-plus" style="font-size: 0.75rem;"></i>
                                                         </button>
@@ -215,7 +215,7 @@
                 <select class="form-select select2" id="petSelect" name="pet_id" required data-error="Please select a pet">
                     <option value="" disabled selected>Choose a pet</option>
                     @foreach($pets as $pet)
-                        <option value="{{ $pet->id }}">{{ $pet->name }} - {{ $pet->owner->name }}</option>
+                        <option value="{{ $pet->id }}">{{ $pet->name ?? 'Unnamed Pet' }} - {{ $pet->owner ? $pet->owner->name : 'Unknown Owner' }}</option>
                     @endforeach
                 </select>
                 <div class="invalid-feedback">Please select a pet</div>
@@ -228,7 +228,7 @@
                     <select class="form-select select2" id="clinicSelect" name="clinic_id" required data-error="Please select a clinic">
                         <option value="" disabled selected>Choose a clinic</option>
                         @foreach($clinics as $clinic)
-                            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+                            <option value="{{ $clinic->id }}">{{ $clinic->name ?? 'Unnamed Clinic' }}</option>
                         @endforeach
                     </select>
                     <div class="invalid-feedback">Please select a clinic</div>
@@ -280,11 +280,11 @@
                                 <option value="" selected disabled>Select inventory item...</option>
                                 @foreach($inventories as $inventory)
                                     <option value="{{ $inventory->id }}" 
-                                            data-name="{{ $inventory->name }}"
-                                            data-quantity="{{ $inventory->quantity }}"
-                                            {{ $inventory->quantity <= 0 ? 'disabled' : '' }}>
-                                        {{ $inventory->name }} 
-                                        <small class="text-muted">(Available: {{ $inventory->quantity }})</small>
+                                            data-name="{{ $inventory->name ?? 'Unknown Item' }}"
+                                            data-quantity="{{ $inventory->quantity ?? 0 }}"
+                                            {{ ($inventory->quantity ?? 0) <= 0 ? 'disabled' : '' }}>
+                                        {{ $inventory->name ?? 'Unknown Item' }} 
+                                        <small class="text-muted">(Available: {{ $inventory->quantity ?? 0 }})</small>
                                     </option>
                                 @endforeach
                             </select>
@@ -404,7 +404,7 @@
                 <select class="form-select d-none" id="vetSelect" name="vet_id" data-error="Please select a veterinarian">
                     <option value="" disabled selected>Choose a veterinarian</option>
                     @foreach($veterinarians as $vet)
-                        <option value="{{ $vet->id }}">Dr. {{ $vet->name }}</option>
+                        <option value="{{ $vet->id }}">Dr. {{ $vet->name ?? 'Unknown' }}</option>
                     @endforeach
                 </select>
                 <div class="invalid-feedback">Please select a veterinarian</div>

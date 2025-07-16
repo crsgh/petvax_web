@@ -16,8 +16,10 @@ use App\Models\Pet;
 class BookingController extends Controller
 {
     public function index () {
-        $bookings = Booking::with(['pet:id,name', 'service:id,name,category', 'clinic:id,name'])
-                ->select('bookings.*')
+        $bookings = Booking::with(['pet' => function($query) {
+                return $query->withTrashed();
+            }, 'service:id,name,category', 'clinic:id,name'])
+                ->select('bookings.*', 'pets.deleted_at as pet_deleted_at')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     if (auth()->user()->role_id == 4) {
                         return $query->where('bookings.staff_id', auth()->id());
@@ -27,7 +29,8 @@ class BookingController extends Controller
                     }
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
                 })
-                ->orderBy('created_at', 'desc')
+                ->join('pets', 'bookings.pet_id', '=', 'pets.id')
+                ->orderBy('bookings.id', 'desc')
                 ->paginate(8)
                 ->withQueryString();
 
@@ -66,7 +69,9 @@ class BookingController extends Controller
     {
        
        return view('sales-report',[
-			'bookings' => Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
+			'bookings' => Booking::with(['pet' => function($query) {
+                    return $query->withTrashed();
+                }, 'service:id,name', 'clinic:id,name'])
                 ->select('bookings.*')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('bookings.clinic_id', auth()->user()->clinic_id);

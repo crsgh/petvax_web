@@ -516,22 +516,47 @@ document.getElementById('appointmentDate').addEventListener('change', function(e
       </div>
       <form method="POST" id="declineForm">
         @csrf
-      <div class="modal-body">
-        
+        <div class="modal-body">
           <div class="mb-3">
-            <label for="declineReason_${bookingId}" class="form-label">Reason for Declining</label>
-            <textarea class="form-control" id="declineReason_${bookingId}" rows="3" required name="notes"></textarea>
+            <label for="declineReasonSelect" class="form-label">Reason for Declining</label>
+            <select class="form-select mb-3" id="declineReasonSelect" onchange="toggleOtherReason()">
+              <option value="" selected disabled>Select a reason</option>
+              <option value="Schedule conflict - Veterinarian not available">Schedule conflict - Veterinarian not available</option>
+              <option value="Service not available at the moment">Service not available at the moment</option>
+              <option value="Insufficient medical records/requirements">Insufficient medical records/requirements</option>
+              <option value="others">Others</option>
+            </select>
+            <textarea class="form-control" id="otherReasonText" name="notes" rows="3" style="display: none;" placeholder="Please specify the reason"></textarea>
+            <input type="hidden" id="declineReasonInput" name="notes">
           </div>
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" onclick="setDeclineReason()">Submit</button>
+        </div>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+function toggleOtherReason() {
+  const select = document.getElementById('declineReasonSelect');
+  const textarea = document.getElementById('otherReasonText');
+  textarea.style.display = select.value === 'others' ? 'block' : 'none';
+  if (select.value !== 'others') {
+    textarea.value = '';
+  }
+}
+
+function setDeclineReason() {
+  const select = document.getElementById('declineReasonSelect');
+  const textarea = document.getElementById('otherReasonText');
+  const input = document.getElementById('declineReasonInput');
+  
+  input.value = select.value === 'others' ? textarea.value : select.value;
+}
+</script>
 
   <script>
     // Existing functions remain the same

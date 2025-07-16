@@ -93,7 +93,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/clinics/{id}/pets', function ($id) {
-    return Pet::where("clinic_id", $id)->get();
+    return Pet::where("clinic_id", $id)
+        ->whereNull('deleted_at')
+        ->orderBy('created_at', 'desc')
+        ->get();
 });
 
 Route::get('/clinics/{id}/services', function ($id) {
