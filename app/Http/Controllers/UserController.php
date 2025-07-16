@@ -7,21 +7,24 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Clinic;
 use App\Models\Notification;
+use App\Models\Booking;
+
 
 class UserController extends Controller
 {
     public function owners()
     {
+
+        $query = Booking::where('status', 'completed');
+    
+        $completedPetIds = $query->distinct()->pluck('client_id')->toArray();
+        $users = User::with(['role', 'clinic'])
+            ->where('role_id', 5)
+            ->whereIn('id', $completedPetIds)
+            ->paginate(10);
+
         return view('users', [
-            'users' => User::with(['role', 'clinic'])
-                ->where('role_id', 5)
-                // ->when(auth()->user()->role_id != 1, function($query) {
-                //     return $query->where(function($q) {
-                //         $q->where('clinic_id', auth()->user()->clinic_id)
-                //           ->orWhere('role_id', 5);
-                //     });
-                // })
-                ->paginate(8),
+            'users' => $users,
             'roles' => Role::all(),
             'clinics' => Clinic::all(),
             'notifications' => match(auth()->user()->role_id) {

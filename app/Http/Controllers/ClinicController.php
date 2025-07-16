@@ -33,6 +33,9 @@ class ClinicController extends Controller
     public function upsert(Request $request, $id = null)
     {
         try {
+            if (!is_array($request->tags)) {
+                $request->merge(['tags' => json_encode( explode(',', $request->tags))]);
+            }
             $validatedData = $request->validate([
                 'clinic_name' => 'required|max:255',
                 'clinic_address' => 'required|max:255',
@@ -47,10 +50,6 @@ class ClinicController extends Controller
                 'clinic_status' => 'required|in:active,inactive',
             ]);
             $clinic = $id == null ? new Clinic() : Clinic::findOrFail($id);
-            
-            
-
-            
             
             if ($request->hasFile('clinic_image')) {
                 $clinic->image = $this->uploadImage($request->file('clinic_image'), 'clinics');
