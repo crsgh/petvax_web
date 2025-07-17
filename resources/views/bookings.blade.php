@@ -9,7 +9,7 @@
           <div class="card mb-0">
             <div class="card-header pb-0">
               <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Bookings Table</h6>
+                <h6 class="mb-0">Bookings Table </h6>
                 @if(in_array(auth()->user()->role_id, [1, 2, 3]))
                 <button class="btn btn-primary btn-sm" onclick="openSidebar()" title="Add New Booking">
                   <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Booking
@@ -121,7 +121,7 @@
                                     </div>
                                     <div class="modal-body text-center p-0">
                                       <div style="width: 100%; height: 700px; position: relative; overflow: hidden;">
-                                        <img src="{{ asset('storage/' . $booking->payment_proof) }}" 
+                                        <img src="{{ asset($booking->payment_proof) }}" 
                                              style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" 
                                              alt="Payment Proof">
                                       </div>

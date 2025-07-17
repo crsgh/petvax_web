@@ -186,10 +186,11 @@
         </div>
         <div class="mb-3">
           <label for="paymentProofImage" class="form-label">Upload Receipt</label>
-          <input type="file" class="form-control" id="paymentProofImage" name="proof">
+          <input type="file" class="form-control" id="paymentProofImage" name="proof" accept="image/*" required>
           <div class="invalid-feedback">
             Please upload a receipt image.
           </div>
+          <small class="text-muted">Upload a clear image of your GCash payment receipt. Accepted formats: JPG, PNG, JPEG.</small>
         </div>
       </div>
       

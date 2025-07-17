@@ -29,7 +29,9 @@ class SessionsController extends Controller
 
             session()->regenerate();
             auth()->login($user);
-            return redirect('dashboard')->with(['success' => 'You are logged in.']);
+            return auth()->user()->role_id == 5 
+                ? redirect('owner')->with(['success' => 'You are logged in.'])
+                : redirect('dashboard')->with(['success' => 'You are logged in.']);
         }
 
         return back()->withErrors(['email' => 'Email or password invalid.']);
