@@ -5,6 +5,28 @@
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
+                @php
+                    $petHistories = [];
+                    foreach($medicalHistories as $history) {
+                        if ($history->pet) {
+                            $petId = $history->pet->id;
+                            $petName = $history->pet->name;
+                            $ownerName = $history->pet->owner ? $history->pet->owner->name : 'Unknown Owner';
+                            $petOwnerKey = $petName . '-' . $ownerName;
+                            
+                            if (!isset($petHistories[$petOwnerKey])) {
+                                $petHistories[$petOwnerKey] = [
+                                    'pet' => $history->pet,
+                                    'count' => 0,
+                                    'histories' => [],
+                                    'pet_id' => $petId
+                                ];
+                            }
+                            $petHistories[$petOwnerKey]['count']++;
+                            $petHistories[$petOwnerKey]['histories'][] = $history;
+                        }
+                    }
+                @endphp
               
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
@@ -44,111 +66,60 @@
         </div>
     </div>
 </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pet Info</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Diagnosis</th>
-                                        @if(auth()->user()->role_id == 1)
-                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Clinic</th>
-                                        @endif
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Treatment Date</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Veterinarian</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Follow-up Date</th>
-                                        {{-- @if(auth()->user()->role_id != 4)
-                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                                        @endif --}}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($medicalHistories as $history)
-                                       <tr 
-    data-pet-name="{{ $history->pet ? strtolower($history->pet->name) : '' }}" 
-    data-owner-name="{{ $history->pet && $history->pet->owner ? strtolower($history->pet->owner->name) : '' }}" 
-    data-species="{{ $history->pet ? strtolower($history->pet->species ?? '') : '' }}" 
-    data-gender="{{ $history->pet ? strtolower($history->pet->gender ?? '') : '' }}"
->
-                                            <td>
-                                                <div class="d-flex px-2 py-1">
-                                                    <div>
-                                                        <img src="{{ $history->pet && $history->pet->image ? asset('storage/' . $history->pet->image) : '../assets/img/dog.png' }}" class="avatar avatar-sm me-3" alt="{{ $history->pet ? $history->pet->name : 'Pet' }}">
-                                                    </div>
-                                                    <div class="d-flex flex-column justify-content-center">
-                                                        <h6 class="mb-0 text-sm">{{ $history->pet ? $history->pet->name : 'Unknown Pet' }}</h6>
-                                                        <p class="text-xs text-secondary mb-0">Owner: {{ $history->pet && $history->pet->owner ? $history->pet->owner->name : 'Unknown Owner' }}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-xs text-secondary mb-0">{{ $history->diagnosis }}</p>
-                                            </td>
-                                            @if(auth()->user()->role_id == 1)
-                                                <td>
-                                                    <p class="text-xs text-secondary mb-0">{{ $history->clinic->name }}</p>
-                                                </td>
-                                            @endif
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">{{ $history->treatment_date }}</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <span class="text-secondary text-xs font-weight-bold">
-                                                    {{ $history->veterinarian ? "Dr. " . $history->veterinarian->name : ($history->attending_vet ? "Dr. " . $history->attending_vet : "N/A") }}
-                                                </span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                @if($history->followup)
-                                                    <span class="badge badge-sm bg-gradient-info">
-                                                        {{ $history->followup }}
-                                                    </span>
-                                                @else
-                                                    <div class="d-flex align-items-center justify-content-center" style="height: 100%;">
-                                                        <span class="badge badge-sm bg-gradient-secondary me-2" style="margin-bottom: 0;">No Follow-up</span>
-                                                        <button type="button"
-                                                            class="btn btn-icon-only btn-success mb-0 p-2 d-flex align-items-center justify-content-center"
-                                                            style="width: 22px; height: 22px; border-radius: 8px;"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#followUpModal"
-                                                            onclick="prepareFollowUp('{{ $history->pet_id }}', '{{ $history->pet ? $history->pet->name : 'Unknown Pet' }}', '{{ $history->id }}')"
-                                                            title="Schedule Follow-up">
-                                                            <i class="fas fa-plus" style="font-size: 0.75rem;"></i>
-                                                        </button>
-                                                    </div>
-                                                @endif
-                                            </td>
-                                            {{-- <td class="align-middle text-center">
-                                                @if(auth()->user()->role_id != 4)
-                                                    <div class="d-flex gap-1 justify-content-center">
-                                                        <button class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center"
-                                                                onclick="editHistory('{{ $history->id }}', '{{ $history->pet_id }}', '{{ $history->clinic_id }}', '{{ $history->diagnosis }}', '{{ $history->treatment }}', '{{ $history->treatment_date }}', '{{ $history->veterinarian }}', '{{ $history->notes }}', '{{ $history->inventory_id }}')"
-                                                                data-bs-toggle="tooltip"
-                                                                data-bs-placement="top"
-                                                                title="Edit Record">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                                                            </svg>
-                                                        </button>
-                                                        
-                                                        <form action="/medical-histories/{{ $history->id }}/delete" method="GET" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this medical record?')">
-                                                            @csrf
-                                                            <button class="btn btn-icon-only btn-rounded btn-outline-danger mb-0 p-2 d-flex align-items-center justify-content-center"
-                                                                    data-bs-toggle="tooltip"
-                                                                    data-bs-placement="top"
-                                                                    title="Delete Record">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                                                </svg>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                @endif
-                                            </td> --}}
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    <div class="card-body pt-3 pb-2">
+                        <div class="row" id="medicalHistoriesGrid">
+                            @foreach($petHistories as $petOwnerKey => $data)
+                            <div class="col-xl-4 col-md-6 mb-4 medical-history-card" 
+                                data-pet-name="{{ strtolower($data['pet']->name) }}" 
+                                data-owner-name="{{ $data['pet']->owner ? strtolower($data['pet']->owner->name) : '' }}" 
+                                data-species="{{ strtolower($data['pet']->species ?? '') }}" 
+                                data-gender="{{ strtolower($data['pet']->gender ?? '') }}">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-header pb-0 d-flex align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ $data['pet']->image ? asset('storage/' . $data['pet']->image) : '../assets/img/dog.png' }}" 
+                                                class="avatar avatar-sm me-3" 
+                                                alt="{{ $data['pet']->name }}">
+                                            <div>
+                                                <h6 class="mb-0 text-sm">{{ $data['pet']->name }}</h6>
+                                                <p class="text-xs text-secondary mb-0">Owner: {{ $data['pet']->owner ? $data['pet']->owner->name : 'Unknown Owner' }}</p>
+                                                <span class="badge bg-gradient-info mt-1">{{ $data['count'] }} Records</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body pt-2">
+                                        <div class="mb-3">
+                                            <p class="text-xs font-weight-bold mb-0">Latest Diagnosis:</p>
+                                            <p class="text-xs text-secondary mb-0">{{ Str::limit($data['histories'][0]->diagnosis, 100) }}</p>
+                                        </div>
+                                        
+                                        <div class="row mb-2">
+                                            <div class="col-6">
+                                                <p class="text-xs font-weight-bold mb-0">Latest Treatment:</p>
+                                                <p class="text-xs text-secondary mb-0">{{ $data['histories'][0]->treatment_date }}</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="text-xs font-weight-bold mb-0">Species/Gender:</p>
+                                                <p class="text-xs text-secondary mb-0">
+                                                    {{ $data['pet']->species }} / {{ $data['pet']->gender }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer pt-0">
+                                        <div class="d-flex justify-content-center">
+                                            <button class="btn btn-sm btn-outline-info w-100"
+                                                    onclick="viewPetHistories({{ $data['pet_id'] }})"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="View All Records">
+                                                <i class="fas fa-eye me-1"></i> View All Records
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
                     
@@ -609,33 +580,33 @@
         const ownerInput = document.getElementById('filterOwnerName');
         const speciesSelect = document.getElementById('filterSpecies');
         const genderSelect = document.getElementById('filterGender');
-        const rows = document.querySelectorAll('tbody tr');
+        const cards = document.querySelectorAll('.medical-history-card');
 
-        function filterTable() {
+        function filterGrid() {
             const petName = petInput.value.toLowerCase();
             const ownerName = ownerInput.value.toLowerCase();
             const species = speciesSelect.value.toLowerCase();
             const gender = genderSelect.value.toLowerCase();
 
-            rows.forEach(row => {
-                const petData = (row.dataset.petName || '').toLowerCase();
-                const ownerData = (row.dataset.ownerName || '').toLowerCase();
-                const speciesData = (row.dataset.species || '').toLowerCase();
-                const genderData = (row.dataset.gender || '').toLowerCase();
+            cards.forEach(card => {
+                const petData = (card.dataset.petName || '').toLowerCase();
+                const ownerData = (card.dataset.ownerName || '').toLowerCase();
+                const speciesData = (card.dataset.species || '').toLowerCase();
+                const genderData = (card.dataset.gender || '').toLowerCase();
 
                 const matchPet = petData.includes(petName);
                 const matchOwner = ownerData.includes(ownerName);
                 const matchSpecies = !species || species === speciesData;
                 const matchGender = !gender || gender === genderData;
 
-                row.style.display = (matchPet && matchOwner && matchSpecies && matchGender) ? '' : 'none';
+                card.style.display = (matchPet && matchOwner && matchSpecies && matchGender) ? '' : 'none';
             });
         }
 
-        petInput.addEventListener('input', filterTable);
-        ownerInput.addEventListener('input', filterTable);
-        speciesSelect.addEventListener('change', filterTable);
-        genderSelect.addEventListener('change', filterTable);
+        petInput.addEventListener('input', filterGrid);
+        ownerInput.addEventListener('input', filterGrid);
+        speciesSelect.addEventListener('change', filterGrid);
+        genderSelect.addEventListener('change', filterGrid);
     });
 
     function resetFilters() {
@@ -643,7 +614,7 @@
         document.getElementById('filterOwnerName').value = '';
         document.getElementById('filterSpecies').value = '';
         document.getElementById('filterGender').value = '';
-        document.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+        document.querySelectorAll('.medical-history-card').forEach(card => card.style.display = '');
     }
 </script>
 
@@ -783,6 +754,264 @@
             document.body.appendChild(form);
             form.submit();
         }
+    }
+</script>
+
+<!-- View Medical Record Modal -->
+<div class="modal fade" id="viewMedicalRecordModal" tabindex="-1" aria-labelledby="viewMedicalRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewMedicalRecordModalLabel">Medical Record Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <img id="recordModalPetImage" src="../assets/img/dog.png" class="avatar avatar-xl rounded-circle mb-3" alt="Pet Image">
+                                <h5 id="recordModalPetName" class="mb-0">Pet Name</h5>
+                                <p id="recordModalPetOwner" class="text-muted">Owner Name</p>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <span id="recordModalPetSpecies" class="badge bg-gradient-primary">Species</span>
+                                    <span id="recordModalPetGender" class="badge bg-gradient-secondary">Gender</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header pb-0">
+                                <h6>Medical Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p class="text-sm mb-0"><strong>Treatment Date:</strong></p>
+                                        <p id="recordModalTreatmentDate" class="text-sm text-dark">-</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="text-sm mb-0"><strong>Veterinarian:</strong></p>
+                                        <p id="recordModalVeterinarian" class="text-sm text-dark">-</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p class="text-sm mb-0"><strong>Clinic:</strong></p>
+                                        <p id="recordModalClinic" class="text-sm text-dark">-</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="text-sm mb-0"><strong>Follow-up Date:</strong></p>
+                                        <p id="recordModalFollowup" class="text-sm text-dark">-</p>
+                                    </div>
+                                </div>
+                                <hr class="horizontal dark">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <p class="text-sm mb-1"><strong>Diagnosis:</strong></p>
+                                        <p id="recordModalDiagnosis" class="text-sm text-dark">-</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <p class="text-sm mb-1"><strong>Treatment:</strong></p>
+                                        <p id="recordModalTreatment" class="text-sm text-dark">-</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p class="text-sm mb-1"><strong>Notes:</strong></p>
+                                        <p id="recordModalNotes" class="text-sm text-dark">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header pb-0">
+                        <h6>Inventory Items Used</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Item Name</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity Used</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recordModalInventoryTableBody">
+                                    <!-- Inventory items will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pet History Modal -->
+<div class="modal fade" id="petHistoryModal" tabindex="-1" aria-labelledby="petHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="petHistoryModalLabel">Pet Medical History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <img id="modalPetImage" src="../assets/img/dog.png" class="avatar avatar-xl rounded-circle mb-3" alt="Pet Image">
+                                <h5 id="modalPetName" class="mb-0">Pet Name</h5>
+                                <p id="modalPetOwner" class="text-muted">Owner Name</p>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <span id="modalPetSpecies" class="badge bg-gradient-primary">Species</span>
+                                    <span id="modalPetGender" class="badge bg-gradient-secondary">Gender</span>
+                                    <span id="modalRecordCount" class="badge bg-gradient-info">0 Records</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="table-responsive">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Diagnosis</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Treatment</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Treatment Date</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Veterinarian</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Follow-up</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalHistoryTableBody">
+                                    <!-- History records will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Store pet histories data for modal display
+    const petHistoriesData = @json($petHistories);
+    
+    function viewPetHistories(petId) {
+        // Find the pet data by pet_id
+        let petData = null;
+        for (const key in petHistoriesData) {
+            if (petHistoriesData[key].pet_id === petId) {
+                petData = petHistoriesData[key];
+                break;
+            }
+        }
+        if (!petData) return;
+        
+        const pet = petData.pet;
+        const histories = petData.histories;
+        
+        // Update modal header information
+        document.getElementById('modalPetName').textContent = pet.name || 'Unknown Pet';
+        document.getElementById('modalPetOwner').textContent = pet.owner ? pet.owner.name : 'Unknown Owner';
+        document.getElementById('modalPetSpecies').textContent = pet.species || 'Unknown';
+        document.getElementById('modalPetGender').textContent = pet.gender || 'Unknown';
+        document.getElementById('modalRecordCount').textContent = `${petData.count} Records`;
+        
+        // Set pet image
+        const petImage = document.getElementById('modalPetImage');
+        petImage.src = pet.image ? `/storage/${pet.image}` : '../assets/img/dog.png';
+        petImage.alt = pet.name || 'Pet';
+        
+        // Populate history table
+        const tableBody = document.getElementById('modalHistoryTableBody');
+        tableBody.innerHTML = '';
+        
+        histories.forEach(history => {
+            const row = document.createElement('tr');
+            
+            // Diagnosis cell
+            const diagnosisCell = document.createElement('td');
+            diagnosisCell.innerHTML = `
+                <div class="d-flex px-2 py-1">
+                    <div class="d-flex flex-column justify-content-center">
+                        <p class="text-xs text-secondary mb-0">${history.diagnosis}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Treatment cell
+            const treatmentCell = document.createElement('td');
+            treatmentCell.innerHTML = `
+                <p class="text-xs text-secondary mb-0">${history.treatment}</p>
+            `;
+            
+            // Treatment date cell
+            const dateCell = document.createElement('td');
+            dateCell.className = 'align-middle text-center';
+            dateCell.innerHTML = `
+                <span class="text-secondary text-xs font-weight-bold">${history.treatment_date}</span>
+            `;
+            
+            // Veterinarian cell
+            const vetCell = document.createElement('td');
+            vetCell.className = 'align-middle text-center text-sm';
+            
+            let vetName = 'N/A';
+            if (history.veterinarian && history.veterinarian.name) {
+                vetName = `Dr. ${history.veterinarian.name}`;
+            } else if (history.attending_vet) {
+                vetName = `Dr. ${history.attending_vet}`;
+            }
+            
+            vetCell.innerHTML = `
+                <span class="text-secondary text-xs font-weight-bold">${vetName}</span>
+            `;
+            
+            // Follow-up cell
+            const followupCell = document.createElement('td');
+            followupCell.className = 'align-middle text-center text-sm';
+            
+            if (history.followup) {
+                followupCell.innerHTML = `
+                    <span class="badge badge-sm bg-gradient-info">${history.followup}</span>
+                `;
+            } else {
+                followupCell.innerHTML = `
+                    <span class="badge badge-sm bg-gradient-secondary">No Follow-up</span>
+                `;
+            }
+            
+            // Append all cells to the row
+            row.appendChild(diagnosisCell);
+            row.appendChild(treatmentCell);
+            row.appendChild(dateCell);
+            row.appendChild(vetCell);
+            row.appendChild(followupCell);
+            
+            // Append the row to the table body
+            tableBody.appendChild(row);
+        });
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('petHistoryModal'));
+        modal.show();
     }
 </script>
 
