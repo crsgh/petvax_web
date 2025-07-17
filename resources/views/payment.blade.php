@@ -53,6 +53,25 @@
         font-size: 1.125rem;
         line-height: 1.6;
     }
+    
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+    
+    .btn-back-to-bookings {
+        display: inline-block;
+        background-color: #3b82f6;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-back-to-bookings:hover {
+        background-color: #2563eb;
+    }
 </style>
 
 <div class="payment-container">
@@ -65,6 +84,9 @@
             </div>
             <h2 class="payment-title">Payment Successful!</h2>
             <p class="payment-message">Thank you for using PetVax</p>
+            <div class="mt-4">
+                <a href="/bookings" class="btn-back-to-bookings">Back to Bookings</a>
+            </div>
         @else
             <div class="icon-container">
                 <svg xmlns="http://www.w3.org/2000/svg" class="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,6 +95,9 @@
             </div>
             <h2 class="payment-title">Payment Failed</h2>
             <p class="payment-message">There was an error processing your payment. Please try again.</p>
+            <div class="mt-4">
+                <a href="/bookings" class="btn-back-to-bookings">Back to Bookings</a>
+            </div>
         @endif
     </div>
 </div>

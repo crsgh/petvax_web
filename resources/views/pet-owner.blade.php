@@ -1,6 +1,7 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
   <div class="container-fluid py-4">
     <div class="row">
@@ -195,8 +196,10 @@
       <!-- Online Payment Button -->
       <div id="onlinePaymentFields" style="display: none;">
         <div class="mb-3">
-          <button type="button" class="btn btn-info w-100">Proceed to Online Payment</button>
+          <button type="button" id="paymongoBtn" class="btn btn-info w-100">Proceed to Online Payment</button>
           <small class="text-muted">You will be redirected to our payment gateway</small>
+          <input type="hidden" id="paymentSessionId" name="payment_session_id">
+          <input type="hidden" id="paymentStatus" name="payment_status" value="pending">
         </div>
       </div>
       
@@ -272,6 +275,16 @@ function filterClinics() {
     .forEach(function (form) {
       form.addEventListener('submit', function (event) {
         console.log('Form submission attempted');
+        
+        // Check if payment method is online
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        if (paymentMethod === 'online' && document.getElementById('paymentStatus').value === 'pending') {
+          // Prevent form submission for online payment until payment is completed
+          event.preventDefault();
+          event.stopPropagation();
+          alert('Please complete the online payment process before submitting the form.');
+          return;
+        }
         
         // Log form data for debugging
         const formData = new FormData(form);
@@ -384,6 +397,105 @@ function togglePaymentFields() {
     document.getElementById('paymentProofImage').removeAttribute('required');
   }
 }
+
+// PayMongo Payment Integration
+document.getElementById('paymongoBtn').addEventListener('click', function() {
+  // Get booking details
+  const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+  const petId = document.getElementById('petSelect').value;
+  const serviceId = document.getElementById('serviceSelect').value;
+  const staffId = document.getElementById('staffSelect').value;
+  const appointmentDate = document.getElementById('appointmentDate').value;
+  const notes = document.getElementById('notes').value;
+  const clinicId = document.getElementById('clinicSelect').value;
+  
+  if (!totalAmount || !petId || !serviceId || !staffId || !appointmentDate || !clinicId) {
+    alert('Please fill in all required fields before proceeding to payment.');
+    return;
+  }
+  
+  // Disable the button and show loading state
+  const payButton = document.getElementById('paymongoBtn');
+  payButton.disabled = true;
+  payButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+  
+  // Create a payment intent with PayMongo
+  fetch('/api/create-payment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    },
+    body: JSON.stringify({
+      amount: totalAmount * 100, // Convert to smallest currency unit (centavos)
+      pet_id: petId,
+      service_id: serviceId,
+      staff_id: staffId,
+      appointment_date: appointmentDate,
+      notes: notes,
+      clinic_id: clinicId,
+      client_id: '{{ auth()->id() }}',
+      payment_method: 'online'
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Store the payment session ID and booking ID
+      document.getElementById('paymentSessionId').value = data.payment_id;
+      
+      // Set up a listener for when the user returns from the payment page
+      // Store booking ID in localStorage to check payment status when returning
+      localStorage.setItem('pendingBookingId', data.booking_id);
+      localStorage.setItem('pendingPaymentId', data.payment_id);
+      
+      // Redirect to PayMongo checkout URL
+      window.location.href = data.checkout_url;
+    } else {
+      alert('Error creating payment: ' + data.message);
+      payButton.disabled = false;
+      payButton.innerHTML = 'Proceed to Online Payment';
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while processing your payment. Please try again.');
+    payButton.disabled = false;
+    payButton.innerHTML = 'Proceed to Online Payment';
+  });
+});
+
+// Check payment status when page loads (for returning from payment)
+document.addEventListener('DOMContentLoaded', function() {
+  const pendingBookingId = localStorage.getItem('pendingBookingId');
+  const pendingPaymentId = localStorage.getItem('pendingPaymentId');
+  
+  if (pendingBookingId && pendingPaymentId) {
+    // Check payment status
+    fetch(`/api/payment/${pendingBookingId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Payment was successful
+          document.getElementById('paymentStatus').value = 'completed';
+          document.getElementById('paymongoBtn').disabled = true;
+          document.getElementById('paymongoBtn').innerHTML = 'Payment Completed ✓';
+          document.getElementById('paymongoBtn').classList.remove('btn-info');
+          document.getElementById('paymongoBtn').classList.add('btn-success');
+          
+          // Auto-submit the form
+          document.getElementById('submitBtn').click();
+          
+          // Clear localStorage
+          localStorage.removeItem('pendingBookingId');
+          localStorage.removeItem('pendingPaymentId');
+        }
+      })
+      .catch(error => {
+        console.error('Error checking payment status:', error);
+      });
+  }
+});
 </script>
 
 @endsection

@@ -13,6 +13,7 @@ use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\ClinicController;
 use App\Http\Controllers\Mobile\AppointmentController;
 use App\Http\Controllers\Mobile\ServiceController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Mobile\PetController;
 use App\Http\Controllers\Mobile\BookingController;
 use App\Http\Controllers\Mobile\NotificationController;
@@ -47,6 +48,10 @@ Route::post('/update-profile', [AuthController::class, 'updateProfile']);
 Route::get('/rule-base',[RuleBaseController::class,'getRulebase']);
 
 
+// Payment routes
+Route::post('/create-payment', [PaymentController::class, 'createPayment']);
+Route::get('/verify-payment/{sessionId}', [PaymentController::class, 'verifyPayment']);
+
 // Payment callback routes
 Route::get('/payment/success', function (Request $request) {
     $booking = Booking::findOrFail($request->id);
@@ -62,10 +67,7 @@ Route::get('/payment/closed/{id}', function (Request $request) {
     if(!$booking->is_paid){
         $booking->delete();
     }
-    return response()->json([
-        'success' => true,
-        'message' => 'Booking is deleted',
-    ]);
+    return view('payment', ['success' => false]);
 });
 
 
@@ -80,11 +82,15 @@ Route::get('/payment/{id}', function (Request $request) {
 
 
 Route::get('/payment/failed', function (Request $request) {
-    return response()->json([
-        'status' => 'failed', 
-        'message' => 'Payment failed',
-        'data' => $request->all()
-    ]);
+    // Delete the booking if it exists and is not paid
+    if ($request->has('booking_id')) {
+        $booking = Booking::find($request->booking_id);
+        if ($booking && !$booking->is_paid) {
+            $booking->delete();
+        }
+    }
+    
+    return view('payment', ['success' => false]);
 });
 
 
