@@ -49,8 +49,9 @@
         <div class="col-md-2">
             <select id="filterSpecies" class="form-select">
                 <option value="">All Species</option>
-                @foreach($pets->pluck('species')->filter()->unique() as $species)
-                    <option value="{{ $species }}">{{ $species }}</option>
+              
+                @foreach($species as $specie)
+                    <option value="{{ $specie->name }}">{{ $specie->name }}</option>
                 @endforeach
             </select>
         </div>
