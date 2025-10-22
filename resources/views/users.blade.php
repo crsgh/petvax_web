@@ -63,7 +63,10 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $user->avatar == null ? asset('assets/img/team-2.jpg') : asset('storage/' . $user->avatar) }}" class="avatar avatar-sm me-3" alt="{{ $user->name }}">
+                            <img src="{{ $user->avatar == null ? asset('assets/img/team-2.jpg') : asset('storage/' . $user->avatar) }}" 
+                                 class="avatar avatar-sm me-3" 
+                                 alt="{{ $user->name }}"
+                                 onerror="this.src='{{ asset('assets/img/team-2.jpg') }}'">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $user->name }}</h6>
@@ -157,7 +160,7 @@
         <div class="mb-3">
           <label for="userImage" class="form-label">Profile Image</label>
           <div class="d-flex align-items-center">
-            <img id="imagePreview" src="../assets/img/team-2.jpg" class="avatar avatar-lg me-3" alt="Profile Preview">
+            <img id="imagePreview" src="../assets/img/team-2.jpg" class="avatar avatar-lg me-3" alt="Profile Preview" onerror="this.src='../assets/img/team-2.jpg'">
             <div class="upload-btn-wrapper">
               <button class="btn btn-outline-primary btn-sm">Upload Photo</button>
               <input type="file" name="avatar" id="userImage" accept="image/*" onchange="previewImage(this)"/>
@@ -172,7 +175,7 @@
         </div>
         <div class="mb-3">
           <label for="userEmail" class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" id="userEmail" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+          <input type="email" class="form-control" name="email" id="userEmail" required pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$">
           <small class="text-danger d-none" id="emailError"></small>
         </div>
         <div class="mb-3">
@@ -300,20 +303,42 @@
         document.getElementById('userClinic').value = userData.clinic.id;
         
         if (userData.avatar) {
-          document.getElementById('imagePreview').src = '{{ asset("storage/") }}/' + userData.avatar;
+          const imagePreview = document.getElementById('imagePreview');
+          imagePreview.src = '{{ asset("storage/") }}/' + userData.avatar;
+          // Add error handling for the dynamically set image
+          imagePreview.onerror = function() {
+            this.src = '../assets/img/team-2.jpg';
+          };
+        } else {
+          document.getElementById('imagePreview').src = '../assets/img/team-2.jpg';
         }
         
-        document.getElementById('passwordField').style.display = 'none';
-        document.getElementById('defaultPasswordSwitch').parentElement.style.display = 'none';
+        // Hide password fields if they exist (for edit mode)
+        const passwordField = document.getElementById('passwordField');
+        const defaultPasswordSwitch = document.getElementById('defaultPasswordSwitch');
+        
+        if (passwordField) {
+          passwordField.style.display = 'none';
+        }
+        if (defaultPasswordSwitch && defaultPasswordSwitch.parentElement) {
+          defaultPasswordSwitch.parentElement.style.display = 'none';
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
         alert('Failed to load user data');
       }
     }
 
-    document.getElementById('defaultPasswordSwitch').addEventListener('change', function() {
-      document.getElementById('passwordField').style.display = this.checked ? 'none' : 'block';
-    });
+    // Add event listener for password switch if it exists
+    const defaultPasswordSwitch = document.getElementById('defaultPasswordSwitch');
+    if (defaultPasswordSwitch) {
+      defaultPasswordSwitch.addEventListener('change', function() {
+        const passwordField = document.getElementById('passwordField');
+        if (passwordField) {
+          passwordField.style.display = this.checked ? 'none' : 'block';
+        }
+      });
+    }
 
     function previewImage(input) {
       if (input.files && input.files[0]) {
