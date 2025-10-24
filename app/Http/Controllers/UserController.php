@@ -8,19 +8,18 @@ use App\Models\Role;
 use App\Models\Clinic;
 use App\Models\Notification;
 use App\Models\Booking;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 
 class UserController extends Controller
 {
     public function owners()
     {
-
-        $query = Booking::where('status', 'completed');
-    
-        $completedPetIds = $query->distinct()->pluck('client_id')->toArray();
         $users = User::with(['role', 'clinic'])
             ->where('role_id', 5)
-            ->whereIn('id', $completedPetIds)
             ->paginate(10);
 
         return view('users', [
@@ -40,43 +39,50 @@ class UserController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->id,
+                'email' => 'required|email|unique:users,email,' . $id,
                 'role_id' => 'required|exists:roles,id',
-                'clinic_id' => 'required|exists:clinics,id',
+                'clinic_id' => 'nullable|exists:clinics,id',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
             
-            $user = $id == null ? new User : User::findOrFail($request->id);
+            $user = $id == null ? new User : User::findOrFail($id);
 
             if ($id == null) {
                 // Generate random password for new owners
-                $password = \Str::random(8);
+                $password = Str::random(8);
                 $user->password = bcrypt($password);
                             
                 // Send password email to owner
-                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
-                    $message->to($request->email)
-                            ->subject("PetVax Account Password");
-                });
+                try {
+                    Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($validated) {
+                        $message->to($validated['email'])
+                                ->subject("PetVax Account Password");
+                    });
+                } catch (\Exception $e) {
+                    // Log email error but don't fail the user creation
+                    Log::error('Failed to send password email: ' . $e->getMessage());
+                }
             }
 
             if ($request->hasFile('avatar')) {
-                $user->avatar = $this->uploadImage($request->file('avatar'),'avatars');
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
+                $user->avatar = $avatarPath;
             }
 
             $user->name = $validated['name'];
             $user->email = $validated['email'];
             $user->role_id = $validated['role_id'];
-            $user->clinic_id = $validated['clinic_id'];
+            $user->clinic_id = $validated['clinic_id'] ?? 1; // Default to clinic 1 if not provided
+            $user->is_verified = true; // Set as verified by default for admin-created users
             $user->save();
 
-            // add record
+            return redirect('/owners')->with('success', 'Owner saved successfully');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to save owner: ' . $e->getMessage())->withInput();
         }
-     
-        return redirect('/owners')->with('success', 'Owner saved successfully');
     }
 
     public function deleteOwner($id)
@@ -114,44 +120,51 @@ class UserController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->id,
+                'email' => 'required|email|unique:users,email,' . $id,
                 'role_id' => 'required|exists:roles,id',
-                'clinic_id' => 'required|exists:clinics,id',
+                'clinic_id' => $request->role_id == 4 ? 'required|exists:clinics,id' : 'nullable|exists:clinics,id',
                 'password' => 'nullable|string|min:8',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
             
-            $user = $id == null ? new User : User::findOrFail($request->id);
+            $user = $id == null ? new User : User::findOrFail($id);
 
-           if ($id == null) {
-                // Generate random password for new owners
-                $password = \Str::random(8);
+            if ($id == null) {
+                // Generate random password for new staff
+                $password = Str::random(8);
                 $user->password = bcrypt($password);
                             
-                // Send password email to owner
-                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
-                    $message->to($request->email)
-                            ->subject("PetVax Account Password");
-                });
+                // Send password email to staff
+                try {
+                    Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($validated) {
+                        $message->to($validated['email'])
+                                ->subject("PetVax Account Password");
+                    });
+                } catch (\Exception $e) {
+                    // Log email error but don't fail the user creation
+                    Log::error('Failed to send password email: ' . $e->getMessage());
+                }
             }
 
             if ($request->hasFile('avatar')) {
-                $user->avatar = $this->uploadImage($request->file('avatar'),'avatars');
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
+                $user->avatar = $avatarPath;
             }
 
             $user->name = $validated['name'];
             $user->email = $validated['email'];
             $user->role_id = $validated['role_id'];
-            $user->clinic_id = $validated['clinic_id'];
+            $user->clinic_id = $validated['clinic_id'] ?? 1; // Default to clinic 1 if not provided
+            $user->is_verified = true; // Set as verified by default for admin-created users
             $user->save();
 
+            return redirect('/staffs')->with('success', 'Staff saved successfully');
 
-            // add record
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to save staff: ' . $e->getMessage())->withInput();
         }
-     
-        return redirect('/staffs')->with('success', 'Staff saved successfully');
     }
 
     public function deleteStaff($id)

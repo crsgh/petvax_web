@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('o_t_p_s', function (Blueprint $table) {
+        Schema::create('activity_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('otp_code');
-            $table->boolean('is_verified')->default(false);
-            $table->timestamp('expires_at');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
+            $table->string('action');
+            $table->string('description');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('o_t_p_s');
+        Schema::dropIfExists('activity_records');
     }
 };

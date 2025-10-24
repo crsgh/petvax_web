@@ -49,6 +49,12 @@ class BookingController extends Controller
 		return view('bookings',[
             'bookings' => $bookings,
 			'clinics' => Clinic::all(),
+            'pets' => Pet::when(auth()->user()->role_id != 1, function($query) {
+                return $query->where('clinic_id', auth()->user()->clinic_id);
+            })->get(),
+            'services' => Service::when(auth()->user()->role_id != 1, function($query) {
+                return $query->where('clinic_id', auth()->user()->clinic_id);
+            })->get(),
             'veterinarians' => User::where('role_id', 4)
                 ->when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('clinic_id', auth()->user()->clinic_id);
@@ -404,4 +410,49 @@ public function cancel(Request $request, $id)
     }
 }
 
+    // API methods for AJAX calls
+    public function getClinicPets($clinicId)
+    {
+        $pets = Pet::with('petOwner')
+            ->where('clinic_id', $clinicId)
+            ->whereNull('deleted_at')
+            ->get()
+            ->map(function($pet) {
+                return [
+                    'id' => $pet->id,
+                    'name' => $pet->name,
+                    'owner' => $pet->petOwner ? ['name' => $pet->petOwner->name] : null
+                ];
+            });
+        
+        return response()->json($pets);
+    }
+
+    public function getClinicServices($clinicId)
+    {
+        $services = Service::where('clinic_id', $clinicId)
+            ->where('status', 'active')
+            ->get(['id', 'name', 'price']);
+        
+        return response()->json($services);
+    }
+
+    public function getClinicVeterinarians($clinicId)
+    {
+        $veterinarians = User::where('role_id', 4)
+            ->where('clinic_id', $clinicId)
+            ->get(['id', 'name']);
+        
+        return response()->json($veterinarians);
+    }
+
+    public function edit($id)
+    {
+        try {
+            $booking = Booking::with(['pet', 'service', 'clinic'])->findOrFail($id);
+            return response()->json($booking);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Booking not found'], 404);
+        }
+    }
 }

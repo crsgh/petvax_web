@@ -54,7 +54,6 @@ use Illuminate\Support\Facades\Mail;
 
 
 
-Route::post('/clinics/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
 
 Route::group(['middleware' => 'auth'], function () {
 
@@ -90,7 +89,7 @@ Route::group(['middleware' => 'auth'], function () {
  
 	Route::group(['prefix' => 'clinics'], function () {
 		Route::get('/',[ClinicController::class, 'index'])->name('clinics');
-		//Route::post('/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
+		Route::post('/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
 		Route::get('/{id}/delete', [ClinicController::class, 'delete'])->name('delete-clinic');
 	});
 
@@ -108,10 +107,18 @@ Route::group(['middleware' => 'auth'], function () {
 	
 	Route::group(['prefix' => 'pets'], function () {
 		Route::get('/', [PetController::class,'index'])->name('pets');
+		Route::get('/{id}', [PetController::class, 'show'])->name('show-pet');
 		Route::post('/{id?}', [PetController::class, 'upsert'])->name('upsert-pet');
-		Route::get('/{id}/delete', [PetController::class, 'delete'])->name('delete-pet');
+		Route::delete('/{id}', [PetController::class, 'delete'])->name('delete-pet');
+		Route::get('/{id}/delete', [PetController::class, 'delete'])->name('delete-pet-get');
 		
 	});
+
+	// API routes for AJAX calls
+	Route::get('/api/breeds-by-species/{speciesId}', [PetController::class, 'getBreedsBySpecies'])->name('api.breeds-by-species');
+	Route::get('/api/clinic/{clinicId}/pets', [BookingController::class, 'getClinicPets'])->name('api.clinic-pets');
+	Route::get('/api/clinic/{clinicId}/services', [BookingController::class, 'getClinicServices'])->name('api.clinic-services');
+	Route::get('/api/clinic/{clinicId}/veterinarians', [BookingController::class, 'getClinicVeterinarians'])->name('api.clinic-veterinarians');
 
 	Route::group(['prefix' => 'breeds'], function () {
 		Route::get('/', [PetController::class, 'breeds'])->name('breeds');
@@ -146,14 +153,13 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::group(['prefix' => 'bookings'], function () {
 		Route::get('/', [BookingController::class,'index'])->name('bookings');
-		Route::post('/action', [BookingController::class, 'action'])->name('update-bookings');
-		Route::post('/{id}/cancel', [BookingController::class, 'cancel'])->name('cancel-bookings');
+		Route::get('/{id}/edit', [BookingController::class, 'edit'])->name('edit-booking');
 		Route::post('/{id?}', [BookingController::class, 'upsert'])->name('upsert-bookings');
-		Route::get('/{id}/delete', [BookingController::class, 'delete'])->name('delete-bookings');
-		Route::get('/{id}/approve', [BookingController::class, 'approve'])->name('approve-bookings');
-		Route::get('/{id}/decline', [BookingController::class, 'decline'])->name('decline-bookings');
-		Route::post('/{id}/decline', [BookingController::class, 'decline'])->name('decline-bookings');
-		Route::post('/complete/{id}', [BookingController::class, 'complete'])->name('complete-bookings');
+		Route::post('/action', [BookingController::class, 'action'])->name('booking-action');
+		Route::post('/{id}/complete', [BookingController::class, 'complete'])->name('complete-booking');
+		Route::post('/{id}/decline', [BookingController::class, 'decline'])->name('decline-booking');
+		Route::post('/{id}/cancel', [BookingController::class, 'cancel'])->name('cancel-booking');
+		Route::get('/{id}/delete', [BookingController::class, 'delete'])->name('delete-booking');
 	});
 	Route::get('/sales-report', [BookingController::class, 'salesReport'])->name('sales-report');
 	Route::group(['prefix' => 'inventory'], function () {
@@ -200,6 +206,14 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/user-profile', [InfoUserController::class, 'create']);
 	Route::post('/user-profile', [InfoUserController::class, 'store']);
 	Route::post('/settings/password', [SessionsController::class, 'updatePassword']);
+	
+	Route::get('/settings', function () {
+		return view('settings');
+	})->name('settings');
+	Route::post('/settings/appearance', [SessionsController::class, 'updateAppearance'])->name('settings.appearance');
+	Route::post('/settings/branding', [SessionsController::class, 'updateBranding'])->name('settings.branding');
+	Route::post('/settings/system', [SessionsController::class, 'updateSystem'])->name('settings.system');
+
     Route::get('/login', function () {
 		return view('dashboard');
 	})->name('sign-up');

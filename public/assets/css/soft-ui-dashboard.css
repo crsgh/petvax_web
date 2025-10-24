@@ -4682,7 +4682,7 @@ fieldset:disabled .btn {
     display: flex;
     flex-wrap: wrap;
     list-style: none;
-    margin-bottom: 1rem;
+    /* margin-bottom: 1rem; */
     padding: 0.5rem 1rem;
 }
 .breadcrumb-item + .breadcrumb-item {
@@ -5436,6 +5436,7 @@ fieldset:disabled .btn {
     pointer-events: auto;
     position: relative;
     width: 100%;
+    
 }
 .modal-backdrop {
     background-color: #000;

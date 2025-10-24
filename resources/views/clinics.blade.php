@@ -1,525 +1,1116 @@
-  @extends('layouts.user_type.auth')
+@extends('layouts.user_type.auth')
 
-  @section('content')
-  <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg ">
-    <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-12">
-          <div class="card mb-4">
-            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-              <h6>Clinics Table</h6>
-              <button class="btn btn-primary btn-sm mb-0" onclick="openSidebar()">
-                <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Clinic
-              </button>
-            </div>
-            <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0">
-                  <thead>
-                    <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Clinic Info</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Location</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Contact</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Email</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Operating Days</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Opening Time</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Closing Time</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($clinics as $clinic)
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $clinic->name }}</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ Str::limit($clinic->address, 50) }}</p>
-                      </td>
-                      <td class="align-middle text-center">
-                        <span class="text-secondary text-xs font-weight-bold">{{ $clinic->contact }}</span>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-secondary text-xs font-weight-bold">{{ $clinic->email }}</span>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-secondary text-xs font-weight-bold">
-                          {{ implode(', ', array_map(function($day) { return substr($day, 0, 3); }, json_decode($clinic->operation_days))) }}
-                        </span>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-secondary text-xs font-weight-bold">{{ date('H:i', strtotime($clinic->opening_time)) }}</span>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-secondary text-xs font-weight-bold">{{ date('H:i', strtotime($clinic->closing_time)) }}</span>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="badge badge-sm {{ $clinic->status === 'active' ? 'bg-gradient-success' : 'bg-gradient-secondary' }}">
-                          {{ ucfirst($clinic->status) }}
-                        </span>
-                      </td>
-                      <td class="align-middle text-center">
-                        <div class="d-flex gap-1">
-                          <button onclick="editClinic({{ $clinic }})" 
-                                  class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center"
-                                  data-bs-toggle="tooltip"
-                                  data-bs-placement="top"
-                                  title="Edit Clinic">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                            </svg>
-                          </button>
-                          <form action="clinics/{{ $clinic->id }}/delete" method="GET" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-icon-only btn-rounded btn-outline-danger mb-0 p-2 d-flex align-items-center justify-content-center"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Delete Clinic">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                              </svg>
-                            </button>
-                          </form>
-                        </div>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+@section('content')
+<div class="clinics-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title"></h1>
+      <p class="page-subtitle"></p>
     </div>
-  </main>
-
-  <!-- Add/Edit Clinic Sidebar -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="clinicSidebar" style="width: 800px;">
-    <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title" id="sidebarTitle">Add New Clinic</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
-        <span aria-hidden="true" class="text-3xl">&times;</span>
-      </button>
-    </div>
-    <div class="offcanvas-body">
-      <form id="clinicForm" onsubmit="handleSubmit(event)">
-        @csrf
-        <input type="hidden" id="clinicId" name="clinic_id">
-        <div class="mb-3">
-          <label for="clinicImage" class="form-label">Clinic Image</label>
-          <input type="file" class="form-control" id="clinicImage" name="clinic_image" accept="image/*" onchange="previewImage(this)">
-          <div class="mt-4 d-flex justify-content-center">
-            <img id="imagePreview" src="../assets/img/dog.png" alt="Clinic Preview" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="clinicName" class="form-label">Clinic Name</label>
-          <input type="text" class="form-control" id="clinicName" name="clinic_name" required>
-        </div>
-        <div class="mb-3">
-          <label for="clinicAddress" class="form-label">Location</label>
-          <!-- Location Search Input -->
-          <div class="input-group mb-2">
-            <input type="text" class="form-control" id="locationSearch" placeholder="Search for a location..." onkeypress="handleSearchKeyPress(event)">
-            <button class="btn btn-outline-secondary" type="button" onclick="searchLocation()">
-              <i class="fas fa-search"></i>
-            </button>
-            <button class="btn btn-outline-info" type="button" onclick="getCurrentLocation()" title="Use current location">
-              <i class="fas fa-location-arrow"></i>
-            </button>
-          </div>
-          <!-- Search Results Dropdown -->
-          <div id="searchResults" class="list-group mb-2" style="display: none; max-height: 200px; overflow-y: auto;"></div>
-          <!-- Map Container -->
-          <div id="map" style="height: 300px;" class="mb-2 border rounded"></div>
-          <input type="text" class="form-control" id="clinicAddress" name="clinic_address" required readonly>
-          <input type="hidden" id="latitude" name="latitude">
-          <input type="hidden" id="longitude" name="longitude">
-          <small class="text-muted">Click on the map to set the exact location</small>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="clinicPhone" class="form-label">Contact</label>
-            <input type="tel" class="form-control" id="clinicPhone" name="clinic_phone" required>
-          </div>
-          <div class="col-md-6">
-            <label for="clinicEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="clinicEmail" name="clinic_email" required>
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Operating Days</label>
-          <div class="d-flex flex-wrap gap-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="monday" name="operating_days[]" value="monday">
-              <label class="form-check-label" for="monday">Monday</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="tuesday" name="operating_days[]" value="tuesday">
-              <label class="form-check-label" for="tuesday">Tuesday</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="wednesday" name="operating_days[]" value="wednesday">
-              <label class="form-check-label" for="wednesday">Wednesday</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="thursday" name="operating_days[]" value="thursday">
-              <label class="form-check-label" for="thursday">Thursday</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="friday" name="operating_days[]" value="friday">
-              <label class="form-check-label" for="friday">Friday</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="saturday" name="operating_days[]" value="saturday">
-              <label class="form-check-label" for="saturday">Saturday</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="sunday" name="operating_days[]" value="sunday">
-              <label class="form-check-label" for="sunday">Sunday</label>
-            </div>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="openingTime" class="form-label">Opening Time</label>
-            <input type="time" class="form-control" id="openingTime" name="opening_time" required>
-          </div>
-          <div class="col-md-6">
-            <label for="closingTime" class="form-label">Closing Time</label>
-            <input type="time" class="form-control" id="closingTime" name="closing_time" required>
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="clinicStatus" class="form-label">Status</label>
-          <select class="form-select" id="clinicStatus" name="clinic_status" required>
-            <option value="active" selected>Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="clinicTags" class="form-label">Tags</label>
-          <div class="input-group">
-            <input type="text" class="form-control " id="tagInput" placeholder="Add tags...">
-            <button class="btn btn-outline-primary" type="button" onclick="addTag()">Add</button>
-          </div>
-          <div id="tagContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
-          <input type="hidden" id="clinicTags" name="tags">
-        </div>
-        <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary" id="submitBtn">Save Clinic</button>
-        </div>
-      </form>
+    <div class="header-actions">
+      <x-ui.button 
+        variant="primary" 
+        size="default" 
+        icon="fas fa-plus"
+        onclick="openSidebar('clinicSidebar')"
+      >
+        Add New Clinic
+      </x-ui.button>
     </div>
   </div>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    let map;
-    let marker;
-    let tags = [];
+  <div class="clinics-content">
+    <div class="clinics-table-wrapper">
+      <table class="clinics-table" id="clinicsTable">
+        <thead>
+          <tr>
+            <th>Clinic</th>
+            <th>Location</th>
+            <th>Contact Info</th>
+            <th>Operating Hours</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($clinics as $clinic)
+          <tr>
+            <td>
+              <div class="clinic-info">
+                <div class="clinic-avatar">
+                  @if($clinic->image)
+                    <img src="{{ asset('storage/' . $clinic->image) }}" alt="{{ $clinic->name }}" class="clinic-image">
+                  @else
+                    <div class="clinic-placeholder">
+                      <i class="fas fa-hospital"></i>
+                    </div>
+                  @endif
+                </div>
+                <div class="clinic-details">
+                  <div class="clinic-name">{{ $clinic->name }}</div>
+                  <div class="clinic-id">ID: #{{ $clinic->id }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="location-info">
+                <div class="address">{{ Str::limit($clinic->address, 50) }}</div>
+                @if($clinic->latitude && $clinic->longitude)
+                  <div class="coordinates">{{ number_format($clinic->latitude, 4) }}, {{ number_format($clinic->longitude, 4) }}</div>
+                @endif
+              </div>
+            </td>
+            <td>
+              <div class="contact-info">
+                <div class="contact-phone">
+                  <i class="fas fa-phone text-primary"></i>
+                  {{ $clinic->contact }}
+                </div>
+                <div class="contact-email">
+                  <i class="fas fa-envelope text-gray-500"></i>
+                  {{ $clinic->email }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="hours-info">
+                <div class="operating-days">
+                  @php
+                    $days = json_decode($clinic->operation_days);
+                    $shortDays = array_map(function($day) { return substr($day, 0, 3); }, $days);
+                  @endphp
+                  {{ implode(', ', $shortDays) }}
+                </div>
+                <div class="operating-hours">
+                  {{ date('H:i', strtotime($clinic->opening_time)) }} - {{ date('H:i', strtotime($clinic->closing_time)) }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <x-ui.badge :variant="$clinic->status === 'active' ? 'success' : 'danger'">
+                {{ ucfirst($clinic->status) }}
+              </x-ui.badge>
+            </td>
+            <td>
+              <div class="flex gap-2">
+                <x-ui.button 
+                  variant="secondary" 
+                  size="sm" 
+                  icon="fas fa-eye"
+                  onclick="viewClinic({{ $clinic->id }})"
+                  title="View Details"
+                />
+                <x-ui.button 
+                  variant="primary" 
+                  size="sm" 
+                  icon="fas fa-edit"
+                  onclick="editClinic({{ $clinic->toJson() }})"
+                  title="Edit Clinic"
+                />
+                <x-ui.button 
+                  variant="danger" 
+                  size="sm" 
+                  icon="fas fa-trash"
+                  onclick="deleteClinic({{ $clinic->id }})"
+                  title="Delete Clinic"
+                />
+              </div>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-    // Initialize map with Google Maps tiles
-    function initMap() {
-      const defaultLocation = [14.5995, 120.9842]; // Philippines coordinates
-      map = L.map('map').setView(defaultLocation, 13);
-      
-      // Google Maps tiles (Roadmap)
-      L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        attribution: '© Google Maps'
-      }).addTo(map);
-      
-      // Alternative Google Maps tile layers you can use:
-      // Satellite: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
-      // Hybrid: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
-      // Terrain: 'https://mt1.google.com/vt/lyrs=t&x={x}&y={y}&z={z}'
-      
-      // Map click event
-      map.on('click', function(e) {
-        const latlng = e.latlng;
-        setMarkerAndAddress(latlng.lat, latlng.lng);
-      });
-    }
+<!-- Clinic Sidebar -->
+<div id="clinicSidebar" class="sidebar-overlay hidden">
+  <div class="sidebar-backdrop" onclick="closeSidebar('clinicSidebar')"></div>
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <h3 class="sidebar-title" id="sidebarTitle">Add New Clinic</h3>
+      <button type="button" class="sidebar-close" onclick="closeSidebar('clinicSidebar')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     
-    // Set marker and get address
-    function setMarkerAndAddress(lat, lng) {
-      if (marker) {
-        marker.setLatLng([lat, lng]);
-      } else {
-        marker = L.marker([lat, lng]).addTo(map);
-      }
-      
-      // Reverse geocoding to get address
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById('clinicAddress').value = data.display_name;
-          document.getElementById('latitude').value = lat;
-          document.getElementById('longitude').value = lng;
-        })
-        .catch(error => {
-          console.error('Error getting address:', error);
-          document.getElementById('clinicAddress').value = `${lat}, ${lng}`;
-          document.getElementById('latitude').value = lat;
-          document.getElementById('longitude').value = lng;
-        });
-    }
+    <div class="sidebar-body">
+      <form id="clinicForm" enctype="multipart/form-data" method="POST" action="/clinics">
+        @csrf
+        <input type="hidden" name="clinic_id" id="clinicId">
+        
+        <!-- Clinic Image -->
+        <div class="form-group">
+          <label class="form-label">Clinic Photo</label>
+          <div class="image-upload-section">
+            <div class="clinic-image-preview">
+              <img id="clinicImagePreview" src="{{ asset('assets/img/default-clinic.jpg') }}" alt="Clinic Preview">
+            </div>
+            <div class="upload-controls">
+              <input type="file" name="clinic_image" id="clinicImage" accept="image/*" onchange="previewClinicImage(this)" class="hidden"/>
+              <x-ui.button 
+                type="button" 
+                variant="secondary" 
+                size="sm"
+                onclick="document.getElementById('clinicImage').click()"
+              >
+                Upload Photo
+              </x-ui.button>
+              <div class="upload-hint">JPG, PNG up to 2MB</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinic Name -->
+        <div class="form-group">
+          <label class="form-label">Clinic Name *</label>
+          <input type="text" 
+                 class="form-input" 
+                 name="clinic_name" 
+                 id="clinicName" 
+                 required 
+                 placeholder="Enter clinic name">
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" 
+                   class="form-input" 
+                   name="clinic_phone" 
+                   id="clinicPhone" 
+                   required 
+                   placeholder="Contact number">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" 
+                   class="form-input" 
+                   name="clinic_email" 
+                   id="clinicEmail" 
+                   required 
+                   placeholder="Email address">
+          </div>
+        </div>
+
+        <!-- Operating Hours -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Opening Time *</label>
+            <input type="time" 
+                   class="form-input" 
+                   name="opening_time" 
+                   id="openingTime" 
+                   required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Closing Time *</label>
+            <input type="time" 
+                   class="form-input" 
+                   name="closing_time" 
+                   id="closingTime" 
+                   required>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label class="form-label">Status *</label>
+          <select class="form-input" name="clinic_status" id="clinicStatus" required>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group">
+          <label class="form-label">Clinic Address *</label>
+          <div class="location-section">
+            <div class="location-search">
+              <input type="text" 
+                     class="form-input" 
+                     id="locationSearch" 
+                     placeholder="Search for location...">
+              <div class="search-buttons">
+                <button type="button" class="search-btn" onclick="searchLocation()" title="Search">
+                  <i class="fas fa-search"></i>
+                </button>
+                <button type="button" class="location-btn" onclick="getCurrentLocation()" title="Use current location">
+                  <i class="fas fa-location-arrow"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div id="searchResults" class="search-results hidden"></div>
+            
+            <div class="map-container">
+              <div id="map" class="clinic-map"></div>
+            </div>
+            
+            <input type="text" 
+                   class="form-input" 
+                   name="clinic_address" 
+                   id="clinicAddress" 
+                   required 
+                   readonly
+                   placeholder="Address will appear here">
+            
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+          </div>
+        </div>
+
+        <!-- Operating Days -->
+        <div class="form-group">
+          <label class="form-label">Operating Days *</label>
+          <div class="days-grid">
+            @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
+              <label class="day-checkbox">
+                <input type="checkbox" name="operating_days[]" value="{{ $day }}" id="{{ $day }}">
+                <span class="checkmark"></span>
+                <span class="day-label">{{ ucfirst(substr($day, 0, 3)) }}</span>
+              </label>
+            @endforeach
+          </div>
+        </div>
+      </form>
+    </div>
     
-    // Search location function
-    function searchLocation() {
-      const query = document.getElementById('locationSearch').value.trim();
-      if (!query) return;
-      
-      // Show loading state
-      const searchResults = document.getElementById('searchResults');
-      searchResults.innerHTML = '<div class="list-group-item">Searching...</div>';
-      searchResults.style.display = 'block';
-      
-      // Use Nominatim for geocoding
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=ph`)
-        .then(response => response.json())
-        .then(data => {
-          displaySearchResults(data);
-        })
-        .catch(error => {
-          console.error('Search error:', error);
-          searchResults.innerHTML = '<div class="list-group-item text-danger">Error searching location</div>';
-        });
-    }
-    
-    // Display search results
-    function displaySearchResults(results) {
-      const searchResults = document.getElementById('searchResults');
-      
-      if (results.length === 0) {
-        searchResults.innerHTML = '<div class="list-group-item">No results found</div>';
+    <div class="sidebar-footer">
+      <x-ui.button 
+        type="button" 
+        variant="secondary" 
+        onclick="closeSidebar('clinicSidebar')"
+      >
+        Cancel
+      </x-ui.button>
+      <x-ui.button 
+        type="submit" 
+        variant="primary" 
+        id="saveClinicButton"
+        form="clinicForm"
+      >
+        Save Clinic
+      </x-ui.button>
+    </div>
+  </div>
+</div>
+
+<!-- Clinic Details Modal -->
+<x-ui.modal id="clinicDetailsModal" title="Clinic Details" size="lg">
+  <div id="clinicDetailsContent">
+    <!-- Content will be populated by JavaScript -->
+  </div>
+</x-ui.modal>
+
+<style>
+/* Clinics Page Layout */
+.clinics-page {
+  padding: 2rem;
+  background: #fafbfc;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-actions {
+  flex-shrink: 0;
+}
+
+.clinics-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.clinics-table-wrapper {
+  overflow-x: auto;
+}
+
+.clinics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Poppins', sans-serif;
+}
+
+.clinics-table thead {
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.clinics-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.clinics-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.clinics-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.clinic-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.clinic-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.clinic-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clinic-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  font-size: 20px;
+}
+
+.clinic-name {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: var(--font-size-sm);
+}
+
+.clinic-id {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+}
+
+.location-info .address {
+  font-weight: 500;
+  color: var(--gray-900);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-1);
+}
+
+.coordinates {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  font-family: monospace;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.contact-phone, .contact-email {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.hours-info .operating-days {
+  font-weight: 500;
+  color: var(--gray-900);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-1);
+}
+
+.operating-hours {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  font-family: monospace;
+}
+
+.clinic-image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid var(--gray-200);
+}
+
+.clinic-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.map-container {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+}
+
+.clinic-map {
+  height: 200px;
+  width: 100%;
+}
+
+.search-results {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: white;
+}
+
+.search-result-item {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--gray-100);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.search-result-item:hover {
+  background: var(--gray-50);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.operating-days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--space-3);
+}
+
+.day-checkbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.day-checkbox:hover {
+  background: var(--gray-50);
+  border-color: var(--primary);
+}
+
+.day-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gray-300);
+  border-radius: 4px;
+  position: relative;
+  transition: var(--transition);
+}
+
+.day-checkbox input[type="checkbox"]:checked + .checkmark {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.day-checkbox input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.day-checkbox input[type="checkbox"]:checked ~ .day-label {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.day-label {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--gray-700);
+  transition: var(--transition);
+}
+
+/* Sidebar Styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sidebar-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-content {
+  position: relative;
+  width: 500px;
+  max-width: 90vw;
+  background: white;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-content {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-close:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.sidebar-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  background: #f8fafc;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.image-upload-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.clinic-image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.clinic-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-controls {
+  flex: 1;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.location-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.location-search {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-btn, .location-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+}
+
+.search-btn:hover, .location-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.clinic-map {
+  height: 200px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.day-checkbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.day-checkbox:hover {
+  background: #f9fafb;
+  border-color: #3b82f6;
+}
+
+.day-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.day-checkbox input[type="checkbox"]:checked + .checkmark {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.day-checkbox input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.day-checkbox input[type="checkbox"]:checked ~ .day-label {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.day-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.grid {
+  display: grid;
+}
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+
+@media (max-width: 1024px) {
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .operating-days-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let map;
+let marker;
+
+// Initialize map
+function initMap() {
+  const defaultLocation = [14.5995, 120.9842]; // Philippines coordinates
+  map = L.map('map').setView(defaultLocation, 13);
+  
+  L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    attribution: '© Google Maps'
+  }).addTo(map);
+  
+  map.on('click', function(e) {
+    const latlng = e.latlng;
+    setMarkerAndAddress(latlng.lat, latlng.lng);
+  });
+}
+
+function setMarkerAndAddress(lat, lng) {
+  if (marker) {
+    marker.setLatLng([lat, lng]);
+  } else {
+    marker = L.marker([lat, lng]).addTo(map);
+  }
+  
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('clinicAddress').value = data.display_name;
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lng;
+    })
+    .catch(error => {
+      console.error('Error getting address:', error);
+      document.getElementById('clinicAddress').value = `${lat}, ${lng}`;
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lng;
+    });
+}
+
+function searchLocation() {
+  const query = document.getElementById('locationSearch').value.trim();
+  if (!query) return;
+  
+  const searchResults = document.getElementById('searchResults');
+  searchResults.innerHTML = '<div class="search-result-item">Searching...</div>';
+  searchResults.classList.remove('hidden');
+  
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=ph`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.length === 0) {
+        searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
         return;
       }
       
-      searchResults.innerHTML = results.map(result => `
-        <button type="button" class="list-group-item list-group-item-action" onclick="selectSearchResult(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')">
-          <div class="fw-bold">${result.display_name.split(',')[0]}</div>
-          <small class="text-muted">${result.display_name}</small>
-        </button>
-      `).join('');
-    }
-    
-    // Select search result
-    function selectSearchResult(lat, lon, address) {
-      map.setView([lat, lon], 16);
-      setMarkerAndAddress(lat, lon);
-      document.getElementById('locationSearch').value = address.split(',')[0];
-      document.getElementById('searchResults').style.display = 'none';
-    }
-    
-    // Handle search input key press
-    function handleSearchKeyPress(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        searchLocation();
-      }
-    }
-    
-    // Get current location
-    function getCurrentLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          function(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            map.setView([lat, lng], 16);
-            setMarkerAndAddress(lat, lng);
-            document.getElementById('locationSearch').value = 'Current Location';
-          },
-          function(error) {
-            alert('Error getting current location: ' + error.message);
-          }
-        );
-      } else {
-        alert('Geolocation is not supported by this browser.');
-      }
-    }
-    
-    // Hide search results when clicking outside
-    document.addEventListener('click', function(event) {
-      const searchResults = document.getElementById('searchResults');
-      const locationSearch = document.getElementById('locationSearch');
-      
-      if (!searchResults.contains(event.target) && event.target !== locationSearch) {
-        searchResults.style.display = 'none';
-      }
-    });
-    
-    // Initialize map when sidebar is shown
-    document.getElementById('clinicSidebar').addEventListener('shown.bs.offcanvas', function () {
-      setTimeout(initMap, 250);
-    });
-    
-    // Tag management functions
-    function addTag() {
-      const input = document.getElementById('tagInput');
-      const tag = input.value.trim();
-      
-      if (tag && !tags.includes(tag)) {
-        tags.push(tag);
-        updateTags();
-      }
-      
-      input.value = '';
-    }
-    
-    function removeTag(tag) {
-      tags = tags.filter(t => t !== tag);
-      updateTags();
-    }
-    
-    function updateTags() {
-      const container = document.getElementById('tagContainer');
-      const hiddenInput = document.getElementById('clinicTags');
-      
-      container.innerHTML = tags.map(tag => `
-        <div class="badge bg-primary d-flex align-items-center gap-2">
-          ${tag}
-          <i class="fas fa-times cursor-pointer" onclick="removeTag('${tag}')"></i>
+      searchResults.innerHTML = data.map(result => `
+        <div class="search-result-item" onclick="selectSearchResult(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')">
+          <div class="font-semibold">${result.display_name.split(',')[0]}</div>
+          <div class="text-sm text-gray-500">${result.display_name}</div>
         </div>
       `).join('');
-      
-      hiddenInput.value = JSON.stringify(tags);
+    })
+    .catch(error => {
+      console.error('Search error:', error);
+      searchResults.innerHTML = '<div class="search-result-item text-danger">Error searching location</div>';
+    });
+}
+
+function selectSearchResult(lat, lon, address) {
+  map.setView([lat, lon], 16);
+  setMarkerAndAddress(lat, lon);
+  document.getElementById('locationSearch').value = address.split(',')[0];
+  document.getElementById('searchResults').classList.add('hidden');
+}
+
+function getCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        map.setView([lat, lng], 16);
+        setMarkerAndAddress(lat, lng);
+        document.getElementById('locationSearch').value = 'Current Location';
+      },
+      function(error) {
+        alert('Error getting current location: ' + error.message);
+      }
+    );
+  } else {
+    alert('Geolocation is not supported by this browser.');
+  }
+}
+
+function previewClinicImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('clinicImagePreview').src = e.target.result;
     }
-    
-    // Handle enter key press for tags
-    document.getElementById('tagInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        addTag();
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function editClinic(data) {
+  document.getElementById('clinicId').value = data.id;
+  document.getElementById('clinicName').value = data.name;
+  document.getElementById('clinicAddress').value = data.address;
+  document.getElementById('clinicPhone').value = data.contact;
+  document.getElementById('clinicEmail').value = data.email;
+  document.getElementById('openingTime').value = data.opening_time;
+  document.getElementById('closingTime').value = data.closing_time;
+  document.getElementById('clinicStatus').value = data.status;
+  
+  if (data.image) {
+    document.getElementById('clinicImagePreview').src = `{{ asset('storage/') }}/${data.image}`;
+  }
+  
+  if (data.latitude && data.longitude) {
+    document.getElementById('latitude').value = data.latitude;
+    document.getElementById('longitude').value = data.longitude;
+  }
+  
+  const operatingDays = JSON.parse(data.operation_days);
+  document.querySelectorAll('input[name="operating_days[]"]').forEach(checkbox => {
+    checkbox.checked = operatingDays.includes(checkbox.value);
+  });
+  
+  document.getElementById('saveClinicButton').textContent = 'Update Clinic';
+  document.getElementById('sidebarTitle').textContent = 'Edit Clinic';
+  
+  openSidebar('clinicSidebar');
+  setTimeout(initMap, 500);
+}
+
+// Sidebar functions
+function openSidebar(sidebarId) {
+  document.getElementById(sidebarId).classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar(sidebarId) {
+  document.getElementById(sidebarId).classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  
+  // Reset form when closing
+  document.getElementById('clinicForm').reset();
+  document.getElementById('clinicId').value = '';
+  document.getElementById('clinicImagePreview').src = '{{ asset("assets/img/default-clinic.jpg") }}';
+  document.getElementById('saveClinicButton').textContent = 'Save Clinic';
+  document.getElementById('sidebarTitle').textContent = 'Add New Clinic';
+}
+
+async function deleteClinic(clinicId) {
+  if (confirm('Are you sure you want to delete this clinic?')) {
+    try {
+      const response = await fetch(`/clinics/${clinicId}/delete`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+      });
+      
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error deleting clinic:', error);
+      alert('Failed to delete clinic');
+    }
+  }
+}
+
+function viewClinic(clinicId) {
+  // Implementation for viewing clinic details
+  console.log('View clinic:', clinicId);
+}
+
+// Form submission
+document.getElementById('clinicForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const clinicId = document.getElementById('clinicId').value;
+  
+  try {
+    const url = clinicId ? `/clinics/${clinicId}` : '/clinics';
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
       }
     });
-    
-    // Image preview function
-    function previewImage(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById('imagePreview').src = e.target.result;
-        }
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-    
-    // Open sidebar for new clinic
-    function openSidebar() {
-      document.getElementById('sidebarTitle').textContent = 'Add New Clinic';
-      document.getElementById('clinicId').value = '';
-      document.getElementById('clinicForm').reset();
-      document.getElementById('imagePreview').src = '../assets/img/dog.png';
-      document.getElementById('locationSearch').value = '';
-      document.getElementById('searchResults').style.display = 'none';
-      tags = [];
-      updateTags();
-      
-      var sidebar = new bootstrap.Offcanvas(document.getElementById('clinicSidebar'));
-      sidebar.show();
-    }
-    
-    // Edit clinic function
-    function editClinic(data) {
-      console.log(data);
-      document.getElementById('sidebarTitle').textContent = 'Edit Clinic';
-      document.getElementById('clinicId').value = data.id;
-      
-      document.getElementById('clinicName').value = data.name;
-      document.getElementById('clinicAddress').value = data.address;
-      document.getElementById('clinicPhone').value = data.contact;
-      document.getElementById('clinicEmail').value = data.email;
-      document.getElementById('openingTime').value = data.opening_time;
-      document.getElementById('closingTime').value = data.closing_time;
-      document.getElementById('clinicStatus').value = data.status;
-      
-      // Set tags if they exist
-      if (data.tags) {
-        tags = JSON.parse(data.tags);
-        updateTags();
-      } else {
-        tags = [];
-        document.getElementById('tagContainer').innerHTML = '';
-        document.getElementById('clinicTags').value = '[]';
-      }
-      
-      if (data.latitude && data.longitude) {
-        document.getElementById('latitude').value = data.latitude;
-        document.getElementById('longitude').value = data.longitude;
-      }
-      
-      const operatingDays = JSON.parse(data.operation_days);
-      document.querySelectorAll('input[name="operating_days[]"]').forEach(checkbox => {
-        checkbox.checked = operatingDays.some(day => 
-          day.substring(0, 3).toLowerCase() === checkbox.value.substring(0, 3)
-        );
-      });
-          
-      if (data.image) {
-        document.getElementById('imagePreview').src = data.image;
-      }
-      
-      // Clear search
-      document.getElementById('locationSearch').value = '';
-      document.getElementById('searchResults').style.display = 'none';
-          
-      var sidebar = new bootstrap.Offcanvas(document.getElementById('clinicSidebar'));
-      sidebar.show();
-    }
-    
-    // Delete clinic function
-    function deleteClinic(id) {
-      if (confirm('Are you sure you want to delete this clinic?')) {
-        fetch(`/clinics/delete/${id}`, {
-          method: 'GET',
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            //location.reload();
-          }
-        });
-      }
-    }
-    
-    // Handle form submission
-    function handleSubmit(event) {
-      event.preventDefault();
-      
-      const formData = new FormData(event.target);
-      const id = document.getElementById('clinicId').value;
-      const url = id ? `/clinics/${id}` : '/clinics';
-      const method = id ? 'POST' : 'POST';
-      
-      // Format time to H:i before sending
-      const openingTime = document.getElementById('openingTime').value;
-      const closingTime = document.getElementById('closingTime').value;
-      formData.set('opening_time', openingTime.substring(0, 5));
-      formData.set('closing_time', closingTime.substring(0, 5));
-      
-      fetch(url, {
-        method: method,
-        body: formData,
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('[name="_token"]').value
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        location.reload();
-      });
-    }
-  </script>
 
-  @endsection
+    if (response.ok) {
+      closeSidebar('clinicSidebar');
+      window.location.reload();
+    } else {
+      const data = await response.json();
+      alert(data.message || 'Failed to save clinic');
+    }
+  } catch (error) {
+    console.error('Error saving clinic:', error);
+    alert('Failed to save clinic');
+  }
+});
+
+// Initialize map when sidebar opens
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize map immediately if map container exists
+  const mapContainer = document.getElementById('map');
+  if (mapContainer && !map) {
+    setTimeout(initMap, 100); // Small delay to ensure DOM is ready
+  }
+  
+  const sidebar = document.getElementById('clinicSidebar');
+  if (sidebar) {
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (!sidebar.classList.contains('hidden')) {
+            setTimeout(initMap, 300);
+          }
+        }
+      });
+    });
+    observer.observe(sidebar, { attributes: true });
+  }
+});
+
+// Hide search results when clicking outside
+document.addEventListener('click', function(event) {
+  const searchResults = document.getElementById('searchResults');
+  const locationSearch = document.getElementById('locationSearch');
+  
+  if (!searchResults.contains(event.target) && event.target !== locationSearch) {
+    searchResults.classList.add('hidden');
+  }
+});
+</script>
+@endsection

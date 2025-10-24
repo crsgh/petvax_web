@@ -42,23 +42,15 @@
             {{-- @include('layouts.footers.auth.footer') --}}
 
         @else
-        <div class="flex h-screen">
-            @include('layouts.navbars.auth.sidebar')
-            {{-- <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg {{ (Request::is('rtl') ? 'overflow-hidden' : '') }}">
-                @include('layouts.navbars.auth.nav')
-                <div class="container-fluid py-4">
+            @include('layouts.navbars.auth.sidebar-clean')
+            <div class="main-content-with-sidebar">
+                @include('layouts.navbars.auth.nav-clean')
+                <main class="main-content-clean">
                     @yield('content')
-                    {{-- @include('layouts.footers.auth.footer') 
-                </div>
-            </main> --}}
-            <div class="flex-1 overflow-auto">
-                @include('layouts.navbars.auth.nav')
-                @yield('content')
-            </div>
-        </div>    
+                </main>
+            </div>    
         @endif
     @endif
 
-    
 
 @endsection

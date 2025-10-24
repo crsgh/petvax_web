@@ -10,4 +10,9 @@ class Service extends Model
     {
         return $this->belongsTo(Clinic::class, 'clinic_id');
     }
+    
+    public function specie()
+    {
+        return $this->belongsTo(Specie::class, 'species');
+    }
 }

@@ -1,186 +1,291 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
-
-<main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header pb-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Sales Report</h6>
-                            <div>
-                                <button class="btn btn-success btn-sm" onclick="exportToExcel()">
-                                    <i class="fas fa-file-excel"></i>&nbsp;Save to Excel
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="row align-items-center mt-2">
-                            <div class="col-md-3">
-                                <label class="form-label small mb-1">From Date</label>
-                                <div class="input-group input-group-sm">
-                                    <input type="date" class="form-control" id="startDate">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small mb-1">To Date</label>
-                                <div class="input-group input-group-sm">
-                                    <input type="date" class="form-control" id="endDate">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small mb-1">Service</label>
-                                <div class="d-flex">
-                                    <select class="form-select form-select-sm me-2 w-100" id="serviceFilter">
-                                        <option value="">All Services</option>
-                                        @foreach($services as $service)
-                                            <option value="{{ $service->id }}">{{ $service->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="" style="height:1.8rem"></label>
-                                <div class="d-flex">
-                                    <button class="btn btn-secondary btn-sm me-2" onclick="resetFilters()">
-                                        Reset
-                                    </button>
-                                    <button class="btn btn-primary btn-sm" onclick="applyFilters()">
-                                        Apply
-                                    </button>
-                                </div>                               
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table align-items-center m-0" id="salesReportTable">
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Transaction ID</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Service</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date & Time</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="salesTableBody">
-                                    @php 
-                                        $total = 0;
-                                        $totalQuantity = 0;
-                                    @endphp
-                                    @foreach($bookings->where('status', 'completed') as $booking)
-                                    @php 
-                                        $total += $booking->total_amount;
-                                        $totalQuantity++;
-                                    @endphp
-                                    <tr class="booking-row"
-                                        data-date="{{ \Carbon\Carbon::parse($booking->appointment_datetime)->format('Y-m-d') }}"
-                                        data-service="{{ $booking->service_id }}">
-                                        <td>
-                                            <h6 class="mb-0 text-sm ps-2">TXN-{{ str_pad($booking->id, 6, '0', STR_PAD_LEFT) }}</h6>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs text-secondary mb-0 ps-2">{{ $booking->service->name }}</p>
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            <span class="text-secondary text-xs font-weight-bold">
-                                                {{ \Carbon\Carbon::parse($booking->appointment_datetime)->format('M d, Y g:i A') }}
-                                            </span>
-                                        </td>
-                                        <td class="align-middle text-center">1</td>
-                                        <td class="align-middle text-center">
-                                            <span class="text-secondary text-xs font-weight-bold">
-                                                ₱{{ number_format($booking->total_amount, 2) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr class="bg-light">
-                                        <td colspan="3" class="text-end fw-bold">Totals:</td>
-                                        <td class="text-center fw-bold" id="totalQuantity">{{ $totalQuantity }}</td>
-                                        <td class="text-center fw-bold" id="totalAmount">₱{{ number_format($total, 2) }}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="categories-page">
+  <div class="page-header">
+    <h1 class="page-title"></h1>
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          id="salesSearchInput"
+          class="search-input"
+          placeholder="Search transactions..." 
+          onkeyup="filterTable()"
+        />
+      </div>
+      
+      <x-ui.button 
+        variant="secondary" 
+        size="default" 
+        icon="fas fa-filter"
+        onclick="openModal('filterModal')"
+      >
+        Filters
+      </x-ui.button>
+      <x-ui.button variant="primary" size="default" icon="fas fa-download">Export Report</x-ui.button>
     </div>
-</main>
+  </div>
+  <div class="sales-content">
+    <div class="sales-table-wrapper">
+      <table class="sales-table" id="salesTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Transaction ID</th>
+            <th>Customer</th>
+            <th>Service/Items</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @php
+            $sampleSales = [
+              ['id' => 'TXN001', 'date' => '2024-01-15', 'customer' => 'John Doe', 'items' => 'Vaccination - Rabies', 'amount' => 1500.00, 'method' => 'Cash', 'status' => 'completed'],
+              ['id' => 'TXN002', 'date' => '2024-01-15', 'customer' => 'Jane Smith', 'items' => 'Pet Grooming', 'amount' => 800.00, 'method' => 'Card', 'status' => 'completed'],
+              ['id' => 'TXN003', 'date' => '2024-01-14', 'customer' => 'Mike Johnson', 'items' => 'Antibiotics', 'amount' => 450.00, 'method' => 'Cash', 'status' => 'completed'],
+              ['id' => 'TXN004', 'date' => '2024-01-14', 'customer' => 'Sarah Wilson', 'items' => 'Check-up + Deworming', 'amount' => 1200.00, 'method' => 'GCash', 'status' => 'pending'],
+              ['id' => 'TXN005', 'date' => '2024-01-13', 'customer' => 'Robert Brown', 'items' => 'Surgery - Spaying', 'amount' => 5000.00, 'method' => 'Card', 'status' => 'completed'],
+            ];
+          @endphp
+          
+          @foreach($sampleSales as $sale)
+          <tr data-search="{{ strtolower($sale['id'] . ' ' . $sale['customer'] . ' ' . $sale['items']) }}">
+            <td>
+              <div class="sale-date">{{ \Carbon\Carbon::parse($sale['date'])->format('M d, Y') }}</div>
+            </td>
+            <td>
+              <div class="transaction-id">{{ $sale['id'] }}</div>
+            </td>
+            <td>
+              <div class="customer-name">{{ $sale['customer'] }}</div>
+            </td>
+            <td>
+              <div class="sale-items">{{ $sale['items'] }}</div>
+            </td>
+            <td>
+              <div class="sale-amount">₱{{ number_format($sale['amount'], 2) }}</div>
+            </td>
+            <td>
+              <x-ui.badge variant="{{ $sale['method'] == 'Cash' ? 'success' : ($sale['method'] == 'Card' ? 'primary' : 'info') }}">
+                {{ $sale['method'] }}
+              </x-ui.badge>
+            </td>
+            <td>
+              <x-ui.badge variant="{{ $sale['status'] == 'completed' ? 'success' : 'warning' }}">
+                {{ ucfirst($sale['status']) }}
+              </x-ui.badge>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+.categories-page { 
+  padding: 1.5rem; 
+  background: #fff; 
+  min-height: 100vh; 
+  font-family: 'Poppins', sans-serif; 
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.025em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Header Search Styles */
+.header-actions .search-wrapper {
+  position: relative;
+  width: 300px;
+  padding: 1px;
+}
+
+.header-actions .search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.header-actions .search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-actions .search-input:focus {
+  outline: none;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.modal-action-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Clean Table Styles */
+.sales-content {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.sales-table-wrapper {
+  overflow-x: auto;
+}
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Poppins', sans-serif;
+}
+
+.sales-table th {
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sales-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+.sales-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.sale-date, .transaction-id, .customer-name, .sale-items {
+  color: #111827;
+}
+
+.sale-amount {
+  font-weight: 600;
+  color: #059669;
+}
+
+@media (max-width: 768px) { 
+  .categories-page { padding: 1rem; } 
+  .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .header-actions { flex-direction: column; width: 100%; gap: 0.75rem; }
+  .header-actions .search-wrapper { width: 100%; }
+}
+</style>
 
 <script>
-function applyFilters() {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    const serviceFilter = document.getElementById('serviceFilter').value;
+function filterTable() {
+  const searchTerm = document.getElementById('salesSearchInput').value.toLowerCase();
+  const rows = document.querySelectorAll('#salesTable tbody tr');
+
+  rows.forEach(row => {
+    const searchData = row.dataset.search || '';
+    const matchesSearch = searchData.includes(searchTerm);
     
-    const rows = document.querySelectorAll('.booking-row');
-    let filteredTotal = 0;
-    let filteredQuantity = 0;
-    
-    rows.forEach(row => {
-        let show = true;
-        const rowDate = row.dataset.date;
-        
-        if (startDate && rowDate < startDate) show = false;
-        if (endDate && rowDate > endDate) show = false;
-        if (serviceFilter && row.dataset.service !== serviceFilter) show = false;
-        
-        row.style.display = show ? '' : 'none';
-        
-        if (show) {
-            filteredQuantity++;
-            const amount = parseFloat(row.querySelector('td:last-child span').textContent.replace('₱', '').replace(/,/g, ''));
-            filteredTotal += amount;
-        }
-    });
-    
-    // Update totals
-    document.getElementById('totalQuantity').textContent = filteredQuantity;
-    document.getElementById('totalAmount').textContent = '₱' + filteredTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    row.style.display = matchesSearch ? '' : 'none';
+  });
 }
 
-function resetFilters() {
-    document.getElementById('startDate').value = '';
-    document.getElementById('endDate').value = '';
-    document.getElementById('serviceFilter').value = '';
-    
-    const rows = document.querySelectorAll('.booking-row');
-    rows.forEach(row => row.style.display = '');
-    
-    // Reset totals to original values
-    const originalQuantity = {{ $totalQuantity }};
-    const originalTotal = {{ $total }};
-    
-    document.getElementById('totalQuantity').textContent = originalQuantity;
-    document.getElementById('totalAmount').textContent = '₱' + originalTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function clearFilters() {
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('paymentFilter').value = '';
+  filterTable();
 }
-
-function exportToExcel() {
-    const table = document.getElementById('salesReportTable');
-    const wb = XLSX.utils.table_to_book(table, {sheet: "Sales Report"});
-    XLSX.writeFile(wb, 'sales_report.xlsx');
-}
-
-// Initialize date inputs with current month range
-window.addEventListener('DOMContentLoaded', (event) => {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
-    document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
-    document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
-    applyFilters();
-});
 </script>
 
-@endsection
+<!-- Filter Modal -->
+<x-ui.modal id="filterModal" title="Filter Sales" size="sm">
+  <div class="filter-form">
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select id="statusFilter" class="form-select" onchange="filterTable()">
+        <option value="">All Status</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
     
+    <div class="form-group">
+      <label class="form-label">Payment Method</label>
+      <select id="paymentFilter" class="form-select" onchange="filterTable()">
+        <option value="">All Methods</option>
+        <option value="cash">Cash</option>
+        <option value="card">Card</option>
+        <option value="gcash">GCash</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="modal-actions">
+    <x-ui.button 
+      type="button" 
+      variant="secondary" 
+      onclick="clearFilters()"
+      class="modal-action-btn"
+    >
+      Clear Filters
+    </x-ui.button>
+    <x-ui.button 
+      type="button" 
+      variant="primary" 
+      onclick="closeModal('filterModal')"
+      class="modal-action-btn"
+    >
+      Apply Filters
+    </x-ui.button>
+  </div>
+</x-ui.modal>
+
+@endsection

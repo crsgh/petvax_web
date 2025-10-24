@@ -10,6 +10,7 @@ use App\Models\Specie;
 use App\Models\Breed;
 use App\Models\Notification;
 use App\Models\Booking;
+use Illuminate\Support\Facades\Storage;
 
 
 class PetController extends Controller
@@ -52,6 +53,26 @@ class PetController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        try {
+            $pet = Pet::with(['petOwner', 'clinic', 'species', 'breed'])->findOrFail($id);
+            return response()->json($pet);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Pet not found'], 404);
+        }
+    }
+
+    public function getBreedsBySpecies($speciesId)
+    {
+        try {
+            $breeds = Breed::where('species_id', $speciesId)->get(['id', 'name']);
+            return response()->json($breeds);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to load breeds'], 500);
+        }
+    }
+
     public function breeds()
     {
         return view('breeds', [
@@ -72,29 +93,34 @@ class PetController extends Controller
 
     public function upsertBreed(Request $request, $id = null)
     {
-        
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'species_id' => 'required|exists:species,id',
-            'clinic_id' => 'required|exists:clinics,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'species_id' => 'required|exists:species,id',
+                'clinic_id' => 'required|exists:clinics,id',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
 
-        $breed = $id == null ? new Breed : Breed::findOrFail($id);
+            $breed = $id == null ? new Breed : Breed::findOrFail($id);
 
-        $breed->name = $validatedData['name'];
-        $breed->species_id = $validatedData['species_id'];
-        $breed->clinic_id = $validatedData['clinic_id'];
+            $breed->name = $validatedData['name'];
+            $breed->species_id = $validatedData['species_id'];
+            $breed->clinic_id = $validatedData['clinic_id'];
 
-        if ($request->hasFile('image')) {
-            $breed->image = uploadImage($request->file('image'), 'pets');
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('breeds', 'public');
+                $breed->image = $imagePath;
+            }
+
+            $breed->save();
+
+            return redirect()->route('breeds')->with('success', 'Breed saved successfully');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to save breed: ' . $e->getMessage())->withInput();
         }
-
-        $breed->save();
-
-        // add record
-
-        return redirect()->route('breeds')->with('success', 'Breed saved successfully');
     }
 
     public function deleteBreed($id)
@@ -138,12 +164,24 @@ class PetController extends Controller
         return redirect()->route('species')->with('success', 'Species saved successfully');
     }
 
-    public function deleteSpecie($id)
+    public function deleteSpecie(Request $request, $id)
     {
-        $specie = Specie::findOrFail($id);
-        $specie->delete();
-        
-        return redirect()->route('species')->with('success', 'Species deleted successfully');
+        try {
+            $specie = Specie::findOrFail($id);
+            $specie->delete();
+            
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Species deleted successfully']);
+            }
+            
+            return redirect()->route('species')->with('success', 'Species deleted successfully');
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to delete species: ' . $e->getMessage()], 500);
+            }
+            
+            return redirect()->back()->with('error', 'Failed to delete species: ' . $e->getMessage());
+        }
     }
 
 
@@ -156,47 +194,62 @@ class PetController extends Controller
         try {
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'species' => 'required|string|max:255', 
-                'breed' => 'nullable|string|max:255',
+                'species_id' => 'nullable|exists:species,id',
+                'species' => 'nullable|exists:species,id', 
+                'breed_id' => 'nullable|exists:breeds,id',
+                'breed' => 'nullable|exists:breeds,id',
                 'birth_date' => 'nullable|date',
                 'owner_id' => 'required|exists:users,id',
-                'clinic_id' =>'required|exists:clinics,id',
+                'clinic_id' =>'nullable|exists:clinics,id',
                 'weight' => 'nullable|numeric',
                 'gender' => 'nullable|in:male,female,unspecified',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
             $pet = $id == null ? new Pet : Pet::findOrFail($id);
             
-            try {
-                $specie = Specie::findOrFail((int)$validatedData['species']);
-                
-                $pet->species = strtolower($specie->name);
-             
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-                $pet->species = strtolower($validatedData['species']);
+            // Handle species - convert ID to name
+            $speciesId = $validatedData['species_id'] ?? $validatedData['species'] ?? null;
+            if ($speciesId) {
+                try {
+                    $species = Specie::findOrFail($speciesId);
+                    $pet->species = $species->name;
+                } catch (\Exception $e) {
+                    $pet->species = 'Unknown';
+                }
             }
-           
+            
+            // Handle breed - convert ID to name
+            $breedId = $validatedData['breed_id'] ?? $validatedData['breed'] ?? null;
+            if ($breedId) {
+                try {
+                    $breed = Breed::findOrFail($breedId);
+                    $pet->breed = $breed->name;
+                } catch (\Exception $e) {
+                    $pet->breed = 'Mixed';
+                }
+            }
 
             $pet->name = $validatedData['name'];
-            
-            $pet->breed = $validatedData['breed'];
             $pet->birth_date = $validatedData['birth_date'];
             $pet->owner_id = $validatedData['owner_id'];
-            $pet->clinic_id = $validatedData['clinic_id']; 
+            $pet->clinic_id = $validatedData['clinic_id'] ?? auth()->user()->clinic_id ?? 1; 
             $pet->weight = $validatedData['weight'];
             $pet->gender = $validatedData['gender'];
 
             if ($request->hasFile('image')) {
-                $pet->image = $this->uploadImage($request->file('image'), 'pets');
+                $imagePath = $request->file('image')->store('pets', 'public');
+                $pet->image = $imagePath;
             }
 
             $pet->save();
             
+            return redirect()->route('pets')->with('success', 'Pet saved successfully');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            //return redirect()->back()->with('error', 'Error saving pet: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Error saving pet: ' . $e->getMessage())->withInput();
         }
-        return redirect()->route('pets')->with('success', 'Pet saved successfully');
     }
     /**
      * Remove the specified pet.

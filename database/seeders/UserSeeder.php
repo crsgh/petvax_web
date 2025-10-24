@@ -17,9 +17,12 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             'id' => 1,
+            'role_id' => 1, // Admin role
             'name' => 'admin',
             'email' => 'admin@softui.com',
             'password' => Hash::make('secret'),
+            'clinic_id' => 1, // Default clinic
+            'is_verified' => true,
             'created_at' => now(),
             'updated_at' => now()
         ]);

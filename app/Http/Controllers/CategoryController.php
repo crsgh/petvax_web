@@ -25,35 +25,51 @@ class CategoryController extends Controller
 
     public function upsert(Request $request, $id = null)
     {
-        
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'clinic_id' => 'required|integer|exists:clinics,id',
-            'status' => 'required|in:active,inactive,default',
-            'description' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'clinic_id' => 'required|integer|exists:clinics,id',
+                'status' => 'required|in:active,inactive,default',
+                'description' => 'nullable|string|max:255',
+            ]);
 
-        if ($id) {
-            $category = Category::findOrFail($id);
-            $category->update($validated);
-            $message = 'Category updated successfully';
-        } else {
-            $category = Category::create($validated);
-            $message = 'Category created successfully';
+            if ($id) {
+                $category = Category::findOrFail($id);
+                $category->update($validated);
+                $message = 'Category updated successfully';
+            } else {
+                $category = Category::create($validated);
+                $message = 'Category created successfully';
+            }
+
+            return redirect()->route('categories')->with('success', $message);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to save category: ' . $e->getMessage())->withInput();
         }
-
-        // add record
-
-        return redirect()->route('categories')->with('success', $message);
     }
 
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
-        $category->delete();
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
 
-        // add record
+            // add record
 
-        return redirect()->route('categories')->with('success', 'Category deleted successfully');
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Category deleted successfully']);
+            }
+
+            return redirect()->route('categories')->with('success', 'Category deleted successfully');
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to delete category: ' . $e->getMessage()], 500);
+            }
+            
+            return redirect()->back()->with('error', 'Failed to delete category: ' . $e->getMessage());
+        }
     }
 }

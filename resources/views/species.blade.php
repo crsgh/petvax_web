@@ -1,216 +1,581 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
-
-  <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg ">
-    <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-12">
-          <div class="card mb-4">
-            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-              <h6>Species Table</h6>
-              <button class="btn btn-primary btn-sm mb-0" onclick="openAddSidebar()">
-                <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Species
-              </button>
-            </div>
-            <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0">
-                  <thead>
-                    <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Species Name</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($species as $specie)
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $specie->name }}</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center">
-                        <div class="d-flex gap-1 justify-content-center">
-                          <button class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center" 
-                                  onclick="openEditSidebar({{ json_encode($specie) }})"
-                                  data-bs-toggle="tooltip" 
-                                  data-bs-placement="top"
-                                  title="Edit Species">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          
-                          <form action="/species/{{ $specie->id }}/delete" method="GET" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this species?')">
-                            @csrf
-                          
-                            <button type="submit" class="btn btn-icon-only btn-rounded btn-outline-danger mb-0 p-2 d-flex align-items-center justify-content-center"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top" 
-                                    title="Delete Species">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </form>
-                        </div>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="species-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Species Management</h1>
+      <p class="page-subtitle">Manage animal species classifications</p>
+    </div>
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          id="speciesSearchInput"
+          class="search-input"
+          placeholder="Search species..." 
+          onkeyup="filterTable()"
+        />
       </div>
-    </div>
-  </main>
-
-  <!-- Add Species Sidebar -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="addSpeciesSidebar">
-    <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title">Add New Species</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"><span aria-hidden="true" class="text-3xl">&times;</span></button>
-    </div>
-    <div class="offcanvas-body">
-      <form id="addSpeciesForm" action="" method="POST" onsubmit="return validateAddSpeciesForm()">
-        @csrf
-        <div class="mb-3">
-          <label for="speciesName" class="form-label">Name</label>
-          <input type="text" class="form-control" id="speciesName" name="name" required
-                 oninput="validateSpeciesName(this)">
-          <div class="invalid-feedback" id="speciesNameFeedback"></div>
-        </div>
-        @if(auth()->user()->role_id == 1)
-        <div class="mb-3">
-          <label for="clinic" class="form-label">Clinic</label>
-          <select class="form-control" id="clinic" name="clinic_id" required
-                  onchange="validateClinicSelection(this)">
-            <option value="">Select a clinic</option>
-            @foreach($clinics as $clinic)
-              <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-            @endforeach
-          </select>
-          <div class="invalid-feedback" id="clinicFeedback"></div>
-        </div>
-        @else
-        <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
-        @endif
-        <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary">Save Species</button>
-        </div>
-      </form>
+      
+      <x-ui.button 
+        variant="secondary" 
+        size="default" 
+        icon="fas fa-filter"
+        onclick="openModal('filterModal')"
+      >
+        Filters
+      </x-ui.button>
+      
+      <x-ui.button 
+        variant="primary" 
+        size="default" 
+        icon="fas fa-plus"
+        onclick="openSidebar('speciesSidebar')"
+      >
+        Add New Species
+      </x-ui.button>
     </div>
   </div>
 
-  <script>
-    function validateSpeciesName(input) {
-      const name = input.value.trim();
-      const feedback = document.getElementById('speciesNameFeedback');
-      
-      if (name.length < 2) {
-        input.classList.add('is-invalid');
-        feedback.textContent = 'Species name must be at least 2 characters long';
-        return false;
-      }
-      
-      if (name.length > 50) {
-        input.classList.add('is-invalid');
-        feedback.textContent = 'Species name cannot exceed 50 characters';
-        return false;
-      }
-      
-      if (!/^[A-Za-z\s]+$/.test(name)) {
-        input.classList.add('is-invalid');
-        feedback.textContent = 'Species name can only contain letters and spaces';
-        return false;
-      }
-      
-      input.classList.remove('is-invalid');
-      input.classList.add('is-valid');
-      return true;
-    }
-
-    function validateClinicSelection(select) {
-      const feedback = document.getElementById('clinicFeedback');
-      
-      if (!select.value) {
-        select.classList.add('is-invalid');
-        feedback.textContent = 'Please select a clinic';
-        return false;
-      }
-      
-      select.classList.remove('is-invalid');
-      select.classList.add('is-valid');
-      return true;
-    }
-
-    function validateAddSpeciesForm() {
-      const nameInput = document.getElementById('speciesName');
-      const isNameValid = validateSpeciesName(nameInput);
-      
-      @if(auth()->user()->role_id == 1)
-      const clinicSelect = document.getElementById('clinic');
-      const isClinicValid = validateClinicSelection(clinicSelect);
-      return isNameValid && isClinicValid;
-      @else
-      return isNameValid;
-      @endif
-    }
-  </script>
-  <!-- Edit Species Sidebar -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="editSpeciesSidebar">
-    <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title">Edit Species</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  <div class="species-content">
+    <div class="species-table-wrapper">
+      <table class="species-table" id="speciesTable">
+        <thead>
+          <tr>
+            <th>Species Name</th>
+            <th>Clinic</th>
+            <th>Breeds Count</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($species as $specie)
+          <tr data-search="{{ strtolower($specie->name) }}">
+            <td>
+              <div class="species-info">
+                <div class="species-name">{{ $specie->name }}</div>
+                <div class="species-id">ID: #{{ $specie->id }}</div>
+              </div>
+            </td>
+            <td>
+              <div class="clinic-name">{{ $specie->clinic->name ?? 'N/A' }}</div>
+            </td>
+            <td>
+              <x-ui.badge variant="info">
+                {{ $specie->breeds_count ?? 0 }} breeds
+              </x-ui.badge>
+            </td>
+            <td>
+              <div class="actions-group">
+                <x-ui.button 
+                  variant="primary" 
+                  size="sm" 
+                  icon="fas fa-edit"
+                  onclick="editSpecies({{ $specie->toJson() }})"
+                  title="Edit Species"
+                />
+                <x-ui.button 
+                  variant="danger" 
+                  size="sm" 
+                  icon="fas fa-trash"
+                  onclick="deleteSpecies({{ $specie->id }})"
+                  title="Delete Species"
+                />
+              </div>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
     </div>
-    <div class="offcanvas-body">
-      <form id="editSpeciesForm" action="" method="POST">
-        @csrf
+  </div>
+</div>
 
-        <div class="mb-3">
-          <label for="editSpeciesName" class="form-label">Name</label>
-          <input type="text" class="form-control" id="editSpeciesName" name="name" required>
+<!-- Species Sidebar -->
+<div id="speciesSidebar" class="sidebar-overlay hidden">
+  <div class="sidebar-backdrop" onclick="closeSidebar('speciesSidebar')"></div>
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <h3 class="sidebar-title" id="sidebarTitle">Add New Species</h3>
+      <button type="button" class="sidebar-close" onclick="closeSidebar('speciesSidebar')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="sidebar-body">
+      <form id="speciesForm" method="POST" action="/species">
+        @csrf
+        <input type="hidden" name="species_id" id="speciesId">
+        
+        <div class="form-group">
+          <label class="form-label">Species Name *</label>
+          <input type="text" 
+                 class="form-input" 
+                 name="name" 
+                 id="speciesName" 
+                 required 
+                 placeholder="Enter species name">
         </div>
+
         @if(auth()->user()->role_id == 1)
-        <div class="mb-3">
-          <label for="editClinic" class="form-label">Clinic</label>
-          <select class="form-control" id="editClinic" name="clinic_id" required>
+        <div class="form-group">
+          <label class="form-label">Clinic *</label>
+          <select class="form-input" name="clinic_id" id="clinicId" required>
+            <option value="">Select Clinic</option>
             @foreach($clinics as $clinic)
               <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
             @endforeach
           </select>
         </div>
         @else
-        <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
+          <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
         @endif
-        <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary">Update Species</button>
-        </div>
       </form>
     </div>
+    
+    <div class="sidebar-footer">
+      <x-ui.button 
+        type="button" 
+        variant="secondary" 
+        onclick="closeSidebar('speciesSidebar')"
+      >
+        Cancel
+      </x-ui.button>
+      <x-ui.button 
+        type="submit" 
+        variant="primary" 
+        id="saveSpeciesButton"
+        form="speciesForm"
+      >
+        Save Species
+      </x-ui.button>
+    </div>
   </div>
+</div>
 
-  <script>
-    function openAddSidebar() {
-      var form = document.getElementById('addSpeciesForm');
-      form.action = "";
-      var sidebar = new bootstrap.Offcanvas(document.getElementById('addSpeciesSidebar'));
-      sidebar.show();
-    }
-
-    function openEditSidebar(species) {
-      const form = document.getElementById('editSpeciesForm');
-      form.action = `species/${species.id}`;
-      document.getElementById('editSpeciesName').value = species.name;
-      
-      @if(auth()->user()->role_id == 1)
-      document.getElementById('editClinic').value = species.clinic_id;
-      @endif
-
-      var sidebar = new bootstrap.Offcanvas(document.getElementById('editSpeciesSidebar'));
-      sidebar.show();
-    }
-  </script>
+<!-- Filter Modal -->
+<x-ui.modal id="filterModal" title="Filter Species" size="sm">
+  <div class="filter-form">
+    @if(auth()->user()->role_id == 1)
+    <div class="form-group">
+      <label class="form-label">Clinic</label>
+      <select id="clinicFilter" class="form-select" onchange="filterTable()">
+        <option value="">All Clinics</option>
+        @foreach($clinics as $clinic)
+          <option value="{{ strtolower($clinic->name) }}">{{ $clinic->name }}</option>
+        @endforeach
+      </select>
+    </div>
+    @endif
+  </div>
   
+  <div class="modal-actions">
+    <x-ui.button 
+      type="button" 
+      variant="secondary" 
+      onclick="clearFilters()"
+      class="modal-action-btn"
+    >
+      Clear Filters
+    </x-ui.button>
+    <x-ui.button 
+      type="button" 
+      variant="primary" 
+      onclick="closeModal('filterModal')"
+      class="modal-action-btn"
+    >
+      Apply Filters
+    </x-ui.button>
+  </div>
+</x-ui.modal>
+
+<style>
+/* Clean & Minimalist Species Styles */
+.species-page {
+  padding: 1.5rem;
+  background: #fff;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.025em;
+  font-family: var(--font-family), sans-serif;
+}
+
+.page-subtitle {
+  color: var(--secondary-font-color);
+  font-size: 0.875rem;
+  margin: 0;
+  font-family: var(--font-family), sans-serif;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Header Search Styles */
+.header-actions .search-wrapper {
+  position: relative;
+  width: 300px;
+  padding: 1px;
+}
+
+.header-actions .search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.header-actions .search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-actions .search-input:focus {
+  outline: none;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Clean Table Styles */
+.species-content {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.species-table-wrapper {
+  overflow-x: auto;
+}
+
+.species-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Poppins', sans-serif;
+}
+
+.species-table th {
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.species-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+.species-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.species-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.species-name {
+  font-weight: 500;
+}
+
+.species-id {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.clinic-name {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.actions-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Sidebar Styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sidebar-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-content {
+  position: relative;
+  width: 400px;
+  max-width: 90vw;
+  background: var(--sidebar-bg-color);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-content {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--sidebar-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sidebar-header-color);
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  font-family: var(--font-family), sans-serif;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  color: var(--secondary-font-color);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-close:hover {
+  background: var(--sidebar-border-color);
+  color: var(--font-color);
+}
+
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  background: var(--sidebar-bg-color);
+}
+
+.sidebar-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--sidebar-border-color);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  background: var(--sidebar-header-color);
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-family), sans-serif;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--sidebar-border-color);
+  border-radius: 8px;
+  font-size: var(--font-size);
+  transition: all 0.2s ease;
+  background: var(--sidebar-bg-color);
+  color: var(--font-color);
+  font-family: var(--font-family), sans-serif;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.modal-action-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  .species-page { padding: 1rem; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .header-actions { flex-direction: column; width: 100%; gap: 0.75rem; }
+  .header-actions .search-wrapper { width: 100%; }
+}
+</style>
+
+<script>
+function filterTable() {
+  const searchTerm = document.getElementById('speciesSearchInput').value.toLowerCase();
+  const clinicFilter = document.getElementById('clinicFilter') ? document.getElementById('clinicFilter').value.toLowerCase() : '';
+  const rows = document.querySelectorAll('#speciesTable tbody tr');
+
+  rows.forEach(row => {
+    const searchData = row.dataset.search || '';
+    const clinicCell = row.cells[1].textContent.toLowerCase();
+    
+    const matchesSearch = searchData.includes(searchTerm);
+    const matchesClinic = !clinicFilter || clinicCell.includes(clinicFilter);
+    
+    row.style.display = (matchesSearch && matchesClinic) ? '' : 'none';
+  });
+}
+
+function clearFilters() {
+  document.getElementById('speciesSearchInput').value = '';
+  if (document.getElementById('clinicFilter')) {
+    document.getElementById('clinicFilter').value = '';
+  }
+  filterTable();
+}
+
+// Sidebar functions
+function openSidebar(sidebarId) {
+  document.getElementById(sidebarId).classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar(sidebarId) {
+  document.getElementById(sidebarId).classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  
+  // Reset form when closing
+  document.getElementById('speciesForm').reset();
+  document.getElementById('speciesId').value = '';
+  document.getElementById('saveSpeciesButton').textContent = 'Save Species';
+  document.getElementById('sidebarTitle').textContent = 'Add New Species';
+}
+
+function editSpecies(species) {
+  document.getElementById('speciesId').value = species.id;
+  document.getElementById('speciesName').value = species.name;
+  if (document.getElementById('clinicId')) {
+    document.getElementById('clinicId').value = species.clinic_id;
+  }
+  
+  document.getElementById('saveSpeciesButton').textContent = 'Update Species';
+  document.getElementById('sidebarTitle').textContent = 'Edit Species';
+  
+  openSidebar('speciesSidebar');
+}
+
+async function deleteSpecies(speciesId) {
+  if (confirm('Are you sure you want to delete this species?')) {
+    try {
+      const response = await fetch(`/species/${speciesId}/delete`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+      });
+      
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Error deleting species');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error deleting species');
+    }
+  }
+}
+
+// Form submission
+document.getElementById('speciesForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const speciesId = document.getElementById('speciesId').value;
+  
+  try {
+    const url = speciesId ? `/species/${speciesId}` : '/species';
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    });
+
+    if (response.ok) {
+      closeSidebar('speciesSidebar');
+      window.location.reload();
+    } else {
+      const data = await response.json();
+      alert(data.message || 'Failed to save species');
+    }
+  } catch (error) {
+    console.error('Error saving species:', error);
+    alert('Failed to save species');
+  }
+});
+</script>
 @endsection

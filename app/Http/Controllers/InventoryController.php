@@ -43,26 +43,32 @@ class InventoryController extends Controller
 				'description' => 'nullable|string',
 				'quantity' => 'required|integer|min:0',
 				'category_id' => 'required|exists:categories,id',
-				'clinic_id' =>'required|exists:clinics,id',
-				'added_by' =>'required|exists:users,id',
+				'clinic_id' =>'nullable|exists:clinics,id',
+				'added_by' =>'nullable|exists:users,id',
+				'sku' => 'nullable|string',
+				'unit_price' => 'nullable|numeric|min:0',
 			]);
 
 			$inventory = $id == null ? new InventoryItem : InventoryItem::findOrFail($id);
 			$inventory->name = $validatedData['name'];
 			$inventory->description = $validatedData['description'];
 			$inventory->quantity = $validatedData['quantity'];
-			$inventory->category_id = $validatedData['category_id'];
-			$inventory->clinic_id = $validatedData['clinic_id'];
-			$inventory->added_by = $validatedData['added_by'];
+			$inventory->category_id = $validatedData['category_id'] ?? 1; // Default category
+			$inventory->clinic_id = $validatedData['clinic_id'] ?? auth()->user()->clinic_id ?? 1;
+			$inventory->added_by = $validatedData['added_by'] ?? auth()->id();
+			$inventory->sku = $validatedData['sku'];
+			$inventory->unit_price = $validatedData['unit_price'] ?? 0.00;
 
 			// add record
 		
 			$inventory->save();
     	}catch(\Illuminate\Validation\ValidationException $e){
-            dd($e->errors());
-   	 	}
+            return redirect()->back()->withErrors($e->errors())->withInput();
+   	 	} catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to save inventory item: ' . $e->getMessage())->withInput();
+        }
 
-        return redirect()->route('inventory')->with('success', 'Pet saved successfully');
+        return redirect()->route('inventory')->with('success', 'Inventory item saved successfully');
     }
 
     /**
@@ -70,9 +76,13 @@ class InventoryController extends Controller
      */
     public function delete($id)
     {
-        $inventory = InventoryItem::findOrFail($id);
-        $inventory->delete();
-        
-        return redirect()->route('inventory')->with('success', 'Item deleted successfully');
+        try {
+            $inventory = InventoryItem::findOrFail($id);
+            $inventory->delete();
+            
+            return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete item: ' . $e->getMessage()], 500);
+        }
     }
 }

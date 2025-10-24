@@ -1,111 +1,139 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
-
-<main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-    <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-12">
-          <div class="card mb-4">
-            <div class="card-header pb-0">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6>Schedule Slots</h6>
-                <button class="btn btn-primary btn-sm mb-0" onclick="openSidebar()">
-                  <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New Slot
-                </button>
-              </div>
-              
-              <!-- Filters -->
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <select class="form-select" id="serviceFilter" onchange="filterSlots()">
-                    <option value="">All Services</option>
-                    @foreach($services as $service)
-                      <option value="{{ $service->id }}">{{ $service->name }}</option>
-                    @endforeach
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <select class="form-select" id="dayFilter" onchange="filterSlots()">
-                    <option value="">All Days</option>
-                    @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
-                      <option value="{{ $day }}">{{ ucfirst($day) }}</option>
-                    @endforeach
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0">
-                @if(count($slots) > 0)
-                <table class="table align-items-center mb-0">
-                  <thead>
-                    <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Day</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Service</th>
-                      @if(auth()->user()->role_id == 1)
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Clinic</th>
-                      @endif
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Time Slots</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="slotsTableBody">
-                    @foreach($slots as $slot)
-                    <tr class="slot-row" 
-                        data-service="{{ $slot->service_id }}"
-                        data-day="{{ $slot->day }}">
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ ucfirst($slot->day) }}</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ $slot->service->name }}</p>
-                      </td>
-                      @if(auth()->user()->role_id == 1)
-                      <td>
-                        <p class="text-xs text-secondary mb-0">{{ $slot->clinic->name }}</p>
-                      </td>
-                      @endif
-                      <td class="align-middle text-center">
-                        <div class="d-flex flex-wrap gap-1 justify-content-center">
-                          @foreach(json_decode($slot->time_slots) as $time)
-                            <span class="badge bg-light text-dark">{{ $time }}</span>
-                          @endforeach
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="badge badge-sm bg-gradient-{{ $slot->status == 1 ? 'success' : 'secondary' }}">
-                          {{ $slot->status == 1 ? 'Active' : 'Inactive' }}
-                        </span>
-                      </td>
-                      <td class="align-middle text-center">
-                        <div class="d-flex gap-2 justify-content-center">
-                          <button class="btn btn-link text-secondary mb-0 p-1" onclick="openSidebar({{ json_encode($slot) }})">
-                            <i class="fa fa-edit fa-lg"></i>
-                          </button>
-                          <button type="button" class="btn btn-link text-primary mb-0 p-1" onclick="openDuplicateModal({{ json_encode($slot) }})">
-                            <i class="fa fa-copy fa-lg"></i>
-                          </button>
-                          <button class="btn btn-link text-danger mb-0 p-1" onclick="deleteSlot({{ $slot->id }})">
-                            <i class="fa fa-trash fa-lg"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-                @endif
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="schedule-page">
+  <div class="page-header">
+    <h1 class="page-title"></h1>
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          id="scheduleSearchInput"
+          class="search-input"
+          placeholder="Search schedule slots..." 
+          onkeyup="filterSlots()"
+        />
       </div>
+      
+      <x-ui.button 
+        variant="secondary" 
+        size="default" 
+        icon="fas fa-filter"
+        onclick="openModal('filterModal')"
+      >
+        Filters
+      </x-ui.button>
+      
+      <x-ui.button 
+        variant="primary" 
+        size="default" 
+        icon="fas fa-plus"
+        onclick="openSidebar()"
+      >
+        Add New Slot
+      </x-ui.button>
+    </div>
+  </div>
+
+  <div class="schedule-content">
+    <div class="schedule-table-wrapper">
+      @if(isset($slots) && count($slots) > 0)
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Service</th>
+            @if(auth()->user()->role_id == 1)
+            <th>Clinic</th>
+            @endif
+            <th>Time Slots</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="slotsTableBody">
+          @foreach($slots as $slot)
+          <tr class="slot-row" 
+              data-service="{{ $slot->service_id }}"
+              data-day="{{ $slot->day }}"
+              data-search="{{ strtolower($slot->day . ' ' . $slot->service->name . ' ' . ($slot->clinic->name ?? '')) }}">
+            <td>
+              <div class="day-info">
+                <div class="day-name">{{ ucfirst($slot->day) }}</div>
+              </div>
+            </td>
+            <td>
+              <span class="service-name">{{ $slot->service->name }}</span>
+            </td>
+            @if(auth()->user()->role_id == 1)
+            <td>
+              <span class="clinic-name">{{ $slot->clinic->name ?? 'N/A' }}</span>
+            </td>
+            @endif
+            <td>
+              <div class="time-slots-display">
+                @foreach(json_decode($slot->time_slots) as $time)
+                  <span class="time-slot-badge">{{ $time }}</span>
+                @endforeach
+              </div>
+            </td>
+            <td>
+              <span class="status-badge status-{{ $slot->status == 1 ? 'active' : 'inactive' }}">
+                {{ $slot->status == 1 ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <div class="actions-group">
+                <x-ui.button 
+                  variant="secondary" 
+                  size="sm" 
+                  icon="fas fa-edit"
+                  onclick="openSidebar({{ json_encode($slot) }})"
+                  title="Edit Slot"
+                />
+                <x-ui.button 
+                  variant="info" 
+                  size="sm" 
+                  icon="fas fa-copy"
+                  onclick="openDuplicateModal({{ json_encode($slot) }})"
+                  title="Duplicate Slot"
+                />
+                <x-ui.button 
+                  variant="danger" 
+                  size="sm" 
+                  icon="fas fa-trash"
+                  onclick="deleteSlot({{ $slot->id }})"
+                  title="Delete Slot"
+                />
+              </div>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+      @else
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-calendar-times"></i>
+        </div>
+        <h3>No Schedule Slots</h3>
+        <p>Create your first schedule slot to get started.</p>
+        <x-ui.button 
+          variant="primary" 
+          onclick="openSidebar()"
+          icon="fas fa-plus"
+        >
+          Add New Slot
+        </x-ui.button>
+      </div>
+      @endif
+    </div>
+  </div>
+</div>
 
       <!-- Duplicate Modal -->
       <div class="modal fade" id="duplicateSlotModal" tabindex="-1">
@@ -139,15 +167,18 @@
 
 <script>
 function filterSlots() {
+  const searchInput = document.getElementById('scheduleSearchInput').value.toLowerCase();
   const serviceFilter = document.getElementById('serviceFilter').value;
   const dayFilter = document.getElementById('dayFilter').value;
   const rows = document.querySelectorAll('.slot-row');
 
   rows.forEach(row => {
+    const searchText = row.dataset.search || '';
     const serviceMatch = !serviceFilter || row.dataset.service === serviceFilter;
     const dayMatch = !dayFilter || row.dataset.day === dayFilter;
+    const searchMatch = !searchInput || searchText.includes(searchInput);
     
-    row.style.display = (serviceMatch && dayMatch) ? '' : 'none';
+    row.style.display = (serviceMatch && dayMatch && searchMatch) ? '' : 'none';
   });
 }
 
@@ -271,6 +302,292 @@ function openDuplicateModal(slot) {
 </div>
 
 <style>
+/* Schedule Page Layout */
+.schedule-page {
+  padding: 1.5rem;
+  background: #fafbfc;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.025em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Header Search Styles */
+.header-actions .search-wrapper {
+  position: relative;
+  width: 300px;
+  padding: 1px;
+}
+
+.header-actions .search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.header-actions .search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-actions .search-input:focus {
+  outline: none;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.modal-action-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.schedule-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.filters-section {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.search-filter-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  max-width: 800px;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.filter-select {
+  min-width: 140px;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.filter-select:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-table-wrapper {
+  overflow-x: auto;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Poppins', sans-serif;
+}
+
+.schedule-table thead {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.schedule-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.schedule-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+.schedule-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.schedule-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.day-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.day-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.service-name {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.clinic-name {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.time-slots-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.time-slot-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.actions-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  margin-bottom: 2rem;
+}
+
+/* Sidebar Styles */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -278,6 +595,7 @@ function openDuplicateModal(slot) {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: none;
   z-index: 1040;
 }
@@ -285,13 +603,13 @@ function openDuplicateModal(slot) {
 .sidebar {
   position: fixed;
   top: 0;
-  right: -400px;
-  width: 400px;
+  right: -480px;
+  width: 480px;
   height: 100%;
   background: white;
   z-index: 1050;
   transition: right 0.3s ease;
-  box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
 }
@@ -301,25 +619,17 @@ function openDuplicateModal(slot) {
 }
 
 .sidebar-header {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .sidebar-body {
-  padding: 1rem;
+  padding: 2rem;
   flex-grow: 1;
   overflow-y: auto;
-}
-
-.sidebar-footer {
-  padding: 1rem;
-  border-top: 1px solid #dee2e6;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
 }
 
 .time-slots-grid {
@@ -329,8 +639,8 @@ function openDuplicateModal(slot) {
 }
 
 .time-slot-chip {
-  border: 1px solid #ddd;
-  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   padding: 8px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -347,6 +657,8 @@ function openDuplicateModal(slot) {
   cursor: pointer;
   width: 100%;
   text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .time-slot-chip input[type="checkbox"] {
@@ -354,11 +666,103 @@ function openDuplicateModal(slot) {
 }
 
 .time-slot-chip.selected {
-  background: #4CAF50;
+  background: #3b82f6;
   color: white;
-  border-color: #45a049;
+  border-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .schedule-page {
+    padding: 1rem;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .filter-select {
+    min-width: auto;
+  }
+  
+  .actions-group {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .schedule-table th,
+  .schedule-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .sidebar {
+    width: 100vw;
+    right: -100vw;
+  }
+  
+  .sidebar-header {
+    padding: 1.5rem;
+  }
+  
+  .sidebar-body {
+    padding: 1.5rem;
+  }
 }
 </style>
+
+<!-- Filter Modal -->
+<x-ui.modal id="filterModal" title="Filter Schedule" size="sm">
+  <div class="filter-form">
+    <div class="form-group">
+      <label class="form-label">Service</label>
+      <select id="serviceFilter" class="form-select" onchange="filterSlots()">
+        <option value="">All Services</option>
+        @if(isset($services))
+          @foreach($services as $service)
+            <option value="{{ $service->id }}">{{ $service->name }}</option>
+          @endforeach
+        @endif
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Day</label>
+      <select id="dayFilter" class="form-select" onchange="filterSlots()">
+        <option value="">All Days</option>
+        @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day)
+          <option value="{{ $day }}">{{ ucfirst($day) }}</option>
+        @endforeach
+      </select>
+    </div>
+  </div>
+  
+  <div class="modal-actions">
+    <x-ui.button 
+      type="button" 
+      variant="secondary" 
+      onclick="clearFilters()"
+      class="modal-action-btn"
+    >
+      Clear Filters
+    </x-ui.button>
+    <x-ui.button 
+      type="button" 
+      variant="primary" 
+      onclick="closeModal('filterModal')"
+      class="modal-action-btn"
+    >
+      Apply Filters
+    </x-ui.button>
+  </div>
+</x-ui.modal>
 
 <script>
 function openSidebar(slot = null) {
@@ -576,6 +980,28 @@ window.addEventListener('load', function() {
   document.getElementById('startTime').value = '08:00';
   document.getElementById('endTime').value = '20:00';
 });
+
+function clearFilters() {
+  document.getElementById('serviceFilter').value = '';
+  document.getElementById('dayFilter').value = '';
+  filterSlots();
+}
+
+function filterSlots() {
+  const searchInput = document.getElementById('scheduleSearchInput').value.toLowerCase();
+  const serviceFilter = document.getElementById('serviceFilter').value;
+  const dayFilter = document.getElementById('dayFilter').value;
+  const rows = document.querySelectorAll('.slot-row');
+
+  rows.forEach(row => {
+    const searchText = row.dataset.search || '';
+    const serviceMatch = !serviceFilter || row.dataset.service === serviceFilter;
+    const dayMatch = !dayFilter || row.dataset.day === dayFilter;
+    const searchMatch = !searchInput || searchText.includes(searchInput);
+    
+    row.style.display = (serviceMatch && dayMatch && searchMatch) ? '' : 'none';
+  });
+}
 </script>
 
 @endsection
