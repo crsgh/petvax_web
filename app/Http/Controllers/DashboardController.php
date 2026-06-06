@@ -12,116 +12,111 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
-        // Get bookings based on user role
-        $bookings = $user->role_id === 1 
-            ? Booking::all()
-            : Booking::where('clinic_id', $user->clinic_id)->get();
+        $clinicId = $user->clinic_id;
+        $isSuperAdmin = $user->role_id === 1;
+
+        // Total users count (uses COUNT query, not collection)
+        $totalUser = $isSuperAdmin
+            ? User::count()
+            : User::where('clinic_id', $clinicId)->count();
+
+        // Completed bookings with date scope (last 6 months)
+        $bookingsQuery = Booking::where('status', 'completed')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->select('id', 'staff_id', 'total_amount', 'created_at', 'clinic_id');
+
+        if (!$isSuperAdmin) {
+            $bookingsQuery->where('clinic_id', $clinicId);
+        }
+
+        $completedBookings = $bookingsQuery->get();
+
+        // Top performers - aggregate in PHP from filtered dataset
+        $staffCounts = [];
+        $staffIds = [];
+        foreach ($completedBookings as $b) {
+            $staffIds[] = $b->staff_id;
+            $staffCounts[$b->staff_id] = ($staffCounts[$b->staff_id] ?? 0) + 1;
+        }
+        arsort($staffCounts);
+        $topStaffIds = array_slice(array_keys($staffCounts), 0, 10);
 
         $topBookings = [];
-        $todayBookingCounts = 0;
-        $todayIncome = 0;
-        
-        // Get total users based on role
-        $totalUser = $user->role_id === 1 
-            ? User::all()->count()
-            : User::where('clinic_id', $user->clinic_id)->count();
-
-        $weeklyBookings = [];
-        $dailyBookings = []; // Added missing dailyBookings array
-        $currentWeek = now()->startOfWeek()->format('Y-W');
-
-        foreach ($bookings as $booking) {
-            if ($booking->status === 'completed') {
-                $client = User::find($booking->staff_id);
-                
-                // Skip if client not found
-                if (!$client) {
-                    continue;
-                }
-                
-                // Use client name consistently for both searching and storing
-                $clientName = $client->name;
-                
-                // Check if client name already exists in the list
-                $existingIndex = array_search($clientName, array_column($topBookings, 'name'));
-                
-                if ($existingIndex !== false) {
-                    // Increment completed count for existing booking
-                    $topBookings[$existingIndex]['completed_count']++;
-                } else {
-                    // Add new booking entry
+        if (!empty($topStaffIds)) {
+            $staffMap = User::whereIn('id', $topStaffIds)->get()->keyBy('id');
+            foreach ($topStaffIds as $sid) {
+                $s = $staffMap->get($sid);
+                if ($s) {
                     $topBookings[] = [
-                        'avatar' => $client->avatar,
-                        'name' => $clientName,
-                        'email' => $client->email,
-                        'completed_count' => 1
+                        'avatar' => $s->avatar,
+                        'name' => $s->name,
+                        'email' => $s->email,
+                        'completed_count' => $staffCounts[$sid],
                     ];
                 }
-
-                // Add to weekly summary
-                $bookingWeek = $booking->created_at->startOfWeek()->format('Y-W');
-                if (!isset($weeklyBookings[$bookingWeek])) {
-                    $weeklyBookings[$bookingWeek] = [
-                        'count' => 0,
-                        'income' => 0,
-                        'start_date' => $booking->created_at->startOfWeek()->format('Y-m-d'),
-                        'end_date' => $booking->created_at->endOfWeek()->format('Y-m-d')
-                    ];
-                }
-                $weeklyBookings[$bookingWeek]['count']++;
-                $weeklyBookings[$bookingWeek]['income'] += $booking->total_amount;
-
-                // Add to daily summary
-                $bookingDate = $booking->created_at->format('Y-m-d');
-                if (!isset($dailyBookings[$bookingDate])) {
-                    $dailyBookings[$bookingDate] = [
-                        'count' => 0,
-                        'income' => 0
-                    ];
-                }
-                $dailyBookings[$bookingDate]['count']++;
-                $dailyBookings[$bookingDate]['income'] += $booking->total_amount;
-            }
-
-            // Check if booking is for today
-            if ($booking->status === 'completed' && $booking->created_at->isToday()) {
-                $todayBookingCounts++;
-                $todayIncome += $booking->total_amount;
             }
         }
 
-        // Sort topBookings by completed_count in descending order
-        usort($topBookings, function($a, $b) {
-            return $b['completed_count'] - $a['completed_count'];
-        });
+        // Weekly and daily aggregations
+        $weeklyBookings = [];
+        $dailyBookings = [];
+        $todayBookingCounts = 0;
+        $todayIncome = 0;
+        $todayStr = today()->toDateString();
 
-        // Get today's new users based on role
-        $todayUsers = $user->role_id === 1 
-            ? User::whereDate('created_at', today())->get()
-            : User::where('clinic_id', $user->clinic_id)->whereDate('created_at', today())->get();
+        foreach ($completedBookings as $b) {
+            $amount = $b->total_amount ?? 0;
+            $dateStr = $b->created_at->format('Y-m-d');
 
-        // Get major statistics for today
+            // Today's stats
+            if ($dateStr === $todayStr) {
+                $todayBookingCounts++;
+                $todayIncome += $amount;
+            }
+
+            // Weekly
+            $weekKey = $b->created_at->startOfWeek()->format('Y-W');
+            if (!isset($weeklyBookings[$weekKey])) {
+                $weeklyBookings[$weekKey] = [
+                    'count' => 0, 'income' => 0,
+                    'start_date' => $b->created_at->startOfWeek()->format('Y-m-d'),
+                    'end_date' => $b->created_at->endOfWeek()->format('Y-m-d'),
+                ];
+            }
+            $weeklyBookings[$weekKey]['count']++;
+            $weeklyBookings[$weekKey]['income'] += $amount;
+
+            // Daily
+            if (!isset($dailyBookings[$dateStr])) {
+                $dailyBookings[$dateStr] = ['count' => 0, 'income' => 0];
+            }
+            $dailyBookings[$dateStr]['count']++;
+            $dailyBookings[$dateStr]['income'] += $amount;
+        }
+
+        // Today's user stats (using COUNT queries, not collections)
+        $userBase = $isSuperAdmin
+            ? User::whereDate('created_at', today())
+            : User::where('clinic_id', $clinicId)->whereDate('created_at', today());
+
         $todayStats = [
-            'new_users' => $todayUsers->count(),
-            'new_clients' => $todayUsers->where('role_id', 4)->count(),
-            'new_staff' => $todayUsers->whereIn('role_id', [1, 2, 3])->count(),
-            'latest_users' => $todayUsers->take(5),
+            'new_users' => (clone $userBase)->count(),
+            'new_clients' => (clone $userBase)->where('role_id', 4)->count(),
+            'new_staff' => (clone $userBase)->whereIn('role_id', [1, 2, 3])->count(),
+            'latest_users' => (clone $userBase)->latest()->take(5)->get(),
             'total_users' => $totalUser,
         ];
 
-        return view('dashboard', [
-            'topBookings' => $topBookings,
-            'todayStats' => $todayStats,
-            'todayBookingCounts' => $todayBookingCounts,
-            'todayIncome' => $todayIncome,
-            'weeklyBookings' => $weeklyBookings,
-            'dailyBookings' => $dailyBookings, // Added dailyBookings to view data
-            'notifications' => match($user->role_id) {
-                1 => collect([]),
-                2, 3 => Notification::where('clinic_id', $user->clinic_id)->where('is_read', 0)->get(),
-                default => Notification::where('user_id', $user->id)->where('is_read', 0)->get(),
-            },
-        ]);
+        // Notifications
+        $notifications = match($user->role_id) {
+            1 => collect([]),
+            2, 3 => Notification::where('clinic_id', $clinicId)->where('is_read', 0)->get(),
+            default => Notification::where('user_id', $user->id)->where('is_read', 0)->get(),
+        };
+
+        return view('dashboard', compact(
+            'topBookings', 'todayStats', 'todayBookingCounts', 'todayIncome',
+            'weeklyBookings', 'dailyBookings', 'notifications'
+        ));
     }
 }

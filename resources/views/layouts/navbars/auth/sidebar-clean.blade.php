@@ -5,41 +5,41 @@ $menuItems = [
         'label' => 'All Clinics',
         'route' => '/owner', 
         'permission' => [5],
-        'icon' => 'fas fa-building',
+        'icon_name' => 'building',
     ],
     [
         'id' => 'dashboard',
         'label' => 'Dashboard',
         'route' => '/dashboard', 
         'permission' => [1,2],
-        'icon' => 'fas fa-chart-line'
+        'icon_name' => 'chart'
     ],
     [
         'id' => 'clinics',
         'label' => 'Clinics',
         'route' => '/clinics',
         'permission' => [1,2],
-        'icon' => 'fas fa-hospital'
+        'icon_name' => 'building'
     ],
     [
         'id' => 'users',
         'label' => 'Users',
         'hasSubmenu' => true,
-        'icon' => 'fas fa-users',
+        'icon_name' => 'users',
         'submenu' => [
             [
                 'id' => 'staffs',
                 'label' => 'Staff Members',
                 'route' => '/staffs',
                 'permission' => [1,2],
-                'icon' => 'fas fa-user-tie'
+                'icon_name' => 'staff'
             ],
             [
                 'id' => 'owners',
                 'label' => 'Pet Owners',
                 'route' => '/owners',
                 'permission' => [1,2,3],
-                'icon' => 'fas fa-user-friends'
+                'icon_name' => 'users'
             ]
         ]
     ],
@@ -47,28 +47,28 @@ $menuItems = [
         'id' => 'pets',
         'label' => 'Pet Management',
         'hasSubmenu' => true,
-        'icon' => 'fas fa-paw',
+        'icon_name' => 'pets',
         'submenu' => [
             [
                 'id' => 'all-pets', 
                 'label' => 'All Pets', 
                 'route' => '/pets',
                 'permission' => [1,2,3,4,5],
-                'icon' => 'fas fa-dog'
+                'icon_name' => 'pets'
             ],
             [
                 'id' => 'breeds', 
                 'label' => 'Breeds', 
                 'route' => '/breeds',
                 'permission' => [1],
-                'icon' => 'fas fa-dna'
+                'icon_name' => 'breeds'
             ],
             [
                 'id' => 'species', 
                 'label' => 'Species', 
                 'route' => '/species',
                 'permission' => [1],
-                'icon' => 'fas fa-cat'
+                'icon_name' => 'species'
             ],
         ]
     ],
@@ -76,21 +76,21 @@ $menuItems = [
         'id' => 'services',
         'label' => 'Services',
         'hasSubmenu' => true,
-        'icon' => 'fas fa-stethoscope',
+        'icon_name' => 'stethoscope',
         'submenu' => [
             [
                 'id' => 'all-services',
                 'label' => 'All Services',
                 'route' => '/services',
                 'permission' => [1,2,3],
-                'icon' => 'fas fa-list'
+                'icon_name' => 'list'
             ],
             [
                 'id' => 'services-schedule',
                 'label' => 'Schedule',
                 'route' => '/services-schedule',
                 'permission' => [1,2,3],
-                'icon' => 'fas fa-calendar-alt'
+                'icon_name' => 'calendar'
             ]
         ]
     ],
@@ -99,34 +99,34 @@ $menuItems = [
         'label' => 'Appointments',
         'route' => '/bookings',
         'permission' => [1,2,3,4,5],
-        'icon' => 'fas fa-calendar-check'
+        'icon_name' => 'calendar'
     ],
     [
         'id' => 'medical-histories',
         'label' => 'Medical Records',
         'route' => '/medical-histories',
         'permission' => [1,2,3,4],
-        'icon' => 'fas fa-file-medical'
+        'icon_name' => 'medical'
     ],
     [
         'id' => 'inventory',
         'label' => 'Inventory',
         'hasSubmenu' => true,
-        'icon' => 'fas fa-boxes',
+        'icon_name' => 'package',
         'submenu' => [
             [
                 'id' => 'all-inventory',
                 'label' => 'All Items',
                 'route' => '/inventory',
                 'permission' => [1,2,3],
-                'icon' => 'fas fa-box'
+                'icon_name' => 'package'
             ],
             [
                 'id' => 'inventory-categories',
                 'label' => 'Categories',
                 'route' => '/categories',
                 'permission' => [1,2,3],
-                'icon' => 'fas fa-tags'
+                'icon_name' => 'category'
             ]
         ]
     ],
@@ -135,28 +135,28 @@ $menuItems = [
         'label' => 'Reports',
         'route' => '/sales-report',
         'permission' => [1,2],
-        'icon' => 'fas fa-chart-bar'
+        'icon_name' => 'chart'
     ],
     [
         'id' => 'rule-base',
         'label' => 'Rule Base',
         'route' => '/rule-base',
         'permission' => [1],
-        'icon' => 'fas fa-cogs'
+        'icon_name' => 'settings'
     ],
     [
         'id' => 'clinic-rating',
         'label' => 'Ratings',
         'route' => '/clinic-ratings',
         'permission' => [1,2],
-        'icon' => 'fas fa-star'
+        'icon_name' => 'star'
     ],
     [
         'id' => 'activity-records',
         'label' => 'Activity Log',
         'route' => '/activity-records',
         'permission' => [1,2],
-        'icon' => 'fas fa-history'
+        'icon_name' => 'clock'
     ],
 ];
 
@@ -165,7 +165,7 @@ Route::currentRouteName() === 'notifications' ? array_push($menuItems, [
     'label' => 'Notifications',
     'route' => '/notifications',
     'permission' => [1,2,3,4],
-    'icon' => 'fas fa-bell'
+    'icon_name' => 'notification'
 ]) : null;
 
 $currentRoute = request()->route() ? request()->route()->getName() : '';
@@ -212,9 +212,6 @@ if($activeItem) {
                 <span>{{ ucfirst(\App\Models\Role::find(auth()->user()->role_id)->name ?? 'User') }}</span>
             </div>
         </div>
-        <button class="sidebar-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
     </div>
 
     <!-- Navigation -->
@@ -246,10 +243,10 @@ if($activeItem) {
                         <a href="{{ $hasSubmenu ? '#' : $item['route'] }}" 
                            class="nav-link {{ $isActive ? 'active' : '' }}"
                            @if($hasSubmenu) onclick="toggleSubmenu('{{ $item['id'] }}'); return false;" @endif>
-                            <i class="{{ $item['icon'] }} nav-icon"></i>
+                            <x-ui.icon name="{{ $item['icon_name'] }}" class="nav-icon" />
                             <span class="nav-text">{{ $item['label'] }}</span>
                             @if($hasSubmenu)
-                                <i class="fas fa-chevron-down nav-arrow {{ $isExpanded ? 'expanded' : '' }}"></i>
+                                <x-ui.icon name="chevron-down" class="nav-arrow {{ $isExpanded ? 'expanded' : '' }}" />
                             @endif
                         </a>
                         
@@ -260,7 +257,7 @@ if($activeItem) {
                                         @php $isSubActive = $activeSubItem === $subItem['id']; @endphp
                                         <li class="nav-subitem">
                                             <a href="{{ $subItem['route'] }}" class="nav-sublink {{ $isSubActive ? 'active' : '' }}">
-                                                <i class="{{ $subItem['icon'] }} nav-subicon"></i>
+                                                <x-ui.icon name="{{ $subItem['icon_name'] }}" class="nav-subicon" />
                                                 <span class="nav-subtext">{{ $subItem['label'] }}</span>
                                             </a>
                                         </li>
@@ -289,7 +286,7 @@ if($activeItem) {
             </div>
             <div class="user-actions">
                 <a href="/logout" class="logout-btn" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 </a>
             </div>
         </div>

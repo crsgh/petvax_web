@@ -9,7 +9,7 @@ $menuItems = [
         'color' => 'text-blue-500',
         'route' => '/owner', 
         'permission' => [5],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>',
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 21H21"/><path d="M5 21V7L12 3L19 7V21"/><path d="M9 21V17H15V21"/><path d="M9 9H11"/><path d="M13 9H15"/><path d="M9 13H11"/><path d="M13 13H15"/></svg>',
         
     ],
     [
@@ -18,7 +18,7 @@ $menuItems = [
         'color' => 'text-blue-500',
         'route' => '/dashboard', 
         'permission' => [1,2],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5v6m8-6v6"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10 3H3V13H10V3Z"/><path d="M21 3H14V8H21V3Z"/><path d="M21 12H14V21H21V12Z"/><path d="M10 17H3V21H10V17Z"/></svg>'
     ],
     [
         'id' => 'clinics',
@@ -26,28 +26,28 @@ $menuItems = [
         'color' => 'text-green-500',
         'route' => '/clinics',
         'permission' => [1,2],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 21H21"/><path d="M5 21V7L12 3L19 7V21"/><path d="M9 21V17H15V21"/><path d="M9 9H11"/><path d="M13 9H15"/><path d="M9 13H11"/><path d="M13 13H15"/></svg>'
     ],
     [
         'id' => 'users',
         'label' => 'Users',
         'color' => 'text-purple-500',
         'hasSubmenu' => true,
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>',
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z"/><path d="M23 21V19C22.7353 17.4697 21.922 16.1272 20.74 15.17"/><path d="M16 3.13C17.188 4.07978 18.0026 5.4187 18.2678 6.90901C18.533 8.39933 18.2302 9.93183 17.41 11.21"/></svg>',
         'submenu' => [
             [
                 'id' => 'staffs',
                 'label' => 'Staffs',
                 'route' => '/staffs',
                 'permission' => [1,2],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M17 20H22V18C22 15.7909 20.2091 14 18 14"/><path d="M14 20H2V18C2 15.7909 3.79086 14 6 14H10C12.2091 14 14 15.7909 14 18V20Z"/><path d="M12 7C12 9.20914 10.2091 11 8 11C5.79086 11 4 9.20914 4 7C4 4.79086 5.79086 3 8 3C10.2091 3 12 4.79086 12 7Z"/><path d="M18 11C20.2091 11 22 9.20914 22 7C22 4.79086 20.2091 3 18 3"/></svg>'
             ],
             [
                 'id' => 'owners',
                 'label' => 'Pet Owners',
                 'route' => '/owners',
                 'permission' => [1,2,3],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21"/><path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"/></svg>'
             ]
             
         ]
@@ -57,28 +57,28 @@ $menuItems = [
         'label' => 'Pets',
         'color' => 'text-pink-500',
         'hasSubmenu' => true,
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>',
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 22C7.02944 22 3 18.4183 3 14C3 13.053 3.18719 12.1441 3.53066 11.3009C3.73678 10.7952 3.83984 10.5421 3.85136 10.386C3.86289 10.2299 3.79135 9.93697 3.64826 9.35094C3.48638 8.68825 3.4236 7.96055 3.42029 7.24286C3.41215 5.48234 3.40808 4.60208 4.21032 4.17938C5.01255 3.75667 5.82239 4.30935 7.44206 5.41552C7.57926 5.50928 7.71208 5.60047 7.83857 5.68783C8.41215 6.08349 8.69893 6.28142 8.88778 6.32417C9.07663 6.36692 9.51313 6.29736 10.3861 6.15824C10.8215 6.08882 11.3595 6.03778 12 6.03778C12.6405 6.03778 13.1785 6.08882 13.6139 6.15824C14.4869 6.29736 14.9234 6.36692 15.1122 6.32417C15.3011 6.28142 15.5878 6.08349 16.1614 5.68783C16.2879 5.60047 16.4207 5.50928 16.5579 5.41552C18.1776 4.30935 18.9874 3.75667 19.7897 4.17938C20.5919 4.60208 20.5878 5.48234 20.5797 7.24286C20.5764 7.96055 20.5136 8.68825 20.3517 9.35094C20.2087 9.93697 20.1371 10.2299 20.1486 10.386C20.1602 10.5421 20.2632 10.7952 20.4693 11.3009C20.8128 12.1441 21 13.053 21 14C21 18.4183 16.9706 22 12 22Z"/><path d="M9 14.5C9 15.3284 8.32843 16 7.5 16C6.67157 16 6 15.3284 6 14.5C6 13.6716 6.67157 13 7.5 13C8.32843 13 9 13.6716 9 14.5Z"/><path d="M18 14.5C18 15.3284 17.3284 16 16.5 16C15.6716 16 15 15.3284 15 14.5C15 13.6716 15.6716 13 16.5 13C17.3284 13 18 13.6716 18 14.5Z"/></svg>',
         'submenu' => [
             [
                 'id' => 'all-pets', 
                 'label' => 'All Pets', 
                 'route' => '/pets',
                 'permission' => [1,2,3,4,5],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L9.5 7.5v2.5m4.5 0V10h-4m0 0L7 9m0 0v6a2 2 0 01-2 2H3m2-8h2m0 0h2v4H5v-4z"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 22C7.02944 22 3 18.4183 3 14C3 13.053 3.18719 12.1441 3.53066 11.3009C3.73678 10.7952 3.83984 10.5421 3.85136 10.386C3.86289 10.2299 3.79135 9.93697 3.64826 9.35094C3.48638 8.68825 3.4236 7.96055 3.42029 7.24286C3.41215 5.48234 3.40808 4.60208 4.21032 4.17938C5.01255 3.75667 5.82239 4.30935 7.44206 5.41552C7.57926 5.50928 7.71208 5.60047 7.83857 5.68783C8.41215 6.08349 8.69893 6.28142 8.88778 6.32417C9.07663 6.36692 9.51313 6.29736 10.3861 6.15824C10.8215 6.08882 11.3595 6.03778 12 6.03778C12.6405 6.03778 13.1785 6.08882 13.6139 6.15824C14.4869 6.29736 14.9234 6.36692 15.1122 6.32417C15.3011 6.28142 15.5878 6.08349 16.1614 5.68783C16.2879 5.60047 16.4207 5.50928 16.5579 5.41552C18.1776 4.30935 18.9874 3.75667 19.7897 4.17938C20.5919 4.60208 20.5878 5.48234 20.5797 7.24286C20.5764 7.96055 20.5136 8.68825 20.3517 9.35094C20.2087 9.93697 20.1371 10.2299 20.1486 10.386C20.1602 10.5421 20.2632 10.7952 20.4693 11.3009C20.8128 12.1441 21 13.053 21 14C21 18.4183 16.9706 22 12 22Z"/><path d="M9 14.5C9 15.3284 8.32843 16 7.5 16C6.67157 16 6 15.3284 6 14.5C6 13.6716 6.67157 13 7.5 13C8.32843 13 9 13.6716 9 14.5Z"/><path d="M18 14.5C18 15.3284 17.3284 16 16.5 16C15.6716 16 15 15.3284 15 14.5C15 13.6716 15.6716 13 16.5 13C17.3284 13 18 13.6716 18 14.5Z"/></svg>'
             ],
             [
                 'id' => 'breeds', 
                 'label' => 'Breeds', 
                 'route' => '/breeds',
                 'permission' => [1],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10 4C10 4 8 2 6 3C4 4 4 6 4 6L2 10L4 12L7 9L13 12L18 9L20 10L22 8L19 5L16 8L13 7L11 4H10Z"/><path d="M16 14C16 14 14 16 12 16C10 16 8 14 8 14"/><path d="M7 13C7 13 5 15 5 17C5 19 7 21 9 21"/><path d="M17 13C17 13 19 15 19 17C19 19 17 21 15 21"/></svg>'
             ],
             [
                 'id' => 'species', 
                 'label' => 'Species', 
                 'route' => '/species',
                 'permission' => [1],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 3L3 8L12 13L21 8L12 3Z"/><path d="M3 13L12 18L21 13"/><path d="M3 18L12 23L21 18"/></svg>'
             ],
         ]
     ],
@@ -87,21 +87,21 @@ $menuItems = [
         'label' => 'Services',
         'color' => 'text-teal-500',
         'hasSubmenu' => true,
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>',
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 8C4 6.89543 4.89543 6 6 6C7.10457 6 8 6.89543 8 8V13C8 16.3137 10.6863 19 14 19C17.3137 19 20 16.3137 20 13V11"/><path d="M20 11C21.1046 11 22 10.1046 22 9C22 7.89543 21.1046 7 20 7C18.8954 7 18 7.89543 18 9C18 10.1046 18.8954 11 20 11Z"/></svg>',
         'submenu' => [
             [
                 'id' => 'all-services',
                 'label' => 'All Services',
                 'route' => '/services',
                 'permission' => [1,2,3],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 8C4 6.89543 4.89543 6 6 6C7.10457 6 8 6.89543 8 8V13C8 16.3137 10.6863 19 14 19C17.3137 19 20 16.3137 20 13V11"/><path d="M20 11C21.1046 11 22 10.1046 22 9C22 7.89543 21.1046 7 20 7C18.8954 7 18 7.89543 18 9C18 10.1046 18.8954 11 20 11Z"/></svg>'
             ],
             [
                 'id' => 'services-schedule',
                 'label' => 'Services Schedule',
                 'route' => '/services-schedule',
                 'permission' => [1,2,3],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 6V12L16 14"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/></svg>'
             ]
         ]
     ],
@@ -111,7 +111,7 @@ $menuItems = [
         'color' => 'text-orange-500',
         'route' => '/bookings',
         'permission' => [1,2,3,4,5],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 9H21"/><path d="M7 3V5"/><path d="M17 3V5"/><path d="M5 5H19C20.1046 5 21 5.89543 21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7C3 5.89543 3.89543 5 5 5Z"/><path d="M8 13H10"/><path d="M14 13H16"/><path d="M8 17H10"/><path d="M14 17H16"/></svg>'
     ],
     [
         'id' => 'sales-report',
@@ -119,7 +119,7 @@ $menuItems = [
         'color' => 'text-cyan-500',
         'route' => '/sales-report',
         'permission' => [1,2],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2M16 11V7a4 4 0 00-8 0v4M5 17h14"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M21 21H3V3"/><path d="M7 17V13"/><path d="M11 17V9"/><path d="M15 17V5"/><path d="M19 17V11"/></svg>'
     ],
     [
         'id' => 'medical-histories',
@@ -127,28 +127,28 @@ $menuItems = [
         'color' => 'text-indigo-500',
         'route' => '/medical-histories',
         'permission' => [1,2,3,4],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"/><path d="M7 12H17"/><path d="M12 7V17"/></svg>'
     ],
     [
         'id' => 'inventory',
         'label' => 'Inventory',
         'color' => 'text-amber-500',
         'hasSubmenu' => true,
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>',
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 7L12 12L4 7"/><path d="M12 21V12"/><path d="M3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7"/><path d="M16 5H8V9H16V5Z"/></svg>',
         'submenu' => [
             [
                 'id' => 'all-inventory',
                 'label' => 'All Inventory',
                 'route' => '/inventory',
                 'permission' => [1,2,3],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 7L12 12L4 7"/><path d="M12 21V12"/><path d="M3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7"/><path d="M16 5H8V9H16V5Z"/></svg>'
             ],
             [
                 'id' => 'inventory-categories',
                 'label' => 'Categories',
                 'route' => '/categories',
                 'permission' => [1,2,3],
-                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>'
+                'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 4H10V10H4V4Z"/><path d="M14 4H20V10H14V4Z"/><path d="M4 14H10V20H4V14Z"/><path d="M14 14H20V20H14V14Z"/></svg>'
             ]
         ]
     ],
@@ -158,7 +158,7 @@ $menuItems = [
         'color' => 'text-rose-500',
         'route' => '/rule-base',
         'permission' => [1],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 6H21"/><path d="M8 12H21"/><path d="M8 18H21"/><path d="M3 6H3.01"/><path d="M3 12H3.01"/><path d="M3 18H3.01"/></svg>'
     ],
     [
         'id' => 'clinic-rating',
@@ -166,7 +166,7 @@ $menuItems = [
         'color' => 'text-yellow-500',
         'route' => '/clinic-ratings',
         'permission' => [1,2],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>'
     ],
     [
         'id' => 'activity-records',
@@ -174,7 +174,7 @@ $menuItems = [
         'color' => 'text-red-500',
         'route' => '/activity-records',
         'permission' => [1,2],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M22 12H18L15 21L9 3L6 12H2"/></svg>'
     ],
 
 
@@ -186,7 +186,7 @@ Route::currentRouteName() === 'notifications' ? array_push($menuItems, [
         'color' => 'text-blue-500', 
         'route' => '/notifications',
         'permission' => [1,2,3,4],
-        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>'
+        'svg' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"/><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6945 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3055 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21"/></svg>'
     ]) : null;
 
 $currentRoute = request()->route() ? request()->route()->getName() : '';
@@ -271,9 +271,7 @@ if($activeItem) {
                   </div>
               </div>
               <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                  <svg id="menu-icon" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
+                  <x-ui.icon name="menu" class="w-7 h-7" />
               </button>
           </div>
       </div>
@@ -329,15 +327,9 @@ if($activeItem) {
                                   </span>
                                   
                                   @if($hasSubmenu)
-                                      <svg class="sidebar-text ml-auto w-6 h-6 transition-all duration-200 submenu-chevron {{ $isActive ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500' }} {{ $isExpanded ? 'rotate-180' : '' }}" 
-                                           fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" data-menu="{{ $item['id'] }}">
-                                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                                      </svg>
+                                      <x-ui.icon name="chevron-down" class="sidebar-text ml-auto w-6 h-6 transition-all duration-200 submenu-chevron {{ $isActive ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500' }} {{ $isExpanded ? 'rotate-180' : '' }}" data-menu="{{ $item['id'] }}" />
                                   @else
-                                      <svg class="sidebar-text ml-auto w-6 h-6 transition-all duration-200 {{ $isActive ? 'text-gray-500 rotate-90' : 'text-gray-400 group-hover:text-gray-500' }}" 
-                                           fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
-                                      </svg>
+                                      <x-ui.icon name="chevron-right" class="sidebar-text ml-auto w-6 h-6 transition-all duration-200 {{ $isActive ? 'text-gray-500 rotate-90' : 'text-gray-400 group-hover:text-gray-500' }}" />
                                   @endif
                               </button>
                               

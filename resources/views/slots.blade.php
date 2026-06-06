@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="scheduleSearchInput"
@@ -22,7 +19,7 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
@@ -31,7 +28,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+          icon-name="add"
         onclick="openSidebar()"
       >
         Add New Slot
@@ -90,25 +87,25 @@
               <div class="actions-group">
                 <x-ui.button 
                   variant="secondary" 
-                  size="sm" 
-                  icon="fas fa-edit"
+                  size="xs" 
+                  icon-name="edit"
                   onclick="openSidebar({{ json_encode($slot) }})"
                   title="Edit Slot"
-                />
+                >Edit</x-ui.button>
                 <x-ui.button 
                   variant="info" 
-                  size="sm" 
-                  icon="fas fa-copy"
+                  size="xs" 
+                  icon-name="copy"
                   onclick="openDuplicateModal({{ json_encode($slot) }})"
                   title="Duplicate Slot"
-                />
+                >Copy</x-ui.button>
                 <x-ui.button 
                   variant="danger" 
-                  size="sm" 
-                  icon="fas fa-trash"
+                  size="xs" 
+                  icon-name="delete"
                   onclick="deleteSlot({{ $slot->id }})"
                   title="Delete Slot"
-                />
+                >Delete</x-ui.button>
               </div>
             </td>
           </tr>
@@ -118,14 +115,14 @@
       @else
       <div class="empty-state">
         <div class="empty-icon">
-          <i class="fas fa-calendar-times"></i>
+          <x-ui.icon name="close" class="w-5 h-5" />
         </div>
         <h3>No Schedule Slots</h3>
         <p>Create your first schedule slot to get started.</p>
         <x-ui.button 
           variant="primary" 
           onclick="openSidebar()"
-          icon="fas fa-plus"
+        icon-name="add"
         >
           Add New Slot
         </x-ui.button>
@@ -208,96 +205,88 @@ function openDuplicateModal(slot) {
 </main>
 
 <!-- Add/Edit Slot Sidebar -->
-<div class="sidebar-overlay" onclick="closeSidebar()"></div>
-<div class="sidebar" id="addSlotSidebar">
-  <div class="sidebar-header p-3">
-    <h5 id="sidebarTitle">Customize Schedule Slots</h5>
-    <button type="button" class="btn-close" onclick="closeSidebar()"><span aria-hidden="true" class="text-3xl">&times;</span></button>
-  </div>
-  <div class="sidebar-body p-3">
-    <form id="addSlotForm" method="POST" action="" onsubmit="return validateForm()">
-      @csrf
-      <input type="hidden" id="slot_id" name="slot_id">
-      @if(auth()->user()->role_id == 1)
-        <div class="mb-3">
-          <label for="clinic_id" class="form-label">Select Clinic</label>
-          <select class="form-select" id="clinic_id" name="clinic_id" required>
-            <option value="">Select a clinic</option>
-            @foreach($clinics as $clinic)
-              <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+<div id="addSlotSidebar" class="sidebar-overlay hidden">
+  <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+  <div class="sidebar-content" style="width: 480px; max-width: 90vw;">
+    <div class="sidebar-header" style="padding: 1.25rem 1.5rem;">
+      <h5 id="sidebarTitle" style="margin:0;font-size:1.15rem;font-weight:600;">Customize Schedule Slots</h5>
+      <button type="button" class="sidebar-close-btn" onclick="closeSidebar()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;line-height:1;">&times;</button>
+    </div>
+    <div class="sidebar-body" style="padding: 1.5rem;flex:1;overflow-y:auto;">
+      <form id="addSlotForm" method="POST" action="" onsubmit="return validateForm()">
+        @csrf
+        <input type="hidden" id="slot_id" name="slot_id">
+        @if(auth()->user()->role_id == 1)
+          <div style="margin-bottom:1rem;">
+            <label for="clinic_id" style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">Select Clinic</label>
+            <select class="form-input" id="clinic_id" name="clinic_id" required>
+              <option value="">Select a clinic</option>
+              @foreach($clinics as $clinic)
+                <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+              @endforeach
+            </select>
+          </div>
+        @else
+          <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
+        @endif
+
+        <div style="margin-bottom:1rem;">
+          <label for="service_id" style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">Select Service</label>
+          <select class="form-input" id="service_id" name="service_id" required>
+            <option value="">Select a service</option>
+            @foreach($services as $service)
+              <option value="{{ $service->id }}">{{ $service->name }}</option>
             @endforeach
           </select>
-          <div class="invalid-feedback">Please select a clinic</div>
         </div>
-      @else
-        <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
-      @endif
 
-      <div class="mb-3">
-        <label for="service_id" class="form-label">Select Service</label>
-        <select class="form-select" id="service_id" name="service_id" required>
-          <option value="">Select a service</option>
-          @foreach($services as $service)
-            <option value="{{ $service->id }}">{{ $service->name }}</option>
-          @endforeach
-        </select>
-        <div class="invalid-feedback">Please select a service</div>
-      </div>
-
-      <div class="mb-3">
-        <label for="day" class="form-label">Select Day</label>
-        <select class="form-select" id="day" name="day" required>
-          <option value="">Select a day</option>
-          @php
-            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-          @endphp
-          @foreach($days as $day)
-            <option value="{{ $day }}">{{ ucfirst($day) }}</option>
-          @endforeach
-        </select>
-        <div class="invalid-feedback">Please select a day</div>
-      </div>
-
-      <div class="mb-3 row">
-        <div class="col-md-6">
-          <label for="startTime" class="form-label">Start Time</label>
-          <input type="time" class="form-control" id="startTime" value="08:00" required>
-          <div class="invalid-feedback">Please select a start time</div>
+        <div style="margin-bottom:1rem;">
+          <label for="day" style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">Select Day</label>
+          <select class="form-input" id="day" name="day" required>
+            <option value="">Select a day</option>
+            @php
+              $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            @endphp
+            @foreach($days as $day)
+              <option value="{{ $day }}">{{ ucfirst($day) }}</option>
+            @endforeach
+          </select>
         </div>
-        <div class="col-md-6">
-          <label for="endTime" class="form-label">End Time</label>
-          <input type="time" class="form-control" id="endTime" value="20:00" required>
-          <div class="invalid-feedback">Please select an end time</div>
-        </div>
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label">Available Time Slots</label>
-        <div id="timeSlots" class="border p-3 rounded" style="max-height: 300px; overflow-y: auto;">
-          <div class="time-slots-grid">
-            <!-- Time slots will be populated here -->
+
+        <div style="margin-bottom:1rem;display:flex;gap:0.75rem;">
+          <div style="flex:1;">
+            <label for="startTime" style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">Start Time</label>
+            <input type="time" class="form-input" id="startTime" value="08:00" required>
+          </div>
+          <div style="flex:1;">
+            <label for="endTime" style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">End Time</label>
+            <input type="time" class="form-input" id="endTime" value="20:00" required>
           </div>
         </div>
-        <div id="timeSlotsError" class="invalid-feedback" style="display: none;">
-          Please select at least one time slot
+        
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">Available Time Slots</label>
+          <div id="timeSlots" style="border:1px solid #e2e8f0;border-radius:8px;padding:0.75rem;max-height:240px;overflow-y:auto;">
+            <div class="time-slots-grid">
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label for="status" class="form-label">Status</label>
-        <select class="form-select" id="status" name="status" required>
-          <option value="">Select status</option>
-          <option value="1">Active</option>
-          <option value="0">Inactive</option>
-        </select>
-        <div class="invalid-feedback">Please select a status</div>
-      </div>
+        <div style="margin-bottom:1rem;">
+          <label for="status" style="display:block;margin-bottom:0.5rem;font-size:0.875rem;font-weight:500;color:#374151;">Status</label>
+          <select class="form-input" id="status" name="status" required>
+            <option value="">Select status</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+        </div>
 
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button type="button" class="btn btn-secondary" onclick="closeSidebar()">Close</button>
-        <button type="submit" class="btn btn-primary" id="saveScheduleBtn">Save Schedule</button>
-      </div>
-    </form>
+        <div style="display:flex;justify-content:flex-end;gap:0.75rem;padding-top:1rem;border-top:1px solid #e5e7eb;margin-top:1.5rem;">
+          <button type="button" class="btn-clean btn-secondary-clean" onclick="closeSidebar()">Close</button>
+          <button type="submit" class="btn-clean btn-primary-clean" id="saveScheduleBtn">Save Schedule</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -587,66 +576,86 @@ function openDuplicateModal(slot) {
   margin-bottom: 2rem;
 }
 
-/* Sidebar Styles */
+/* Sidebar Styles - Standard Pattern */
 .sidebar-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: none;
-  z-index: 1040;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
 }
 
-.sidebar {
-  position: fixed;
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
+}
+
+.sidebar-backdrop {
+  position: absolute;
   top: 0;
-  right: -480px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
+}
+
+.sidebar-content {
+  position: relative;
   width: 480px;
-  height: 100%;
+  max-width: 90vw;
+  height: 100vh;
   background: white;
-  z-index: 1050;
-  transition: right 0.3s ease;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sidebar.show {
-  right: 0;
+.sidebar-overlay:not(.hidden) .sidebar-content {
+  transform: translateX(0);
 }
 
 .sidebar-header {
-  padding: 2rem 2rem 1rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .sidebar-body {
-  padding: 2rem;
-  flex-grow: 1;
+  flex: 1;
+  padding: 1.5rem;
   overflow-y: auto;
 }
 
 .time-slots-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .time-slot-chip {
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 8px 16px;
+  border-radius: 8px;
+  padding: 6px 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   background: #f8f9fa;
   text-align: center;
-  min-height: 40px;
+  min-height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -657,7 +666,7 @@ function openDuplicateModal(slot) {
   cursor: pointer;
   width: 100%;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 }
 
@@ -669,6 +678,12 @@ function openDuplicateModal(slot) {
   background: #3b82f6;
   color: white;
   border-color: #2563eb;
+}
+
+.sidebar-close-btn:hover {
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 2px 6px;
 }
 
 @media (max-width: 768px) {
@@ -703,17 +718,17 @@ function openDuplicateModal(slot) {
     font-size: 0.75rem;
   }
   
-  .sidebar {
+  .sidebar-content {
     width: 100vw;
-    right: -100vw;
+    max-width: 100vw;
   }
   
   .sidebar-header {
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
   }
   
   .sidebar-body {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 }
 </style>
@@ -767,7 +782,6 @@ function openDuplicateModal(slot) {
 <script>
 function openSidebar(slot = null) {
   const sidebar = document.getElementById('addSlotSidebar');
-  const overlay = document.querySelector('.sidebar-overlay');
   const title = document.getElementById('sidebarTitle');
   const daySelect = document.getElementById('day');
   
@@ -818,18 +832,15 @@ function openSidebar(slot = null) {
     generateTimeSlots();
   }
   
-  // Show sidebar and overlay
-  sidebar.classList.add('show');
-  overlay.style.display = 'block';
+  // Show sidebar
+  sidebar.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
 
 function closeSidebar() {
   const sidebar = document.getElementById('addSlotSidebar');
-  const overlay = document.querySelector('.sidebar-overlay');
   
-  sidebar.classList.remove('show');
-  overlay.style.display = 'none';
+  sidebar.classList.add('hidden');
   document.body.style.overflow = 'auto';
   resetForm();
 }

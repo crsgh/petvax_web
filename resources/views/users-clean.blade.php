@@ -9,7 +9,7 @@
         <x-ui.button 
           variant="primary" 
           size="sm" 
-          icon="fas fa-plus"
+          icon-name="add"
           onclick="openModal('userModal')"
         >
           Add New User
@@ -87,19 +87,19 @@
           <td>
             <div class="flex gap-2">
               <x-ui.button 
-                variant="secondary" 
-                size="sm" 
-                icon="fas fa-edit"
-                onclick="editUser({{ $user }})"
-                title="Edit User"
-              />
-              <x-ui.button 
-                variant="danger" 
-                size="sm" 
-                icon="fas fa-trash"
+                  variant="secondary" 
+                  size="xs" 
+                  icon-name="edit"
+                  onclick="editUser({{ $user }})"
+                  title="Edit User"
+                >Edit</x-ui.button>
+                <x-ui.button 
+                  variant="danger" 
+                  size="xs" 
+                  icon-name="delete"
                 onclick="deleteUser({{ $user->id }})"
                 title="Delete User"
-              />
+              >Delete</x-ui.button>
             </div>
           </td>
         </tr>

@@ -89,7 +89,7 @@
            x-transition:leave-end="opacity-0 transform translate-y-2"
            class="alert-item bg-success rounded-3 shadow-lg text-white py-3 px-4">
         <div class="d-flex align-items-center">
-          <i class="fas fa-check-circle me-2"></i>
+          <x-ui.icon name="check-circle" class="w-4 h-4 me-2" />
           <p class="m-0 font-weight-bold flex-grow-1">{{ session('success') }}</p>
           <button @click="show = false" class="btn-close btn-close-white ms-3" aria-label="Close"></button>
         </div>
@@ -109,7 +109,7 @@
            x-transition:leave-end="opacity-0 transform translate-y-2"
            class="alert-item bg-danger rounded-3 shadow-lg text-white py-3 px-4">
         <div class="d-flex align-items-center">
-          <i class="fas fa-exclamation-circle me-2"></i>
+          <x-ui.icon name="x-circle" class="w-4 h-4 me-2" />
           <p class="m-0 font-weight-bold flex-grow-1">{{ session('error') }}</p>
           <button @click="show = false" class="btn-close btn-close-white ms-3" aria-label="Close"></button>
         </div>
@@ -129,7 +129,7 @@
            x-transition:leave-end="opacity-0 transform translate-y-2"
            class="alert-item bg-warning rounded-3 shadow-lg text-dark py-3 px-4">
         <div class="d-flex align-items-start">
-          <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
+          <x-ui.icon name="alert" class="w-4 h-4 me-2 mt-1" />
           <div class="flex-grow-1">
             <p class="m-0 font-weight-bold mb-1">Validation Errors:</p>
             <ul class="m-0 ps-3">

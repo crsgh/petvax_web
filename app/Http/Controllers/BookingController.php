@@ -17,8 +17,8 @@ class BookingController extends Controller
 {
     public function index () {
         $bookings = Booking::with(['pet' => function($query) {
-                return $query->withTrashed();
-            }, 'service:id,name,category', 'clinic:id,name'])
+                return $query->withTrashed()->with('owner');
+            }, 'service:id,name,category', 'clinic:id,name', 'staff'])
                 ->select('bookings.*', 'pets.deleted_at as pet_deleted_at')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     if (auth()->user()->role_id == 4) {

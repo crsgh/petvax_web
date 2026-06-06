@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="salesSearchInput"
@@ -22,12 +19,12 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
       </x-ui.button>
-      <x-ui.button variant="primary" size="default" icon="fas fa-download">Export Report</x-ui.button>
+      <x-ui.button variant="primary" size="default" icon-name="download" onclick="exportToCSV()">Export CSV</x-ui.button>
     </div>
   </div>
   <div class="sales-content">
@@ -241,6 +238,31 @@ function clearFilters() {
   document.getElementById('statusFilter').value = '';
   document.getElementById('paymentFilter').value = '';
   filterTable();
+}
+
+function exportToCSV() {
+  const table = document.getElementById('salesTable');
+  const rows = table.querySelectorAll('tr');
+  const csv = [];
+  
+  rows.forEach(row => {
+    if (row.style.display === 'none') return;
+    const cells = row.querySelectorAll('th, td');
+    const rowData = [];
+    cells.forEach(cell => {
+      let text = cell.textContent.trim().replace(/,/g, ' ').replace(/"/g, '""');
+      rowData.push(`"${text}"`);
+    });
+    csv.push(rowData.join(','));
+  });
+  
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  link.href = URL.createObjectURL(blob);
+  link.download = `sales-report-${date}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 </script>
 

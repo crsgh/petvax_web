@@ -4,18 +4,60 @@
 <div class="clinics-page">
   <div class="page-header">
     <div class="header-content">
-      <h1 class="page-title"></h1>
-      <p class="page-subtitle"></p>
+      <h1 class="page-title">Clinic Management</h1>
+      <p class="page-subtitle">Manage your veterinary clinic locations and details</p>
     </div>
     <div class="header-actions">
+      <div class="search-wrapper">
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
+        <input 
+          type="text" 
+          id="clinicSearchInput"
+          class="search-input"
+          placeholder="Search clinics..." 
+          onkeyup="filterClinics()"
+        />
+      </div>
+      
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openSidebar('clinicSidebar')"
       >
         Add New Clinic
       </x-ui.button>
+    </div>
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="clinic-stats">
+    <div class="clinic-stat-card">
+      <div class="clinic-stat-icon total">
+        <x-ui.icon name="building" class="w-5 h-5" />
+      </div>
+      <div class="clinic-stat-info">
+        <span class="clinic-stat-value">{{ $clinics->count() }}</span>
+        <span class="clinic-stat-label">Total Clinics</span>
+      </div>
+    </div>
+    <div class="clinic-stat-card">
+      <div class="clinic-stat-icon active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13L9 17L19 7"/></svg>
+      </div>
+      <div class="clinic-stat-info">
+        <span class="clinic-stat-value">{{ $clinics->where('status', 'active')->count() }}</span>
+        <span class="clinic-stat-label">Active</span>
+      </div>
+    </div>
+    <div class="clinic-stat-card">
+      <div class="clinic-stat-icon inactive">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6L18 18"/></svg>
+      </div>
+      <div class="clinic-stat-info">
+        <span class="clinic-stat-value">{{ $clinics->where('status', 'inactive')->count() }}</span>
+        <span class="clinic-stat-label">Inactive</span>
+      </div>
     </div>
   </div>
 
@@ -34,7 +76,7 @@
         </thead>
         <tbody>
           @foreach($clinics as $clinic)
-          <tr>
+          <tr data-search="{{ strtolower($clinic->name) }} {{ strtolower($clinic->address) }} {{ strtolower($clinic->status) }}" data-clinic-id="{{ $clinic->id }}" data-clinic='{{ json_encode($clinic->toArray()) }}'>
             <td>
               <div class="clinic-info">
                 <div class="clinic-avatar">
@@ -42,7 +84,7 @@
                     <img src="{{ asset('storage/' . $clinic->image) }}" alt="{{ $clinic->name }}" class="clinic-image">
                   @else
                     <div class="clinic-placeholder">
-                      <i class="fas fa-hospital"></i>
+                      <x-ui.icon name="building" class="w-5 h-5" />
                     </div>
                   @endif
                 </div>
@@ -63,11 +105,11 @@
             <td>
               <div class="contact-info">
                 <div class="contact-phone">
-                  <i class="fas fa-phone text-primary"></i>
+                  <x-ui.icon name="phone" class="w-4 h-4 text-primary" />
                   {{ $clinic->contact }}
                 </div>
                 <div class="contact-email">
-                  <i class="fas fa-envelope text-gray-500"></i>
+                  <x-ui.icon name="mail" class="w-4 h-4 text-gray-500" />
                   {{ $clinic->email }}
                 </div>
               </div>
@@ -95,25 +137,25 @@
               <div class="flex gap-2">
                 <x-ui.button 
                   variant="secondary" 
-                  size="sm" 
-                  icon="fas fa-eye"
+                  size="xs" 
+                  icon-name="eye"
                   onclick="viewClinic({{ $clinic->id }})"
                   title="View Details"
-                />
+                >View</x-ui.button>
                 <x-ui.button 
                   variant="primary" 
-                  size="sm" 
-                  icon="fas fa-edit"
+                  size="xs" 
+                  icon-name="edit"
                   onclick="editClinic({{ $clinic->toJson() }})"
                   title="Edit Clinic"
-                />
+                >Edit</x-ui.button>
                 <x-ui.button 
                   variant="danger" 
-                  size="sm" 
-                  icon="fas fa-trash"
+                  size="xs" 
+                  icon-name="delete"
                   onclick="deleteClinic({{ $clinic->id }})"
                   title="Delete Clinic"
-                />
+                >Delete</x-ui.button>
               </div>
             </td>
           </tr>
@@ -131,7 +173,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title" id="sidebarTitle">Add New Clinic</h3>
       <button type="button" class="sidebar-close" onclick="closeSidebar('clinicSidebar')">
-        <i class="fas fa-times"></i>
+        <x-ui.icon name="close" class="w-4 h-4" />
       </button>
     </div>
     
@@ -235,10 +277,10 @@
                      placeholder="Search for location...">
               <div class="search-buttons">
                 <button type="button" class="search-btn" onclick="searchLocation()" title="Search">
-                  <i class="fas fa-search"></i>
+                  <x-ui.icon name="search" class="w-4 h-4" />
                 </button>
                 <button type="button" class="location-btn" onclick="getCurrentLocation()" title="Use current location">
-                  <i class="fas fa-location-arrow"></i>
+                  <x-ui.icon name="map-pin" class="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -344,6 +386,101 @@
 
 .header-actions {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.search-input {
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  width: 260px;
+  background: white;
+  color: #374151;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Stats Summary */
+.clinic-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.clinic-stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.clinic-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.clinic-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clinic-stat-icon.total { background: #eff6ff; color: #3b82f6; }
+.clinic-stat-icon.active { background: #ecfdf5; color: #10b981; }
+.clinic-stat-icon.inactive { background: #fef2f2; color: #ef4444; }
+
+.clinic-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.clinic-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.clinic-stat-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .clinics-content {
@@ -593,6 +730,12 @@
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
 }
 
 .sidebar-backdrop {
@@ -603,6 +746,12 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
 }
 
 .sidebar-content {
@@ -615,7 +764,7 @@
   flex-direction: column;
   height: 100vh;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-overlay:not(.hidden) .sidebar-content {
@@ -837,15 +986,6 @@
   transition: all 0.2s ease;
 }
 
-.grid {
-  display: grid;
-}
-.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.space-y-6 > * + * { margin-top: 1.5rem; }
-.space-y-3 > * + * { margin-top: 0.75rem; }
-
 @media (max-width: 1024px) {
   .lg\:grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -859,6 +999,18 @@
   
   .operating-days-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .clinic-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .search-input {
+    width: 180px;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
   }
 }
 </style>
@@ -1004,6 +1156,19 @@ function editClinic(data) {
   setTimeout(initMap, 500);
 }
 
+function filterClinics() {
+  const input = document.getElementById('clinicSearchInput');
+  const filter = input.value.toLowerCase();
+  const table = document.getElementById('clinicsTable');
+  const rows = table.getElementsByTagName('tr');
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(filter) ? '' : 'none';
+  }
+}
+
 // Sidebar functions
 function openSidebar(sidebarId) {
   document.getElementById(sidebarId).classList.remove('hidden');
@@ -1046,8 +1211,42 @@ async function deleteClinic(clinicId) {
 }
 
 function viewClinic(clinicId) {
-  // Implementation for viewing clinic details
-  console.log('View clinic:', clinicId);
+  const row = document.querySelector(`[data-clinic-id="${clinicId}"]`);
+  if (row) {
+    const clinicData = JSON.parse(row.dataset.clinic);
+    document.getElementById('clinicDetailsContent').innerHTML = `
+      <div class="space-y-4">
+        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+          <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200">
+            <img src="${clinicData.image ? '/storage/' + clinicData.image : '/assets/img/default-clinic.jpg'}" class="w-full h-full object-cover" alt="${clinicData.name}">
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">${clinicData.name}</h3>
+            <p class="text-sm text-gray-500">ID: #${clinicData.id}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500">Phone</p>
+            <p class="text-sm font-medium text-gray-900">${clinicData.contact}</p>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500">Email</p>
+            <p class="text-sm font-medium text-gray-900">${clinicData.email}</p>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500">Status</p>
+            <p class="text-sm font-medium ${clinicData.status === 'active' ? 'text-green-600' : 'text-red-600'}">${clinicData.status}</p>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500">Address</p>
+            <p class="text-sm font-medium text-gray-900">${clinicData.address || 'N/A'}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    openModal('clinicDetailsModal');
+  }
 }
 
 // Form submission

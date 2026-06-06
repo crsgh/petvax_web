@@ -12,15 +12,15 @@
   <div class="settings-content">
     <div class="settings-tabs">
       <button class="tab-button active" onclick="showTab('appearance')" data-tab="appearance">
-        <i class="fas fa-palette"></i>
+        <x-ui.icon name="star" class="w-5 h-5" />
         Appearance
       </button>
       <button class="tab-button" onclick="showTab('branding')" data-tab="branding">
-        <i class="fas fa-building"></i>
+        <x-ui.icon name="building" class="w-5 h-5" />
         Branding
       </button>
       <button class="tab-button" onclick="showTab('system')" data-tab="system">
-        <i class="fas fa-cog"></i>
+        <x-ui.icon name="settings" class="w-5 h-5" />
         System
       </button>
     </div>
@@ -171,11 +171,11 @@
                   <div class="upload-controls">
                     <input type="file" name="site_logo" id="logoUpload" accept="image/*" class="hidden" onchange="previewLogo(this)">
                     <x-ui.button type="button" variant="secondary" onclick="document.getElementById('logoUpload').click()">
-                      <i class="fas fa-upload"></i>
+                      <x-ui.icon name="upload" class="w-4 h-4" />
                       Upload New Logo
                     </x-ui.button>
                     <x-ui.button type="button" variant="secondary" onclick="resetLogo()">
-                      <i class="fas fa-undo"></i>
+                      <x-ui.icon name="refresh" class="w-4 h-4" />
                       Reset to Default
                     </x-ui.button>
                   </div>
@@ -192,7 +192,7 @@
                   <div class="upload-controls">
                     <input type="file" name="site_favicon" id="faviconUpload" accept="image/*" class="hidden" onchange="previewFavicon(this)">
                     <x-ui.button type="button" variant="secondary" onclick="document.getElementById('faviconUpload').click()">
-                      <i class="fas fa-upload"></i>
+                      <x-ui.icon name="upload" class="w-4 h-4" />
                       Upload Favicon
                     </x-ui.button>
                   </div>

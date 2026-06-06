@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="searchInput" 
@@ -22,7 +19,7 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
@@ -31,7 +28,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openSidebar('userSidebar')"
       >
         Add New User
@@ -102,18 +99,18 @@
               <div class="flex gap-2">
                 <x-ui.button 
                   variant="secondary" 
-                  size="sm" 
-                  icon="fas fa-edit"
+                  size="xs" 
+                  icon-name="edit"
                   onclick="editUser({{ $user }})"
                   title="Edit User"
-                />
+                >Edit</x-ui.button>
                 <x-ui.button 
                   variant="danger" 
-                  size="sm" 
-                  icon="fas fa-trash"
+                  size="xs" 
+                  icon-name="delete"
                   onclick="deleteUser({{ $user->id }})"
                   title="Delete User"
-                />
+                >Delete</x-ui.button>
               </div>
             </td>
           </tr>
@@ -122,7 +119,7 @@
             <tr>
               <td colspan="6" class="empty-state">
                 <div class="empty-content">
-                  <i class="fas fa-users empty-icon"></i>
+                  <x-ui.icon name="users" class="w-12 h-12 empty-icon text-gray-400" />
                   <h3 class="empty-title">No Users Found</h3>
                   <p class="empty-text">There are no users to display. Add a new user to get started.</p>
                   <x-ui.button variant="primary" size="sm" onclick="openModal('userModal')">
@@ -166,7 +163,7 @@
             <div class="profile-image-upload" onclick="document.getElementById('avatarInput').click()">
               <img id="imagePreview" src="{{ asset('assets/img/team-2.jpg') }}" alt="Profile Preview" class="profile-preview">
               <div class="upload-overlay">
-                <i class="fas fa-camera"></i>
+                <x-ui.icon name="image" class="w-5 h-5" />
                 <span>Change Photo</span>
               </div>
               <input type="file" name="avatar" id="avatarInput" accept="image/*" onchange="previewImage(this)" style="display: none;">
@@ -717,6 +714,12 @@ body,
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
 }
 
 .sidebar-backdrop {
@@ -727,6 +730,12 @@ body,
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
 }
 
 .sidebar-content {
@@ -738,7 +747,7 @@ body,
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-overlay:not(.hidden) .sidebar-content {

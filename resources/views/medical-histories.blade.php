@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="medicalSearchInput"
@@ -22,7 +19,7 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
@@ -81,8 +78,8 @@
               </td>
               <td>
                 <div class="species-breed">
-                  <div class="species">{{ $data['pet']->species->name ?? 'N/A' }}</div>
-                  <div class="breed">{{ $data['pet']->breed->name ?? 'N/A' }}</div>
+                  <div class="species">{{ $data['pet']->species ?? 'N/A' }}</div>
+                  <div class="breed">{{ $data['pet']->breed ?? 'N/A' }}</div>
                 </div>
               </td>
               <td>
@@ -99,18 +96,18 @@
                 <div class="actions-group">
                   <x-ui.button 
                     variant="primary" 
-                    size="sm" 
-                    icon="fas fa-eye"
+                    size="xs" 
+                    icon-name="eye"
                     onclick="viewMedicalHistory({{ $data['pet']->id }})"
                     title="View Medical History"
-                  />
+                  >View</x-ui.button>
                   <x-ui.button 
                     variant="secondary" 
-                    size="sm" 
-                    icon="fas fa-download"
+                    size="xs" 
+                    icon-name="download"
                     onclick="downloadMedicalHistory({{ $data['pet']->id }})"
                     title="Download Records"
-                  />
+                  >Download</x-ui.button>
                 </div>
               </td>
             </tr>
@@ -119,13 +116,7 @@
               <td colspan="5" class="empty-state">
                 <div class="empty-state-content">
                   <div class="empty-state-icon">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14,2 14,8 20,8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10,9 9,9 8,9"/>
-                    </svg>
+                    <x-ui.icon name="file" class="w-16 h-16 text-gray-300" />
                   </div>
                   <h3 class="empty-state-title">No Medical Records Found</h3>
                   <p class="empty-state-description">There are no medical histories recorded yet. Medical records will appear here once pets have visits.</p>

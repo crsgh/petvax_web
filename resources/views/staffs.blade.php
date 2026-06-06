@@ -11,7 +11,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openModal('staffModal')"
       >
         Add New Staff
@@ -133,25 +133,25 @@
               <div class="actions-group">
                 <x-ui.button 
                   variant="secondary" 
-                  size="sm" 
-                  icon="fas fa-eye"
+                  size="xs" 
+                  icon-name="eye"
                   onclick="viewStaff({{ $staff->id }})"
                   title="View Details"
-                />
+                >View</x-ui.button>
                 <x-ui.button 
                   variant="primary" 
-                  size="sm" 
-                  icon="fas fa-edit"
+                  size="xs" 
+                  icon-name="edit"
                   onclick="editStaff({{ json_encode($staff) }})"
                   title="Edit Staff"
-                />
+                >Edit</x-ui.button>
                 <x-ui.button 
                   variant="danger" 
-                  size="sm" 
-                  icon="fas fa-trash"
+                  size="xs" 
+                  icon-name="delete"
                   onclick="deleteStaff({{ $staff->id }})"
                   title="Delete Staff"
-                />
+                >Delete</x-ui.button>
               </div>
             </td>
           </tr>

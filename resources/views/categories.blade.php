@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="categorySearchInput"
@@ -22,7 +19,7 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
@@ -31,7 +28,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openSidebar('categorySidebar')"
       >
         Add New Category
@@ -73,18 +70,18 @@
               <div class="actions-group">
                 <x-ui.button 
                   variant="primary" 
-                  size="sm" 
-                  icon="fas fa-edit"
+                  size="xs" 
+                  icon-name="edit"
                   onclick="editCategory({{ json_encode($category) }})"
                   title="Edit Category"
-                />
+                >Edit</x-ui.button>
                 <x-ui.button 
                   variant="danger" 
-                  size="sm" 
-                  icon="fas fa-trash"
+                  size="xs" 
+                  icon-name="delete"
                   onclick="deleteCategory({{ $category->id }})"
                   title="Delete Category"
-                />
+                >Delete</x-ui.button>
               </div>
             </td>
           </tr>
@@ -92,11 +89,11 @@
           <tr>
             <td colspan="5" class="text-center py-8">
               <div class="empty-state">
-                <i class="fas fa-tags text-gray-400 text-4xl mb-4"></i>
+                <x-ui.icon name="category" class="w-12 h-12 text-gray-400 mb-4" />
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No categories found</h3>
                 <p class="text-gray-500 mb-4">Start by adding your first category.</p>
                 <button onclick="openSidebar('categorySidebar')" class="btn btn-primary">
-                  <i class="fas fa-plus mr-2"></i>Add Category
+                  <x-ui.icon name="add" class="w-4 h-4" />Add Category
                 </button>
               </div>
             </td>
@@ -115,9 +112,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title">Add New Category</h3>
       <button type="button" class="sidebar-close" onclick="closeSidebar('categorySidebar')">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <x-ui.icon name="close" class="w-3.5 h-3.5" />
       </button>
     </div>
 
@@ -295,6 +290,12 @@
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
 }
 
 .sidebar-backdrop {
@@ -305,6 +306,12 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
 }
 
 .sidebar-content {
@@ -316,7 +323,7 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-overlay:not(.hidden) .sidebar-content {

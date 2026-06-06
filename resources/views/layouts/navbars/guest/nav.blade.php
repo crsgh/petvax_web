@@ -13,13 +13,13 @@
         @if (auth()->user())
             <li class="nav-item">
             <a class="nav-link rounded-lg px-3 py-2 hover:bg-gray-100 transition-all duration-200 {{ Request::is('dashboard') ? 'bg-primary text-white hover:bg-primary/90' : '' }}" href="{{ url('dashboard') }}">
-                <i class="fa fa-chart-pie me-2"></i>
+                <x-ui.icon name="chart" class="w-4 h-4 me-2" />
                 Dashboard
             </a>
             </li>
             <li class="nav-item">
             <a class="nav-link rounded-lg px-3 py-2 hover:bg-gray-100 transition-all duration-200 {{ Request::is('profile') ? 'bg-primary text-white hover:bg-primary/90' : '' }}" href="{{ url('profile') }}">
-                <i class="fa fa-user me-2"></i>
+                <x-ui.icon name="user" class="w-4 h-4 me-2" />
                 Profile
             </a>
             </li>
@@ -28,16 +28,16 @@
       <div class="flex items-center gap-3">
         @if (!auth()->user())
           <a href="{{ url('register') }}" class="btn btn-outline-primary rounded-lg px-4 py-2 text-sm font-medium hover:shadow-md transition-all duration-300 flex items-center gap-2">
-            <i class="fas fa-user-plus"></i>
+            <x-ui.icon name="add" class="w-4 h-4" />
             Sign Up
           </a>
           <a href="{{ url('login') }}" class="btn btn-primary rounded-lg px-4 py-2 text-sm font-medium hover:shadow-md transition-all duration-300 flex items-center gap-2">
-            <i class="fas fa-sign-in-alt"></i>
+            <x-ui.icon name="login" class="w-4 h-4" />
             Sign In
           </a>
         @endif
         <a href="" target="_blank" class="btn btn-primary rounded-lg px-4 py-2 text-sm font-medium hover:shadow-md transition-all duration-300 flex items-center gap-2">
-          <i class="fas fa-download"></i>
+          <x-ui.icon name="download" class="w-4 h-4" />
           Download App
         </a>
         @if (auth()->user())

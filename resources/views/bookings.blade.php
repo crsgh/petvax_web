@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="appointmentSearchInput"
@@ -22,7 +19,7 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
@@ -32,7 +29,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openSidebar('bookingSidebar')"
       >
         New Appointment
@@ -86,35 +83,35 @@
                 <div class="actions-group">
                   <x-ui.button 
                     variant="secondary" 
-                    size="sm" 
-                    icon="fas fa-eye"
+                    size="xs" 
+                    icon-name="eye"
                     onclick="viewBooking({{ $booking->id }})"
                     title="View Details"
-                  />
+                  >View</x-ui.button>
                   @if($booking->status !== 'completed')
                     <x-ui.button 
                       variant="primary" 
-                      size="sm" 
-                      icon="fas fa-edit"
+                      size="xs" 
+                      icon-name="edit"
                       onclick="editBooking({{ $booking->id }})"
                       title="Edit Booking"
-                    />
+                    >Edit</x-ui.button>
                   @endif
                   @if($booking->status === 'pending')
-                    <x-ui.button 
+                <x-ui.button 
                       variant="success" 
-                      size="sm" 
-                      icon="fas fa-check"
+                      size="xs" 
+                      icon-name="check"
                       onclick="confirmBooking({{ $booking->id }})"
                       title="Confirm"
-                    />
+                    >Confirm</x-ui.button>
                     <x-ui.button 
                       variant="danger" 
-                      size="sm" 
-                      icon="fas fa-times"
+                      size="xs" 
+                      icon-name="close"
                       onclick="openDeclineModal({{ $booking->id }})"
                       title="Decline"
-                    />
+                    >Decline</x-ui.button>
                   @endif
                 </div>
               </td>
@@ -124,21 +121,13 @@
               <td colspan="6" class="empty-state">
                 <div class="empty-state-content">
                   <div class="empty-state-icon">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/>
-                      <line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
+                    <x-ui.icon name="calendar" class="w-16 h-16 text-gray-300" />
                   </div>
                   <h3 class="empty-state-title">No Appointments Found</h3>
                   <p class="empty-state-description">There are no bookings scheduled yet. Create your first appointment to get started.</p>
                   @if(in_array(auth()->user()->role_id, [1, 2, 3]))
                   <button class="empty-state-action" onclick="openSidebar('bookingSidebar')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="12" y1="5" x2="12" y2="19"/>
-                      <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                    <x-ui.icon name="add" class="w-5 h-5" />
                     Schedule First Appointment
                   </button>
                   @endif
@@ -186,9 +175,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title">New Appointment</h3>
       <button type="button" class="sidebar-close" onclick="closeSidebar('bookingSidebar')">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <x-ui.icon name="close" class="w-3.5 h-3.5" />
       </button>
     </div>
 
@@ -523,6 +510,12 @@
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
 }
 
 .sidebar-backdrop {
@@ -533,6 +526,12 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
 }
 
 .sidebar-content {
@@ -544,7 +543,7 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-overlay:not(.hidden) .sidebar-content {
@@ -863,12 +862,6 @@ function filterTable() {
   });
 }
 
-// Form submission
-document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  // Handle form submission here
-});
-
 function filterBookings() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
   const statusFilter = document.getElementById('statusFilter').value;
@@ -1002,7 +995,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     submitButton.textContent = originalText;
     submitButton.disabled = false;
   }
-}
+});
 
 // Decline booking functions
 function openDeclineModal(bookingId) {
@@ -1154,7 +1147,7 @@ function loadClinicData(clinicId) {
     <div class="sidebar-header">
       <h3 class="sidebar-title">Decline Booking</h3>
       <button class="sidebar-close" onclick="closeDeclineModal()">
-        <i class="fas fa-times"></i>
+        <x-ui.icon name="close" class="w-4 h-4" />
       </button>
     </div>
     

@@ -144,21 +144,22 @@ body {
   padding: var(--space-6);
 }
 
-/* Button system */
+/* Button system - Minimalist & Clean */
 .btn-clean {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border: none;
-  border-radius: var(--radius);
-  font-size: var(--font-size-sm);
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.15s ease;
   white-space: nowrap;
+  line-height: 1.4;
 }
 
 .btn-clean:focus {
@@ -166,56 +167,73 @@ body {
   outline-offset: 2px;
 }
 
+.btn-clean:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-primary-clean {
-  background: var(--primary);
-  color: var(--white);
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
 }
 
 .btn-primary-clean:hover {
-  background: var(--primary-hover);
-  color: var(--white);
+  background: #2563eb;
+  border-color: #2563eb;
 }
 
 .btn-secondary-clean {
-  background: var(--white);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-300);
+  background: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
 }
 
 .btn-secondary-clean:hover {
-  background: var(--gray-50);
-  border-color: var(--gray-400);
-  color: var(--gray-800);
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
 }
 
 .btn-success-clean {
-  background: var(--success);
-  color: var(--white);
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
 }
 
 .btn-success-clean:hover {
-  background: #059669;
-  color: var(--white);
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
 }
 
 .btn-danger-clean {
-  background: var(--danger);
-  color: var(--white);
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .btn-danger-clean:hover {
-  background: #dc2626;
-  color: var(--white);
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #f87171;
+}
+
+.btn-xs-clean {
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  gap: 4px;
+  border-radius: 4px;
 }
 
 .btn-sm-clean {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--font-size-xs);
+  padding: 4px 10px;
+  font-size: 0.75rem;
 }
 
 .btn-lg-clean {
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--font-size-base);
+  padding: 8px 16px;
+  font-size: 0.875rem;
 }
 
 /* Form elements */

@@ -59,6 +59,34 @@
                 </button>
             </form>
             
+            @if(config('app.debug'))
+            <div class="test-accounts">
+                <p class="test-accounts-label">Quick Login (Test Accounts)</p>
+                <div class="test-account-list">
+                    <button type="button" class="test-account-btn" onclick="fillLogin('superadmin@petvax.test', 'password')">
+                        <span class="role-badge role-superadmin">SA</span>
+                        Super Admin
+                    </button>
+                    <button type="button" class="test-account-btn" onclick="fillLogin('admin@petvax.test', 'password')">
+                        <span class="role-badge role-admin">A</span>
+                        Admin
+                    </button>
+                    <button type="button" class="test-account-btn" onclick="fillLogin('staff@petvax.test', 'password')">
+                        <span class="role-badge role-staff">S</span>
+                        Staff
+                    </button>
+                    <button type="button" class="test-account-btn" onclick="fillLogin('vet@petvax.test', 'password')">
+                        <span class="role-badge role-vet">V</span>
+                        Veterinarian
+                    </button>
+                    <button type="button" class="test-account-btn" onclick="fillLogin('client@petvax.test', 'password')">
+                        <span class="role-badge role-client">C</span>
+                        Pet Owner
+                    </button>
+                </div>
+            </div>
+            @endif
+
             <div class="login-footer">
                 <a href="/register" class="register-link">
                     Don't have an account? Register here
@@ -70,6 +98,68 @@
 
 <style>
 /* Clean & Minimalist Login Styles */
+.test-accounts {
+    margin-bottom: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.test-accounts-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.test-account-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.test-account-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.625rem 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: #374151;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.test-account-btn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.role-superadmin { background: #7c3aed; }
+.role-admin { background: #2563eb; }
+.role-staff { background: #059669; }
+.role-vet { background: #d97706; }
+.role-client { background: #dc2626; }
 .login-container {
     min-height: 100vh;
     display: flex;
@@ -262,6 +352,12 @@ function togglePassword() {
         passwordInput.type = 'password';
         eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
     }
+}
+
+function fillLogin(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    document.querySelector('.login-button').focus();
 }
 </script>
 @endsection

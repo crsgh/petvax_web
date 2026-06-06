@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="petSearchInput" 
@@ -22,7 +19,7 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
@@ -32,7 +29,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openSidebar('petSidebar')"
       >
         Add New Pet
@@ -61,7 +58,7 @@
           @forelse($pets as $pet)
           <tr data-pet-name="{{ strtolower($pet->name) }}" 
               data-owner-name="{{ strtolower($pet->petOwner->name ?? '') }}" 
-              data-species="{{ strtolower($pet->species->name ?? '') }}" 
+              data-species="{{ strtolower($pet->species ?? '') }}" 
               data-gender="{{ strtolower($pet->gender) }}">
             <td>
               <div class="pet-info">
@@ -70,7 +67,7 @@
                     <img src="{{ asset('storage/' . $pet->image) }}" alt="{{ $pet->name }}" class="pet-image">
                   @else
                     <div class="pet-placeholder">
-                      <i class="fas fa-paw"></i>
+                      <x-ui.icon name="pets" class="w-5 h-5" />
                     </div>
                   @endif
                 </div>
@@ -88,8 +85,8 @@
             </td>
             <td>
               <div class="species-info">
-                <div class="species-name">{{ $pet->species->name ?? 'Unknown' }}</div>
-                <div class="breed-name">{{ $pet->breed->name ?? 'Mixed' }}</div>
+                <div class="species-name">{{ $pet->species ?? 'Unknown' }}</div>
+                <div class="breed-name">{{ $pet->breed ?? 'Mixed' }}</div>
               </div>
             </td>
             <td>
@@ -131,26 +128,26 @@
               <div class="flex gap-2">
                 <x-ui.button 
                   variant="secondary" 
-                  size="sm" 
-                  icon="fas fa-eye"
+                  size="xs" 
+                  icon-name="eye"
                   onclick="viewPet({{ $pet->id }})"
                   title="View Details"
-                />
+                >View</x-ui.button>
                 @if(auth()->user()->role_id != 4)
                   <x-ui.button 
                     variant="primary" 
-                    size="sm" 
-                    icon="fas fa-edit"
+                    size="xs" 
+                    icon-name="edit"
                     onclick="editPet({{ $pet }})"
                     title="Edit Pet"
-                  />
+                  >Edit</x-ui.button>
                   <x-ui.button 
                     variant="danger" 
-                    size="sm" 
-                    icon="fas fa-trash"
+                    size="xs" 
+                    icon-name="delete"
                     onclick="deletePet({{ $pet->id }})"
                     title="Delete Pet"
-                  />
+                  >Delete</x-ui.button>
                 @endif
               </div>
             </td>
@@ -160,19 +157,13 @@
             <td colspan="7" class="empty-state">
               <div class="empty-state-content">
                 <div class="empty-state-icon">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                    <path d="M8.5 8.5c.39-.39 1.02-.39 1.41 0L12 10.59l2.09-2.09c.39-.39 1.02-.39 1.41 0s.39 1.02 0 1.41L13.41 12l2.09 2.09c.39.39.39 1.02 0 1.41s-1.02.39-1.41 0L12 13.41l-2.09 2.09c-.39.39-1.02.39-1.41 0s-.39-1.02 0-1.41L10.59 12 8.5 9.91c-.39-.39-.39-1.02 0-1.41z"/>
-                  </svg>
+                  <x-ui.icon name="pets" class="w-16 h-16 text-gray-300" />
                 </div>
                 <h3 class="empty-state-title">No Pets Found</h3>
                 <p class="empty-state-description">There are no pets registered yet. Add your first pet to get started.</p>
                 @if(in_array(auth()->user()->role_id, [1, 2, 3]))
                 <button class="empty-state-action" onclick="openSidebar('petSidebar')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
+                  <x-ui.icon name="add" class="w-5 h-5" />
                   Add First Pet
                 </button>
                 @endif
@@ -193,9 +184,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title">Add New Pet</h3>
       <button type="button" class="sidebar-close" onclick="closeSidebar('petSidebar')">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <x-ui.icon name="close" class="w-3.5 h-3.5" />
       </button>
     </div>
 
@@ -211,7 +200,7 @@
             <div class="profile-image-upload" onclick="document.getElementById('petImageInputSidebar').click()">
               <img id="petImagePreview" src="{{ asset('assets/img/default-pet.jpg') }}" alt="Pet Preview" class="profile-preview">
               <div class="upload-overlay">
-                <i class="fas fa-camera"></i>
+                <x-ui.icon name="image" class="w-5 h-5" />
                 <span>Add Photo</span>
               </div>
               <input type="file" name="image" id="petImageInputSidebar" accept="image/*" onchange="previewPetImage(this)" style="display: none;">
@@ -489,6 +478,12 @@
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
 }
 
 .sidebar-backdrop {
@@ -499,6 +494,12 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
 }
 
 .sidebar-content {
@@ -510,7 +511,7 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-overlay:not(.hidden) .sidebar-content {

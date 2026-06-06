@@ -12,7 +12,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openAddQuestionSidebar()"
       >
         Add New Question
@@ -71,18 +71,18 @@
                 @if(auth()->user()->role_id != 4)
                 <x-ui.button 
                   variant="primary" 
-                  size="sm" 
-                  icon="fas fa-edit"
+                  size="xs" 
+                  icon-name="edit"
                   onclick="openEditQuestionSidebar({{ $question->toJson() }})"
                   title="Edit Question"
-                />
+                >Edit</x-ui.button>
                 <x-ui.button 
                   variant="danger" 
-                  size="sm" 
-                  icon="fas fa-trash"
+                  size="xs" 
+                  icon-name="delete"
                   onclick="deleteQuestion({{ $question->id }})"
                   title="Delete Question"
-                />
+                >Delete</x-ui.button>
                 @endif
               </div>
             </td>
@@ -101,7 +101,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title">Add New Question</h3>
       <button type="button" class="sidebar-close" onclick="closeAddQuestionSidebar()">
-        <i class="fas fa-times"></i>
+        <x-ui.icon name="close" class="w-4 h-4" />
       </button>
     </div>
     
@@ -180,7 +180,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title">Edit Question</h3>
       <button type="button" class="sidebar-close" onclick="closeEditQuestionSidebar()">
-        <i class="fas fa-times"></i>
+        <x-ui.icon name="close" class="w-4 h-4" />
       </button>
     </div>
     
@@ -371,6 +371,12 @@
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
+  visibility: hidden;
+  transition: visibility 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) {
+  visibility: visible;
 }
 
 .sidebar-backdrop {
@@ -381,6 +387,12 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay:not(.hidden) .sidebar-backdrop {
+  opacity: 1;
 }
 
 .sidebar-content {
@@ -393,7 +405,7 @@
   flex-direction: column;
   height: 100vh;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-overlay:not(.hidden) .sidebar-content {

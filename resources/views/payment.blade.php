@@ -78,9 +78,7 @@
     <div class="payment-card">
         @if($success)
             <div class="icon-container">
-                <svg xmlns="http://www.w3.org/2000/svg" class="success-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <x-ui.icon name="check-circle" class="w-16 h-16 text-green-500" />
             </div>
             <h2 class="payment-title">Payment Successful!</h2>
             <p class="payment-message">Thank you for using PetVax</p>
@@ -89,9 +87,7 @@
             </div>
         @else
             <div class="icon-container">
-                <svg xmlns="http://www.w3.org/2000/svg" class="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <x-ui.icon name="x-circle" class="w-16 h-16 text-red-500" />
             </div>
             <h2 class="payment-title">Payment Failed</h2>
             <p class="payment-message">There was an error processing your payment. Please try again.</p>

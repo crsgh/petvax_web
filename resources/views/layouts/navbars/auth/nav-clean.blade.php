@@ -14,13 +14,13 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
         <!-- Left Section -->
         <div class="topbar-left">
             <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">
-                <i class="fas fa-bars"></i>
+                <x-ui.icon name="menu" class="w-5 h-5" />
             </button>
             <div class="page-title">
                 <h1>{{ $title }}</h1>
                 <div class="breadcrumb">
-                    <span class="breadcrumb-item">{{ ucfirst(\App\Models\Role::find(auth()->user()->role_id)->name ?? 'User') }}</span>
-                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                    <a href="/dashboard" class="breadcrumb-item">{{ ucfirst(\App\Models\Role::find(auth()->user()->role_id)->name ?? 'User') }}</a>
+                    <x-ui.icon name="chevron-right" size="14" class="mx-1 breadcrumb-separator" />
                     <span class="breadcrumb-item current text-primary">{{ $title }}</span>
                 </div>
             </div>
@@ -30,7 +30,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
         @if($showSearch)
         <div class="topbar-center">
             <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
+                <x-ui.icon name="search" class="w-5 h-5 search-icon" />
                 <input type="text" class="search-input" placeholder="{{ $searchPlaceholder }}" />
                 <div class="search-suggestions hidden">
                     <!-- Search suggestions will be populated here -->
@@ -44,7 +44,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
             <!-- Notifications -->
             <div class="topbar-item notification-wrapper">
                 <button class="topbar-btn" onclick="toggleNotifications()" id="notificationBtn">
-                    <i class="fas fa-bell"></i>
+                    <x-ui.icon name="notification" class="w-5 h-5" />
                     @if($unreadCount > 0)
                         <span class="notification-badge">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
                     @endif
@@ -62,7 +62,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
                         @forelse($notifications as $notification)
                             <div class="notification-item {{ $notification->is_read ? '' : 'unread' }}">
                                 <div class="notification-icon">
-                                    <i class="fas fa-info-circle"></i>
+                                    <x-ui.icon name="info" class="w-4 h-4" />
                                 </div>
                                 <div class="notification-content">
                                     <div class="notification-title">{{ $notification->title }}</div>
@@ -72,7 +72,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
                             </div>
                         @empty
                             <div class="no-notifications">
-                                <i class="fas fa-bell-slash"></i>
+                                <x-ui.icon name="notification" class="w-4 h-4" />
                                 <p>No notifications yet</p>
                             </div>
                         @endforelse
@@ -89,7 +89,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
             @if(auth()->user()->role_id == 1)
             <div class="topbar-item">
                 <button class="topbar-btn" onclick="openModal('settingsModal')" title="Settings">
-                    <i class="fas fa-cog"></i>
+                    <x-ui.icon name="settings" class="w-4 h-4" />
                 </button>
             </div>
             @endif
@@ -106,7 +106,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
                         <div class="user-name">{{ auth()->user()->name }}</div>
                         <div class="user-role">{{ ucfirst(\App\Models\Role::find(auth()->user()->role_id)->name ?? 'User') }}</div>
                     </div>
-                    <i class="fas fa-chevron-down user-dropdown-arrow"></i>
+                    <x-ui.icon name="chevron-down" class="w-4 h-4 user-dropdown-arrow" />
                 </button>
 
                 <!-- User Dropdown -->
@@ -124,18 +124,18 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
                     </div>
                     <div class="dropdown-menu">
                         <a href="/profile" class="dropdown-item">
-                            <i class="fas fa-user"></i>
+                            <x-ui.icon name="user" class="w-4 h-4" />
                             <span>Profile</span>
                         </a>
                         <a href="#" onclick="openChangePasswordModal()" class="dropdown-item">
-                            <i class="fas fa-key"></i>
+                            <x-ui.icon name="key" class="w-4 h-4" />
                             <span>Change Password</span>
                         </a>
                         <div class="dropdown-divider"></div>
                         <form method="GET" action="/logout" class="logout-form">
                             @csrf
                             <button type="submit" class="dropdown-item logout-item">
-                                <i class="fas fa-sign-out-alt"></i>
+                                <x-ui.icon name="logout" class="w-4 h-4" />
                                 <span>Logout</span>
                             </button>
                         </form>
@@ -152,7 +152,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
         <div class="modal-header">
             <h3>Change Password</h3>
             <button class="modal-close" onclick="closeChangePasswordModal()">
-                <i class="fas fa-times"></i>
+                <x-ui.icon name="close" class="w-4 h-4" />
             </button>
         </div>
         <form id="changePasswordForm" class="modal-body" method="POST" action="/settings/password">
@@ -184,7 +184,7 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
         <div class="modal-header">
             <h3>Site Settings</h3>
             <button class="modal-close" onclick="closeModal('settingsModal')">
-                <i class="fas fa-times"></i>
+                <x-ui.icon name="close" class="w-4 h-4" />
             </button>
         </div>
         <form id="settingsForm" class="modal-body">

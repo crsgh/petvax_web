@@ -11,7 +11,7 @@
       <x-ui.button 
         variant="primary" 
         size="default" 
-        icon="fas fa-plus"
+        icon-name="add"
         onclick="openModal('ownerModal')"
       >
         Add New Owner
@@ -41,7 +41,7 @@
                 <img src="{{ asset('storage/' . $clinic->image) }}" alt="{{ $clinic->name }}">
               @else
                 <div class="clinic-placeholder">
-                  <i class="fas fa-hospital"></i>
+                  <x-ui.icon name="building" class="w-5 h-5" />
                 </div>
               @endif
             </div>
@@ -53,19 +53,19 @@
           
           <div class="clinic-details">
             <div class="detail-item">
-              <i class="fas fa-phone text-primary"></i>
+              <x-ui.icon name="phone" class="w-4 h-4 text-primary" />
               <span>{{ $clinic->contact }}</span>
             </div>
             <div class="detail-item">
-              <i class="fas fa-envelope text-gray-500"></i>
+              <x-ui.icon name="mail" class="w-4 h-4 text-gray-500" />
               <span>{{ $clinic->email }}</span>
             </div>
             <div class="detail-item">
-              <i class="fas fa-clock text-info"></i>
+              <x-ui.icon name="clock" class="w-4 h-4 text-info" />
               <span>{{ date('H:i', strtotime($clinic->opening_time)) }} - {{ date('H:i', strtotime($clinic->closing_time)) }}</span>
             </div>
             <div class="detail-item">
-              <i class="fas fa-calendar text-warning"></i>
+              <x-ui.icon name="calendar" class="w-4 h-4 text-warning" />
               <span>
                 @php
                   $days = json_decode($clinic->operation_days);

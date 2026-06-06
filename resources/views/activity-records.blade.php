@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="activitySearchInput"
@@ -22,12 +19,12 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
       </x-ui.button>
-      <x-ui.button variant="primary" size="default" icon="fas fa-download">Export Logs</x-ui.button>
+      <x-ui.button variant="primary" size="default" icon-name="download">Export Logs</x-ui.button>
     </div>
   </div>
   <div class="activity-content">

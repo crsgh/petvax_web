@@ -4,7 +4,7 @@
     'type' => 'button',
     'href' => null,
     'disabled' => false,
-    'icon' => null,
+    'iconName' => null,
     'iconPosition' => 'left'
 ])
 
@@ -18,9 +18,17 @@ $variantClasses = match($variant) {
     default => 'btn-primary-clean'
 };
 $sizeClasses = match($size) {
+    'xs' => 'btn-xs-clean',
     'sm' => 'btn-sm-clean',
     'lg' => 'btn-lg-clean',
     default => ''
+};
+
+$iconSize = match($size) {
+    'xs' => '14',
+    'sm' => '16',
+    'lg' => '20',
+    default => '18'
 };
 
 $classes = trim($baseClasses . ' ' . $variantClasses . ' ' . $sizeClasses . ' ' . ($attributes->get('class') ?? ''));
@@ -28,22 +36,22 @@ $classes = trim($baseClasses . ' ' . $variantClasses . ' ' . $sizeClasses . ' ' 
 
 @if($href)
     <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>
-        @if($icon && $iconPosition === 'left')
-            <i class="{{ $icon }}"></i>
+        @if($iconName && $iconPosition === 'left')
+            <x-ui.icon :name="$iconName" :size="$iconSize" />
         @endif
         {{ $slot }}
-        @if($icon && $iconPosition === 'right')
-            <i class="{{ $icon }}"></i>
+        @if($iconName && $iconPosition === 'right')
+            <x-ui.icon :name="$iconName" :size="$iconSize" />
         @endif
     </a>
 @else
     <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }} @if($disabled) disabled @endif>
-        @if($icon && $iconPosition === 'left')
-            <i class="{{ $icon }}"></i>
+        @if($iconName && $iconPosition === 'left')
+            <x-ui.icon :name="$iconName" :size="$iconSize" />
         @endif
         {{ $slot }}
-        @if($icon && $iconPosition === 'right')
-            <i class="{{ $icon }}"></i>
+        @if($iconName && $iconPosition === 'right')
+            <x-ui.icon :name="$iconName" :size="$iconSize" />
         @endif
     </button>
 @endif

@@ -15,7 +15,7 @@
                         <div class="card-body text-center">
                             <h5 class="mb-3">{{ $clinic->name ?? 'Clinic Name' }}</h5>
                             <p class="text-muted">
-                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <x-ui.icon name="map-pin" class="w-4 h-4 me-2" />
                                 {{ $clinic->address ?? 'Clinic Address' }}
                             </p>
                         </div>

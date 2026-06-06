@@ -11,14 +11,14 @@
         <div class="collapse navbar-collapse mt-sm-0 mt-2 px-0" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group">
-              <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
+              <span class="input-group-text text-body"><x-ui.icon name="search" class="w-4 h-4" /></span>
               <input type="text" class="form-control" placeholder="أكتب هنا...">
             </div>
           </div>
           <ul class="navbar-nav me-auto ms-0 justify-content-end">
             <li class="nav-item d-flex align-items-center">
               <a href="{{ url('/logout')}}" class="nav-link text-body font-weight-bold px-0">
-                <i class="fa fa-user me-sm-1"></i>
+                <x-ui.icon name="user" class="w-4 h-4 me-sm-1" />
                 <span class="d-sm-inline d-none">يسجل دخول</span>
               </a>
             </li>
@@ -33,12 +33,12 @@
             </li>
             <li class="nav-item px-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0">
-                <i class="fa fa-cog fixed-plugin-button-nav cursor-pointer"></i>
+                <x-ui.icon name="settings" class="w-4 h-4 fixed-plugin-button-nav cursor-pointer" />
               </a>
             </li>
             <li class="nav-item dropdown ps-2 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa fa-bell cursor-pointer"></i>
+                <x-ui.icon name="notification" class="w-4 h-4 cursor-pointer" />
               </a>
               <ul class="dropdown-menu  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
                 <li class="mb-2">
@@ -52,7 +52,7 @@
                           <span class="font-weight-bold">New message</span> from Laur
                         </h6>
                         <p class="text-xs text-secondary mb-0">
-                          <i class="fa fa-clock me-1"></i>
+                          <x-ui.icon name="clock" class="w-4 h-4 me-1" />
                           13 minutes ago
                         </p>
                       </div>
@@ -70,7 +70,7 @@
                           <span class="font-weight-bold">New album</span> by Travis Scott
                         </h6>
                         <p class="text-xs text-secondary mb-0">
-                          <i class="fa fa-clock me-1"></i>
+                          <x-ui.icon name="clock" class="w-4 h-4 me-1" />
                           1 day
                         </p>
                       </div>
@@ -100,7 +100,7 @@
                           Payment successfully completed
                         </h6>
                         <p class="text-xs text-secondary mb-0">
-                          <i class="fa fa-clock me-1"></i>
+                          <x-ui.icon name="clock" class="w-4 h-4 me-1" />
                           2 days
                         </p>
                       </div>

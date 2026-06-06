@@ -9,15 +9,12 @@
     <div class="stat-card income-card">
       <div class="stat-header">
         <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1V3"/><path d="M12 21V23"/><path d="M4 12H2"/><path d="M22 12H20"/><path d="M16.95 7.05L18.36 5.64"/><path d="M5.64 18.36L7.05 16.95"/><path d="M5.64 5.64L7.05 7.05"/><path d="M16.95 16.95L18.36 18.36"/><path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z"/>
           </svg>
         </div>
         <div class="stat-trend positive">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="19" x2="12" y2="5"/>
-            <polyline points="5,12 12,5 19,12"/>
-          </svg>
+          <x-ui.icon name="arrow-up" class="w-4 h-4" />
           <span>+12%</span>
         </div>
       </div>
@@ -31,16 +28,12 @@
     <div class="stat-card users-card">
       <div class="stat-header">
         <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z"/><path d="M23 21V19C22.7353 17.4697 21.922 16.1272 20.74 15.17"/><path d="M16 3.13C17.188 4.07978 18.0026 5.4187 18.2678 6.90901C18.533 8.39933 18.2302 9.93183 17.41 11.21"/>
           </svg>
         </div>
         <div class="stat-trend neutral">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
+          <span class="text-gray-400">—</span>
           <span>0%</span>
         </div>
       </div>
@@ -50,7 +43,7 @@
       </div>
       <div class="stat-actions">
         <a href="/sales-report" class="stat-action-btn">
-          <i class="fas fa-chart-line"></i>
+          <x-ui.icon name="chart" class="w-4 h-4" />
           View Report
         </a>
       </div>
@@ -60,19 +53,12 @@
     <div class="stat-card appointments-card">
       <div class="stat-header">
         <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-            <path d="M9 14l2 2 4-4"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9H21"/><path d="M7 3V5"/><path d="M17 3V5"/><path d="M5 5H19C20.1046 5 21 5.89543 21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7C3 5.89543 3.89543 5 5 5Z"/><path d="M8 13H10"/><path d="M14 13H16"/><path d="M8 17H10"/><path d="M14 17H16"/>
           </svg>
         </div>
         <div class="stat-trend positive">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="19" x2="12" y2="5"/>
-            <polyline points="5,12 12,5 19,12"/>
-          </svg>
+          <x-ui.icon name="arrow-up" class="w-4 h-4" />
           <span>+8%</span>
         </div>
       </div>
@@ -86,15 +72,12 @@
     <div class="stat-card completion-card">
       <div class="stat-header">
         <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12H18L15 21L9 3L6 12H2"/>
           </svg>
         </div>
         <div class="stat-trend positive">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="19" x2="12" y2="5"/>
-            <polyline points="5,12 12,5 19,12"/>
-          </svg>
+          <x-ui.icon name="arrow-up" class="w-4 h-4" />
           <span>+5%</span>
         </div>
       </div>
@@ -134,7 +117,7 @@
                    onerror="this.src='{{ asset('assets/img/team-2.jpg') }}'">
               @if($index === 0)
                 <div class="crown-badge">
-                  <i class="fas fa-crown"></i>
+                  <x-ui.icon name="star" class="w-4 h-4 text-yellow-500" />
                 </div>
               @endif
             </div>
@@ -150,7 +133,7 @@
           </div>
         @empty
           <div class="empty-state">
-            <i class="fas fa-chart-bar"></i>
+            <x-ui.icon name="chart" class="w-8 h-8 text-gray-400" />
             <p>No performance data available</p>
           </div>
         @endforelse
@@ -167,7 +150,7 @@
     <div class="quick-actions-grid">
       <a href="/bookings" class="quick-action">
         <div class="action-icon new-booking">
-          <i class="fas fa-plus"></i>
+          <x-ui.icon name="add" class="w-5 h-5" />
         </div>
         <div class="action-content">
           <div class="action-title">New Appointment</div>
@@ -177,7 +160,7 @@
       
       <a href="/pets" class="quick-action">
         <div class="action-icon add-pet">
-          <i class="fas fa-paw"></i>
+          <x-ui.icon name="pets" class="w-5 h-5" />
         </div>
         <div class="action-content">
           <div class="action-title">Add Pet</div>
@@ -187,7 +170,7 @@
       
       <a href="/medical-histories" class="quick-action">
         <div class="action-icon medical-record">
-          <i class="fas fa-file-medical"></i>
+          <x-ui.icon name="medical" class="w-5 h-5" />
         </div>
         <div class="action-content">
           <div class="action-title">Medical Record</div>
@@ -197,7 +180,7 @@
       
       <a href="/inventory" class="quick-action">
         <div class="action-icon inventory">
-          <i class="fas fa-boxes"></i>
+          <x-ui.icon name="package" class="w-5 h-5" />
         </div>
         <div class="action-content">
           <div class="action-title">Inventory</div>

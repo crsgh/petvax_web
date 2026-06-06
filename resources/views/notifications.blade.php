@@ -8,7 +8,7 @@
       <p class="page-subtitle">Manage system notifications and alerts</p>
     </div>
     <div class="header-actions">
-      <x-ui.button variant="primary" size="default" icon="fas fa-bell">Mark All Read</x-ui.button>
+      <x-ui.button variant="primary" size="default" icon-name="notification">Mark All Read</x-ui.button>
     </div>
   </div>
   <div class="categories-content" style="background: white; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border: 1px solid #f1f5f9; overflow: hidden;">

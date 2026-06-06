@@ -6,10 +6,7 @@
     <h1 class="page-title"></h1>
     <div class="header-actions">
       <div class="search-wrapper">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
+        <x-ui.icon name="search" class="search-icon w-4 h-4" />
         <input 
           type="text" 
           id="ratingsSearchInput"
@@ -22,12 +19,12 @@
       <x-ui.button 
         variant="secondary" 
         size="default" 
-        icon="fas fa-filter"
+        icon-name="filter"
         onclick="openModal('filterModal')"
       >
         Filters
       </x-ui.button>
-      <x-ui.button variant="primary" size="default" icon="fas fa-star" onclick="openModal('ratingsModal')">View All Ratings</x-ui.button>
+      <x-ui.button variant="primary" size="default" icon-name="star" onclick="openModal('ratingsModal')">View All Ratings</x-ui.button>
     </div>
   </div>
   <div class="ratings-content">
@@ -65,7 +62,7 @@
             <td>
               <div class="rating-stars">
                 @for($i = 1; $i <= 5; $i++)
-                  <i class="fas fa-star {{ $i <= $rating['rating'] ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                  <x-ui.icon name="star" class="w-4 h-4 {{ $i <= $rating['rating'] ? 'text-yellow-400' : 'text-gray-300' }}" />
                 @endfor
                 <span class="rating-number">({{ $rating['rating'] }}/5)</span>
               </div>
@@ -97,11 +94,11 @@
       <div class="overall-rating">
         <div class="rating-score">4.8</div>
         <div class="rating-stars">
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i>
+          <x-ui.icon name="star" class="w-4 h-4" />
+          <x-ui.icon name="star" class="w-4 h-4" />
+          <x-ui.icon name="star" class="w-4 h-4" />
+          <x-ui.icon name="star" class="w-4 h-4" />
+          <x-ui.icon name="star" class="w-4 h-4" />
         </div>
         <div class="rating-count">Based on 247 reviews</div>
       </div>
@@ -153,11 +150,11 @@
           <div class="reviewer-info">
             <strong>Sarah Johnson</strong>
             <div class="review-stars">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
             </div>
           </div>
           <span class="review-date">2 days ago</span>
@@ -170,11 +167,11 @@
           <div class="reviewer-info">
             <strong>Mike Chen</strong>
             <div class="review-stars">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="far fa-star"></i>
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4" />
+              <x-ui.icon name="star" class="w-4 h-4 text-gray-300" />
             </div>
           </div>
           <span class="review-date">1 week ago</span>
@@ -314,8 +311,9 @@
   gap: 0.25rem;
 }
 
-.rating-stars .fas.fa-star {
-  font-size: 0.875rem;
+.rating-stars .rating-star {
+  width: 14px;
+  height: 14px;
 }
 
 .rating-number {
