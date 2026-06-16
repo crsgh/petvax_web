@@ -19,101 +19,98 @@ return new class extends Migration
         });
         
         Schema::create('clinics', function (Blueprint $table) {
-            $table->id();
             $table->string('name');
-            $table->string('contact', 20);
+            $table->string('contact');
             $table->string('email')->unique();
-            $table->text('address');
-            $table->decimal('latitute', 10, 8);
-            $table->decimal('longitude', 11, 8);
+            $table->string('address');
+            $table->double('latitute');
+            $table->double('longitude');
             $table->string('image')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->time('opening_time');
-            $table->time('closing_time'); 
-            $table->json('operation_days');
-            $table->text('description')->nullable();
+            $table->string('status')->default('active');
+            $table->string('opening_time');
+            $table->string('closing_time');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
 
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade')->default(0);
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
+            $table->string('role_id')->default('0');
+            $table->string('clinic_id')->nullable();
+            $table->index('role_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
 
         Schema::create('pets', function (Blueprint $table) {
-            $table->id();
             $table->string('name');
             $table->string('species');
             $table->string('breed');
-            $table->date('birth_date');
-            $table->enum('gender', ['male', 'female']);
-            $table->decimal('weight', 5, 2)->nullable();
+            $table->string('birth_date');
+            $table->string('gender');
+            $table->double('weight')->nullable();
             $table->string('image')->nullable();
-            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+            $table->string('owner_id');
+            $table->index('owner_id');
             $table->timestamps();
         });
 
         Schema::create('medical_histories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('pet_id')->constrained('pets')->onDelete('cascade');
-            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
-            $table->date('visit_date');
-            $table->text('diagnosis');
-            $table->text('treatment');
-            $table->text('notes')->nullable();
-            $table->decimal('temperature', 4, 1)->nullable();
+            $table->string('pet_id');
+            $table->string('clinic_id');
+            $table->string('visit_date');
+            $table->string('diagnosis');
+            $table->string('treatment');
+            $table->string('notes')->nullable();
+            $table->double('temperature')->nullable();
             $table->string('attending_vet');
-            $table->decimal('weight', 5, 2)->nullable();
+            $table->double('weight')->nullable();
+            $table->index('pet_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
 
         Schema::create('services', function (Blueprint $table) {
-            $table->id();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->enum('species', ['feline', 'canine'])->default('feline');
-            $table->enum('size', ['small', 'medium', 'large'])->default('medium');
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
+            $table->string('description')->nullable();
+            $table->double('price');
+            $table->string('species')->default('feline');
+            $table->string('size')->default('medium');
+            $table->string('status')->default('active');
+            $table->string('clinic_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
 
         Schema::create('bookings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('pet_id')->constrained('pets')->onDelete('cascade');
-            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
-            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
-            $table->dateTime('appointment_datetime');
-            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
-            $table->text('notes')->nullable();
-            $table->decimal('total_amount', 10, 2);
+            $table->string('pet_id');
+            $table->string('service_id');
+            $table->string('clinic_id');
+            $table->string('appointment_datetime');
+            $table->string('status')->default('pending');
+            $table->string('notes')->nullable();
+            $table->double('total_amount');
+            $table->index('pet_id');
+            $table->index('service_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
-    
 
         Schema::create('inventory_items', function (Blueprint $table) {
-            $table->id();
             $table->string('name');
             $table->string('category');
-            $table->text('description')->nullable();
+            $table->string('description')->nullable();
             $table->string('sku')->nullable();
-            $table->decimal('unit_price', 10, 2)->default(0);
+            $table->double('unit_price')->default(0);
             $table->integer('quantity');
-            $table->foreignId('added_by')->nullable()->constrained('users')->onDelete('set null');
-            // $table->date('expiry_date')->nullable();
-            // $table->string('manufacturer')->nullable();
-            // $table->string('batch_number')->nullable();
-            // $table->enum('status', ['available', 'low_stock', 'out_of_stock'])->default('available');
-            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
+            $table->string('added_by')->nullable();
+            $table->string('clinic_id');
+            $table->index('added_by');
+            $table->index('clinic_id');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -121,8 +118,13 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('roles');
+        Schema::dropIfExists('clinics');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('pets');
+        Schema::dropIfExists('medical_histories');
+        Schema::dropIfExists('services');
+        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('inventory_items');
     }
 };

@@ -19,18 +19,16 @@ class BookingController extends Controller
         $bookings = Booking::with(['pet' => function($query) {
                 return $query->withTrashed();
             }, 'service:id,name,category', 'clinic:id,name'])
-                ->select('bookings.*', 'pets.deleted_at as pet_deleted_at')
                 ->when(auth()->user()->role_id != 1, function($query) {
                     if (auth()->user()->role_id == 4) {
-                        return $query->where('bookings.staff_id', auth()->id());
+                        return $query->where('staff_id', auth()->id());
                     }
                     if (auth()->user()->role_id == 5) {
-                        return $query->where('bookings.client_id', auth()->user()->id);
+                        return $query->where('client_id', auth()->user()->id);
                     }
-                    return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
-                ->join('pets', 'bookings.pet_id', '=', 'pets.id')
-                ->orderBy('bookings.id', 'desc')
+                ->orderBy('_id', 'desc')
                 ->paginate(8)
                 ->withQueryString();
 
@@ -72,9 +70,8 @@ class BookingController extends Controller
 			'bookings' => Booking::with(['pet' => function($query) {
                     return $query->withTrashed();
                 }, 'service:id,name', 'clinic:id,name'])
-                ->select('bookings.*')
                 ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
                 ->get(),
 			
@@ -97,10 +94,10 @@ class BookingController extends Controller
         // dd($request->all);
         try{
             $validatedData = $request->validate([
-                'pet_id' => 'required|exists:pets,id',
-                'clinic_id' =>'required|exists:clinics,id',
-                'service_id' => 'required|exists:services,id',
-                'staff_id' => 'required|exists:users,id',
+                'pet_id' => 'required|exists:pets,_id',
+                'clinic_id' =>'required|exists:clinics,_id',
+                'service_id' => 'required|exists:services,_id',
+                'staff_id' => 'required|exists:users,_id',
                 'appointment_date' => 'required|date',
                 'notes' => 'nullable|string',
                 'payment_method' => 'nullable|string',
@@ -184,7 +181,7 @@ class BookingController extends Controller
             $validatedData = $request->validate([
                 'diagnosis' => 'required|string',
                 'treatment' => 'required|string',
-                //'inventory_id' => 'required|exists:inventory_items,id',
+                //'inventory_id' => 'required|exists:inventory_items,_id',
             ]);
 
             // Decode the selected inventories JSON string
@@ -252,7 +249,7 @@ class BookingController extends Controller
             
             $validatedData = $request->validate([
                 'action' => 'required|in:confirmed,cancelled,completed,declined',
-                'staff_id' => 'nullable|exists:users,id',
+                'staff_id' => 'nullable|exists:users,_id',
             ]);
 
             

@@ -33,13 +33,13 @@ class PaymentController extends Controller
             // Validate request data
             $validated = $request->validate([
                 'amount' => 'required|numeric|min:100', // Minimum amount in centavos (1 PHP)
-                'pet_id' => 'required|exists:pets,id',
-                'service_id' => 'required|exists:services,id',
-                'staff_id' => 'required|exists:users,id',
+                'pet_id' => 'required|exists:pets,_id',
+                'service_id' => 'required|exists:services,_id',
+                'staff_id' => 'required|exists:users,_id',
                 'appointment_date' => 'required|date',
                 'notes' => 'nullable|string',
-                'clinic_id' => 'required|exists:clinics,id',
-                'client_id' => 'required|exists:users,id',
+                'clinic_id' => 'required|exists:clinics,_id',
+                'client_id' => 'required|exists:users,_id',
                 'payment_method' => 'required|string'
             ]);
             

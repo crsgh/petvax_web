@@ -8,15 +8,12 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('pets', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        // Mongo documents are schemaless; soft-delete just writes a
+        // deleted_at field on save, no column needs to be predefined.
     }
 
     public function down()
     {
-        Schema::table('pets', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
+        //
     }
 };

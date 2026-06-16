@@ -25,11 +25,11 @@ class BookingController extends Controller
     {
         try {
             // $validated = $request->validate([
-            // 'clinic_id' => 'required|exists:clinics,id',
-            // 'staff_id' => 'nullable|exists:users,id',
-            // 'pet_id' => 'required|exists:pets,id',
-            // 'client_id' => 'required|exists:users,id',
-            // 'service_id' => 'required|exists:services,id',
+            // 'clinic_id' => 'required|exists:clinics,_id',
+            // 'staff_id' => 'nullable|exists:users,_id',
+            // 'pet_id' => 'required|exists:pets,_id',
+            // 'client_id' => 'required|exists:users,_id',
+            // 'service_id' => 'required|exists:services,_id',
             // 'appointment_datetime' => 'required|date',
             // 'status' => 'required|string',
             // 'notes' => 'nullable|string',
@@ -217,17 +217,17 @@ class BookingController extends Controller
             $booking = Booking::findOrFail($id);
 
             $validated = $request->validate([
-                'clinic_id' => 'required|exists:clinics,id',
-                'staff_id' => 'nullable|exists:users,id',
-                'pet_id' => 'required|exists:pets,id',
-                'client_id' => 'required|exists:users,id',
+                'clinic_id' => 'required|exists:clinics,_id',
+                'staff_id' => 'nullable|exists:users,_id',
+                'pet_id' => 'required|exists:pets,_id',
+                'client_id' => 'required|exists:users,_id',
                 'appointment_datetime' => 'required|date',
                 'status' => 'required|string',
                 'notes' =>'nullable|string',
                 'total_amount' =>'nullable|numeric',
                 'payment_method' => 'nullable|string',
                 'is_paid' => 'nullable|boolean',
-                'service_id' => 'required|exists:services,id',
+                'service_id' => 'required|exists:services,_id',
             ]);
 
             $booking->update($validated);
@@ -278,8 +278,8 @@ class BookingController extends Controller
             $validated = $request->validate([
             'date' => 'required|date',
             'time' => 'required|string',
-            'clinic_id' => 'required|exists:clinics,id',
-            'service_id' => 'required|exists:services,id',
+            'clinic_id' => 'required|exists:clinics,_id',
+            'service_id' => 'required|exists:services,_id',
             ]);
 
             // Get the day of the week from the date (0 = Sunday, 6 = Saturday)

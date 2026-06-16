@@ -13,8 +13,8 @@ class ScheduleController extends Controller
 public function checkScheduleAvailability (Request $request)
 {
     $request->validate([
-        'clinic_id' => 'required|integer|exists:clinics,id',
-        'service_id' => 'required|integer|exists:services,id',
+        'clinic_id' => 'required|exists:clinics,_id',
+        'service_id' => 'required|exists:services,_id',
         'day' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
     ]);
 

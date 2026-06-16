@@ -38,7 +38,7 @@ class ServiceController extends Controller
             'pet_size' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
             'price' => 'required|numeric',
-            'clinic_id' =>'required|exists:clinics,id',
+            'clinic_id' =>'required|exists:clinics,_id',
             'status' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category' => 'nullable|string|max:255',

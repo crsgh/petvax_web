@@ -13,59 +13,51 @@ class ClinicController extends Controller
     {
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
-        $limit = $request->has('limit') ? $request->input('limit') : null;
+        $limit = $request->has('limit') ? (int) $request->input('limit') : null;
 
-        $query = Clinic::leftJoin('clinic_ratings', 'clinics.id', '=', 'clinic_ratings.clinic_id')
-            ->select('clinics.*')
-            ->selectRaw('AVG(clinic_ratings.rating) as stars_average')
-            ->where('clinics.status', 'active');
+        $clinics = Clinic::with('ratings')
+            ->where('status', 'active')
+            ->get()
+            ->map(function ($clinic) use ($latitude, $longitude) {
+                $clinic->stars_average = $clinic->ratings->isNotEmpty()
+                    ? round($clinic->ratings->avg('rating'), 2)
+                    : null;
+
+                if ($latitude && $longitude) {
+                    $clinic->distance = round($this->haversineDistance(
+                        $latitude, $longitude, $clinic->latitude, $clinic->longitude
+                    ), 2);
+                }
+
+                unset($clinic->ratings);
+
+                return $clinic;
+            });
 
         if ($latitude && $longitude) {
-            // Calculate distance using Haversine formula and sort by nearest first
-            $query->selectRaw('(
-                6371 * acos(
-                    cos(radians(?)) * 
-                    cos(radians(latitude)) * 
-                    cos(radians(longitude) - radians(?)) + 
-                    sin(radians(?)) * 
-                    sin(radians(latitude))
-                )
-            ) AS distance', [$latitude, $longitude, $latitude])
-            ->orderBy('distance', 'asc'); // Explicitly order by distance ascending
+            $clinics = $clinics->sortBy('distance')->values();
         }
 
-        $clinics = $query->groupBy(
-                'clinics.id',
-                'clinics.name',
-                'clinics.address',
-                'clinics.contact',
-                'clinics.latitude',
-                'clinics.longitude',
-                'clinics.status',
-                'clinics.created_at',
-                'clinics.updated_at',
-                'clinics.email',
-                'clinics.image',
-                'clinics.opening_time',
-                'clinics.closing_time',
-                'clinics.operation_days',
-                'clinics.tags',
-                'clinics.description'
-            )
-            ->when($limit, function($query) use ($limit) {
-                return $query->limit($limit);
-            })
-            ->get();
+        if ($limit) {
+            $clinics = $clinics->take($limit)->values();
+        }
 
         return response()->json([
             'status' => 'success',
-            'data' => $clinics->map(function($clinic) {
-                // Round distance to 2 decimal places if it exists
-                if (isset($clinic->distance)) {
-                    $clinic->distance = round($clinic->distance, 2);
-                }
-                return $clinic;
-            })
+            'data' => $clinics
         ]);
+    }
+
+    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadiusKm = 6371;
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) ** 2
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) ** 2;
+
+        return $earthRadiusKm * 2 * atan2(sqrt($a), sqrt(1 - $a));
     }
 }

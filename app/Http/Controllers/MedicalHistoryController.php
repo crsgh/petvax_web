@@ -29,19 +29,17 @@ class MedicalHistoryController extends Controller
         $petsQuery = Pet::with(['owner']);
 
         if (auth()->user()->role_id != 1) {
-            $petsQuery->whereIn('pets.id', $completedPetIds);
+            $petsQuery->whereIn('_id', $completedPetIds);
         }
 
 		return view('medical-histories',[
             'medicalHistories' => MedicalHistory::with(['pet' => function($query) {
                     $query->withTrashed()->with(['owner']);
                 }, 'veterinarian'])
-                ->select('medical_histories.*', 'pets.deleted_at as pet_deleted_at')
                 ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('medical_histories.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
-                ->join('pets', 'medical_histories.pet_id', '=', 'pets.id')
-                ->orderBy('medical_histories.id', 'desc')
+                ->orderBy('_id', 'desc')
                 ->get(),
 			'clinics' => Clinic::all(),
 			'pets' => auth()->user()->role_id == 5 
@@ -71,14 +69,14 @@ class MedicalHistoryController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'pet_id' =>'required|exists:pets,id',
+                'pet_id' =>'required|exists:pets,_id',
                 'diagnosis' => 'required|string|max:255',
                 'treatment' => 'required|string|max:255',
                
-                //'inventory_id' => 'required|exists:inventory_items,id',
+                //'inventory_id' => 'required|exists:inventory_items,_id',
                 'notes' => 'required|string|max:255',
                 'treatment_date' => 'required|date',
-                 'vet_id' => 'nullable|exists:users,id',
+                 'vet_id' => 'nullable|exists:users,_id',
                  'veterinarian' => 'nullable',
             ]);
             // Decode the selected inventories JSON string

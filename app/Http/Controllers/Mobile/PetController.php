@@ -52,7 +52,7 @@ class PetController extends Controller
             'birth_date' => 'required|date',
             'gender' => 'required|string|in:male,female',
             'weight' => 'required|numeric|min:0',
-            'owner_id' => 'required|exists:users,id',
+            'owner_id' => 'required|exists:users,_id',
             'clinic_id' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
@@ -92,7 +92,7 @@ class PetController extends Controller
             'birth_date' => 'required|date',
             'gender' => 'required|string|in:male,female',
             'weight' => 'required|numeric|min:0',
-            'owner_id' => 'required|exists:users,id',
+            'owner_id' => 'required|exists:users,_id',
             'clinic_id' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);

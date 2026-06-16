@@ -20,7 +20,7 @@ class UserController extends Controller
         $completedPetIds = $query->distinct()->pluck('client_id')->toArray();
         $users = User::with(['role', 'clinic'])
             ->where('role_id', 5)
-            ->whereIn('id', $completedPetIds)
+            ->whereIn('_id', $completedPetIds)
             ->paginate(10);
 
         return view('users', [
@@ -41,8 +41,8 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->id,
-                'role_id' => 'required|exists:roles,id',
-                'clinic_id' => 'required|exists:clinics,id',
+                'role_id' => 'required|exists:roles,_id',
+                'clinic_id' => 'required|exists:clinics,_id',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
             
@@ -115,8 +115,8 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->id,
-                'role_id' => 'required|exists:roles,id',
-                'clinic_id' => 'required|exists:clinics,id',
+                'role_id' => 'required|exists:roles,_id',
+                'clinic_id' => 'required|exists:clinics,_id',
                 'password' => 'nullable|string|min:8',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);

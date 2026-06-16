@@ -12,45 +12,48 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('species', function (Blueprint $table) {
-            $table->id();
             $table->string('name');
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade');
+            $table->string('clinic_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
 
         Schema::create('breeds', function (Blueprint $table) {
-            $table->id();
             $table->string('name');
-            $table->foreignId('species_id')->constrained()->onDelete('cascade');
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade');
+            $table->string('species_id');
+            $table->string('clinic_id');
+            $table->index('species_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
 
         Schema::create('clinic_ratings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade');
+            $table->string('user_id');
+            $table->string('clinic_id');
             $table->integer('rating');
-            $table->text('comment')->nullable();
+            $table->string('comment')->nullable();
+            $table->index('user_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
 
         Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('user_id');
             $table->string('title');
-            $table->text('message');
+            $table->string('message');
             $table->string('type');
             $table->boolean('is_read')->default(false);
+            $table->index('user_id');
             $table->timestamps();
         });
 
         Schema::create('activity_records', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade');
+            $table->string('user_id');
+            $table->string('clinic_id');
             $table->string('action');
             $table->string('description');
+            $table->index('user_id');
+            $table->index('clinic_id');
             $table->timestamps();
         });
     }

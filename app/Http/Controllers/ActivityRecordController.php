@@ -16,7 +16,7 @@ class ActivityRecordController extends Controller
     
          return view('activity-records',[
             'activities' => ActivityRecord::with(['user', 'clinic'])->when(auth()->user()->role_id != 1, function($query) {
-                return $query->where('activity_records.clinic_id', auth()->user()->clinic_id);
+                return $query->where('clinic_id', auth()->user()->clinic_id);
             })->get(),
             'users' => User::all(),
             'notifications' => match(auth()->user()->role_id) {

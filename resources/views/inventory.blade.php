@@ -70,7 +70,7 @@
                         </div>
                       </td>
                       <td>
-                        <p class="text-xs text-secondary mb-0">{{ $item->category_name }}</p>
+                        <p class="text-xs text-secondary mb-0">{{ $item->category->name ?? '' }}</p>
                       </td>
                       <td class="align-middle text-center">
                         <span class="text-secondary text-xs font-weight-bold">{{ $item->quantity }}</span>

@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('schedules', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
-            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
-            $table->enum('day', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
-            $table->json('time_slots');
+            $table->string('clinic_id');
+            $table->string('service_id');
+            $table->string('day');
+            $table->index('clinic_id');
+            $table->index('service_id');
             $table->timestamps();
         });
     }

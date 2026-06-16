@@ -12,7 +12,7 @@ class ClinicController extends Controller
     {
         if(auth()->user()->role_id != 1) {
             return view('clinic-profile',[
-                'clinic' => Clinic::where('id', auth()->user()->clinic_id)->first(),
+                'clinic' => Clinic::where('_id', auth()->user()->clinic_id)->first(),
                 'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
