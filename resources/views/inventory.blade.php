@@ -266,19 +266,15 @@
 
     function deleteItem(id) {
       if(confirm('Are you sure you want to delete this item?')) {
-        fetch(`/inventory/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json'
+        fetch(`/inventory/${id}/delete`)
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            alert(`Failed to delete item (HTTP ${response.status})`);
           }
         })
-        .then(response => response.json())
-        .then(data => {
-          if(data.success) {
-            location.reload();
-          }
-        });
+        .catch(() => alert('Failed to delete item: could not reach the server.'));
       }
     }
 

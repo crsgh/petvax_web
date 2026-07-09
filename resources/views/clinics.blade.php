@@ -481,15 +481,15 @@
     // Delete clinic function
     function deleteClinic(id) {
       if (confirm('Are you sure you want to delete this clinic?')) {
-        fetch(`/clinics/delete/${id}`, {
-          method: 'GET',
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            //location.reload();
+        fetch(`/clinics/${id}/delete`)
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            alert(`Failed to delete clinic (HTTP ${response.status})`);
           }
-        });
+        })
+        .catch(() => alert('Failed to delete clinic: could not reach the server.'));
       }
     }
     

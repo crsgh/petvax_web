@@ -285,13 +285,20 @@
     }
 
     async function deleteUser(userId) {
-      const response = await fetch(`/users/userId/delete`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-          })
+      if (!confirm('Are you sure you want to delete this user?')) return;
+      try {
+        const response = await fetch(`/{{ Route::currentRouteName() }}/${userId}/delete`, {
+          headers: { 'Accept': 'text/html' }
+        });
+        if (!response.ok) {
+          alert(`Failed to delete user (HTTP ${response.status})`);
+          return;
+        }
+        window.location.reload();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user: could not reach the server.');
+      }
     }
 
     async function loadUserData(userData) {

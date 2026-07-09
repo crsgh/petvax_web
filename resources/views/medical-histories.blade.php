@@ -736,24 +736,9 @@
 
     function deleteHistory(id) {
         if (confirm('Are you sure you want to delete this medical record?')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/medical-histories/${id}`;
-            
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-            
-            const csrfField = document.createElement('input');
-            csrfField.type = 'hidden';
-            csrfField.name = '_token';
-            csrfField.value = document.querySelector('meta[name="csrf-token"]').content;
-            
-            form.appendChild(methodField);
-            form.appendChild(csrfField);
-            document.body.appendChild(form);
-            form.submit();
+            // Route is GET /medical-histories/{id}/delete; navigating shows
+            // the success toast from the redirect.
+            window.location.href = `/medical-histories/${id}/delete`;
         }
     }
 </script>

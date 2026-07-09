@@ -472,21 +472,17 @@
 
     function deletePet(petId) {
       if (confirm('Are you sure you want to delete this pet?')) {
-        fetch(`/pets/${petId}/delete`, {
-          method: 'GET',
-         
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
+        fetch(`/pets/${petId}/delete`)
+        .then(response => {
+          if (response.ok) {
             location.reload();
           } else {
-            alert('Error deleting pet');
+            alert(`Error deleting pet (HTTP ${response.status})`);
           }
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('Error deleting pet');
+          alert('Error deleting pet: could not reach the server.');
         });
       }
     }
