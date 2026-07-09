@@ -164,7 +164,7 @@ class BookingController extends Controller
             }
 
         }catch(\Illuminate\Validation\ValidationException $e){
-            dd($e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
        }
         
 
@@ -234,9 +234,9 @@ class BookingController extends Controller
 
             return redirect()->back()->with('success', 'Booking completed and medical history recorded successfully');
 
-        } catch (\Exception $e) {
-            dd($e); 
-            return redirect()->back()->with('error', 'Failed to complete booking: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Complete booking failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to complete booking. Please try again.');
         }
     }
 
@@ -277,8 +277,8 @@ class BookingController extends Controller
             ]);
 
             return redirect()->back()->with('success', 'Booking status updated successfully');
-        } catch (\Exception $e) {
-            dd($e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Update booking status failed: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to update booking status');
         }
     }

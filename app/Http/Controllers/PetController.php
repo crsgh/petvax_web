@@ -166,7 +166,7 @@ class PetController extends Controller
             $pet = $id == null ? new Pet : Pet::findOrFail($id);
             
             try {
-                $specie = Specie::findOrFail((int)$validatedData['species']);
+                $specie = Specie::findOrFail($validatedData['species']);
                 
                 $pet->species = strtolower($specie->name);
              
@@ -190,9 +190,9 @@ class PetController extends Controller
 
             $pet->save();
             
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            //return redirect()->back()->with('error', 'Error saving pet: ' . $e->getMessage())->withInput();
+        } catch (\Throwable $e) {
+            \Log::error('Pet save failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error saving pet. Please try again.')->withInput();
         }
         return redirect()->route('pets')->with('success', 'Pet saved successfully');
     }

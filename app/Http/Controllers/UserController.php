@@ -12,6 +12,21 @@ use App\Models\Booking;
 
 class UserController extends Controller
 {
+    /**
+     * Email a newly-created account its password. Failures are logged, never
+     * thrown, so a slow/unavailable mail server can't block account creation.
+     */
+    private function sendAccountPasswordEmail(string $email, string $password): void
+    {
+        try {
+            \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($email) {
+                $message->to($email)->subject("PetVax Account Password");
+            });
+        } catch (\Throwable $e) {
+            \Log::error('Account password email failed for ' . $email . ': ' . $e->getMessage());
+        }
+    }
+
     public function owners()
     {
 
@@ -38,6 +53,11 @@ class UserController extends Controller
     public function upsertOwner(Request $request, $id = null)
     {
         try {
+            // Roles use integer _ids in Mongo; a form sends role_id as a string
+            // which won't match, so normalise it before validating/storing.
+            if ($request->filled('role_id') && is_numeric($request->role_id)) {
+                $request->merge(['role_id' => (int) $request->role_id]);
+            }
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->id,
@@ -48,16 +68,11 @@ class UserController extends Controller
             
             $user = $id == null ? new User : User::findOrFail($request->id);
 
+            $plainPassword = null;
             if ($id == null) {
-                // Generate random password for new owners
-                $password = \Str::random(8);
-                $user->password = bcrypt($password);
-                            
-                // Send password email to owner
-                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
-                    $message->to($request->email)
-                            ->subject("PetVax Account Password");
-                });
+                // Generate a random password for the new owner account.
+                $plainPassword = \Str::random(8);
+                $user->password = bcrypt($plainPassword);
             }
 
             if ($request->hasFile('avatar')) {
@@ -70,12 +85,16 @@ class UserController extends Controller
             $user->clinic_id = $validated['clinic_id'];
             $user->save();
 
-            // add record
+            // Email the password AFTER the account exists; a mail failure must
+            // never prevent the account from being created.
+            if ($plainPassword !== null) {
+                $this->sendAccountPasswordEmail($validated['email'], $plainPassword);
+            }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
         }
-     
+
         return redirect('/owners')->with('success', 'Owner saved successfully');
     }
 
@@ -112,6 +131,11 @@ class UserController extends Controller
     public function upsertStaff(Request $request, $id = null)
     {
         try {
+            // Roles use integer _ids in Mongo; a form sends role_id as a string
+            // which won't match, so normalise it before validating/storing.
+            if ($request->filled('role_id') && is_numeric($request->role_id)) {
+                $request->merge(['role_id' => (int) $request->role_id]);
+            }
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->id,
@@ -123,16 +147,11 @@ class UserController extends Controller
             
             $user = $id == null ? new User : User::findOrFail($request->id);
 
-           if ($id == null) {
-                // Generate random password for new owners
-                $password = \Str::random(8);
-                $user->password = bcrypt($password);
-                            
-                // Send password email to owner
-                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
-                    $message->to($request->email)
-                            ->subject("PetVax Account Password");
-                });
+            $plainPassword = null;
+            if ($id == null) {
+                // Generate a random password for the new staff account.
+                $plainPassword = \Str::random(8);
+                $user->password = bcrypt($plainPassword);
             }
 
             if ($request->hasFile('avatar')) {
@@ -145,12 +164,16 @@ class UserController extends Controller
             $user->clinic_id = $validated['clinic_id'];
             $user->save();
 
+            // Email the password AFTER the account exists; a mail failure must
+            // never prevent the account from being created.
+            if ($plainPassword !== null) {
+                $this->sendAccountPasswordEmail($validated['email'], $plainPassword);
+            }
 
-            // add record
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
         }
-     
+
         return redirect('/staffs')->with('success', 'Staff saved successfully');
     }
 

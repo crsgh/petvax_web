@@ -57,7 +57,7 @@ class InventoryController extends Controller
 		
 			$inventory->save();
     	}catch(\Illuminate\Validation\ValidationException $e){
-            dd($e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
    	 	}
 
         return redirect()->route('inventory')->with('success', 'Pet saved successfully');

@@ -108,8 +108,8 @@ class MedicalHistoryController extends Controller
             // add record
            
         } catch(\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
-        } 
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
 
         return redirect()->route('medical-histories')->with('success', 'Pet saved successfully');
     }
@@ -124,7 +124,7 @@ public function followup(Request $request)
             'notes' => 'required|string|max:255'
         ]);
        
-        $history = MedicalHistory::findOrFail((int)$request->id);
+        $history = MedicalHistory::findOrFail($request->id);
         
         $history->notes = $validatedData['notes'];
         $history->followup = \Carbon\Carbon::parse($validatedData['appointment_date'])

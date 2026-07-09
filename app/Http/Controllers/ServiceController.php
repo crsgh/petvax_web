@@ -81,11 +81,10 @@ class ServiceController extends Controller
         $service->save();
 
        } catch(\Illuminate\Validation\ValidationException $e) {
-            dd($e);
-            //return redirect()->back()->withErrors($e->errors())->withInput();
-       } catch (\Exception $e) {
-        dd($e);
-            //return redirect()->back()->with('error', 'An error occurred while saving the service')->withInput();
+            return redirect()->back()->withErrors($e->errors())->withInput();
+       } catch (\Throwable $e) {
+            \Log::error('Service save failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while saving the service.')->withInput();
        }
 
         return redirect()->route('services')->with('success', 'Service saved successfully');
