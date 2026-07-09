@@ -438,20 +438,15 @@ function toggleSubmenu(itemId) {
   transition: transform 0.2s ease-in-out;
 }
 
-nav::-webkit-scrollbar {
-  width: 4px;
+/* Sidebar stays scrollable but the scrollbar is hidden */
+#sidebar nav {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE/old Edge */
 }
 
-nav::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-nav::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 2px;
-}
-
-nav::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+#sidebar nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;              /* Chrome, Safari, Edge */
 }
 </style>
