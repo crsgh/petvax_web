@@ -257,7 +257,7 @@ if($activeItem) {
 
  
   <!-- Sidebar -->
-  <div id="sidebar" class="bg-white shadow-xl transition-all duration-300 ease-in-out w-72 flex flex-col border-r border-gray-200">
+  <div id="sidebar" class="bg-white shadow-xl transition-all duration-300 ease-in-out w-72 flex-shrink-0 flex flex-col border-r border-gray-200">
       <!-- Header Section -->
       <div class="p-3 border-b border-gray-100">
           <div class="flex items-center justify-between">
@@ -318,7 +318,7 @@ if($activeItem) {
                                   @else
                                       onclick="window.location.href='{{ $item['route'] }}'"
                                   @endif
-                                  class="w-full flex items-center px-3 py-2 rounded-lg transition-all duration-200 group {{  !$hasSubmenu && $isActive ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-400 shadow-sm' : 'hover:bg-blue-100 hover:shadow-sm' }}"
+                                  class="w-full flex items-center px-3 py-2 rounded-lg border-2 transition-all duration-200 group {{  !$hasSubmenu && $isActive ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-400 shadow-sm' : 'border-transparent hover:bg-blue-100 hover:shadow-sm' }}"
                               >
                                   <div class="w-9 h-9 {{ $isActive ? $item['color'] : 'text-gray-600 group-hover:' . $item['color'] }} transition-colors">
                                       {!! str_replace('stroke-width="2"', 'stroke-width="2.5"', $item['svg']) !!}
@@ -351,7 +351,7 @@ if($activeItem) {
                                                   @endphp
                                                   <li>
                                                       <a href="{{ $subItem['route'] }}"
-                                                         class="w-full flex items-center px-3 py-2 rounded-lg transition-all duration-200 group {{ $isSubActive ? 'bg-white border-2 border-pink-400 shadow-sm text-gray-900' : 'hover:bg-blue-100 text-gray-700' }}">
+                                                         class="w-full flex items-center px-3 py-2 rounded-lg border-2 transition-all duration-200 group {{ $isSubActive ? 'bg-white border-pink-400 shadow-sm text-gray-900' : 'border-transparent hover:bg-blue-100 text-gray-700' }}">
                                                           <div class="w-7 h-7 {{ $isSubActive ? 'text-pink-600' : 'text-gray-500 group-hover:text-pink-600' }} transition-colors">
                                                               {!! str_replace('stroke-width="2"', 'stroke-width="2.5"', $subItem['svg']) !!}
                                                           </div>
