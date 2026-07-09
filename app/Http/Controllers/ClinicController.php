@@ -50,7 +50,23 @@ class ClinicController extends Controller
                 'clinic_status' => 'required|in:active,inactive',
             ]);
             $clinic = $id == null ? new Clinic() : Clinic::findOrFail($id);
-            
+
+            // Reject duplicate emails up front so we can show a friendly toast
+            // instead of a raw Mongo E11000 duplicate-key 500. For edits, allow
+            // the record to keep its own email.
+            $email = $validatedData['clinic_email'];
+            $clinicDup = Clinic::where('email', $email)
+                ->when($id != null, fn ($q) => $q->where('_id', '!=', $id))
+                ->exists();
+            $userDup = $id == null && \App\Models\User::where('email', $email)->exists();
+            if ($clinicDup || $userDup) {
+                $msg = "A clinic or account with the email \"{$email}\" already exists.";
+                if ($request->signup) {
+                    return back()->withInput()->with('error', $msg);
+                }
+                return response()->json(['message' => $msg], 422);
+            }
+
             if ($request->hasFile('clinic_image')) {
                 $clinic->image = $this->uploadImage($request->file('clinic_image'), 'clinics');
             }
@@ -181,10 +197,15 @@ class ClinicController extends Controller
 </html>
 ';
 
-\Mail::html($htmlContent, function ($message) use ($validatedData) {
-    $message->to($validatedData['clinic_email'])
-            ->subject("Welcome to PetVax – Your Clinic Account Details");
-});
+try {
+    \Mail::html($htmlContent, function ($message) use ($validatedData) {
+        $message->to($validatedData['clinic_email'])
+                ->subject("Welcome to PetVax – Your Clinic Account Details");
+    });
+} catch (\Throwable $e) {
+    // Don't let a mail failure roll back a successfully-created clinic.
+    \Log::error('Clinic welcome email failed: ' . $e->getMessage());
+}
             }
 
             if ($request->signup){
@@ -196,7 +217,21 @@ class ClinicController extends Controller
 
             // add record
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
+            if ($request->signup) {
+                return back()->withInput()->withErrors($e->errors())
+                    ->with('error', 'Please check the form and try again.');
+            }
+            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Throwable $e) {
+            // Safety net for anything else (e.g. a Mongo duplicate-key race).
+            \Log::error('Clinic upsert failed: ' . $e->getMessage());
+            $msg = str_contains($e->getMessage(), 'E11000')
+                ? 'A clinic or account with this email already exists.'
+                : 'Something went wrong while saving the clinic. Please try again.';
+            if ($request->signup) {
+                return back()->withInput()->with('error', $msg);
+            }
+            return response()->json(['message' => $msg], 500);
         }
         
        
