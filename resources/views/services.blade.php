@@ -131,7 +131,7 @@
     <form id="serviceForm" method="POST" action="" enctype="multipart/form-data" onsubmit="return validateForm()">
       @csrf
       <input type="hidden" id="serviceId" name="id">
-      <input type="hidden" id="serviceSpecies" name="species" value="{{ $species[0]->id }}">
+      <input type="hidden" id="serviceSpecies" name="species" value="{{ optional($species->first())->id }}">
       <input type="hidden" id="servicePetSize" name="pet_size" value="small">
       @if(Auth::user()->role_id == 1)
       <div class="mb-3">

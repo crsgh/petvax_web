@@ -11,12 +11,21 @@ use App\Models\Specie;
 class ServiceController extends Controller
 {
     public function index(){
+        $species = Specie::all();
+
+        // The service form requires a species to attach; without one the page
+        // can't be used, so guide the user instead of erroring.
+        if ($species->isEmpty()) {
+            return redirect()->route('species')
+                ->with('warning', 'Please add at least one species before managing services.');
+        }
+
         return view('services',[
 			'services' => Service::when(auth()->user()->role_id != 1, function($query) {
                 return $query->where('clinic_id', auth()->user()->clinic_id);
             })->with('clinic')->get(),
 			'clinics' => Clinic::all(),
-            'species' => Specie::all(),
+            'species' => $species,
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
                 2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
