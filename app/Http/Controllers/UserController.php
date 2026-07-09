@@ -92,9 +92,24 @@ class UserController extends Controller
             }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => collect($e->errors())->flatten()->first(),
+                    'errors' => $e->errors(),
+                ], 422);
+            }
             return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Throwable $e) {
+            \Log::error('Owner upsert failed: ' . $e->getMessage());
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Something went wrong while saving the owner. Please try again.'], 500);
+            }
+            return redirect()->back()->with('error', 'Something went wrong while saving the owner.')->withInput();
         }
 
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Owner saved successfully']);
+        }
         return redirect('/owners')->with('success', 'Owner saved successfully');
     }
 
@@ -171,9 +186,24 @@ class UserController extends Controller
             }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => collect($e->errors())->flatten()->first(),
+                    'errors' => $e->errors(),
+                ], 422);
+            }
             return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Throwable $e) {
+            \Log::error('Staff upsert failed: ' . $e->getMessage());
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Something went wrong while saving the staff. Please try again.'], 500);
+            }
+            return redirect()->back()->with('error', 'Something went wrong while saving the staff.')->withInput();
         }
 
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Staff saved successfully']);
+        }
         return redirect('/staffs')->with('success', 'Staff saved successfully');
     }
 

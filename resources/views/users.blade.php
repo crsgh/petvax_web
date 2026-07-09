@@ -357,19 +357,28 @@
       
       try {
         const url = userId ? `{{ Route::currentRouteName() }}/${userId}` : '{{ Route::currentRouteName() }}';
-        const method = 'POST';
-        
+
         const response = await fetch(url, {
-          method: method,
-          body: formData
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
         });
 
-          closeSidebar();
-          window.location.reload();
-          
+        let data = {};
+        try { data = await response.json(); } catch (e) {}
+
+        if (!response.ok) {
+          // Surface the real reason (e.g. "The email has already been taken.")
+          alert(data.message || `Failed to save user (HTTP ${response.status})`);
+          return;
+        }
+
+        closeSidebar();
+        window.location.reload();
+
       } catch (error) {
         console.error('Error saving user:', error);
-        alert('Failed to save user');
+        alert('Failed to save user: could not reach the server. If you attached a photo, try one under 2 MB.');
       }
     });
   </script>
