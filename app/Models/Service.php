@@ -7,6 +7,9 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class Service extends Model
 {
+    // Mongo stores the key as _id; expose "id" in JSON for the frontend
+    protected $appends = ['id'];
+
     use CascadesDeletes;
 
     protected static array $cascades = [

@@ -91,7 +91,7 @@
                           <button type="button" class="btn btn-link text-primary mb-0 p-1" onclick="openDuplicateModal({{ json_encode($slot) }})">
                             <i class="fa fa-copy fa-lg"></i>
                           </button>
-                          <button class="btn btn-link text-danger mb-0 p-1" onclick="deleteSlot({{ $slot->id }})">
+                          <button class="btn btn-link text-danger mb-0 p-1" onclick="deleteSlot('{{ $slot->id }}')">
                             <i class="fa fa-trash fa-lg"></i>
                           </button>
                         </div>

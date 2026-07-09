@@ -7,6 +7,9 @@ use MongoDB\Laravel\Eloquent\SoftDeletes;
 
 class Pet extends Model
 {
+    // Mongo stores the key as _id; expose "id" in JSON for the frontend
+    protected $appends = ['id'];
+
     use SoftDeletes;
     protected $guarded = [];
 

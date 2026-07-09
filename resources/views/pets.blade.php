@@ -99,7 +99,7 @@
                       </td>
                       <td class="align-middle text-center">
                           <div class="btn-group" role="group">
-                              <button type="button" class="btn btn-info btn-lg px-3 py-2" onclick="openMedicalHistory({{ $pet->id }})" title="View Medical History" style="background-color: #ADD8E6; color: #333; border-radius: 0.3rem; margin-right: 8px;">
+                              <button type="button" class="btn btn-info btn-lg px-3 py-2" onclick="openMedicalHistory('{{ $pet->id }}')" title="View Medical History" style="background-color: #ADD8E6; color: #333; border-radius: 0.3rem; margin-right: 8px;">
                                   <i class="fas fa-notes-medical" style="font-size: 1.1em;"></i>
                               </button>
 
@@ -185,7 +185,7 @@
                                   <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #90EE90; color: #333; border-radius: 0.3rem; margin-right: 8px;" onclick="openEditSidebar({{ $pet }})" title="Edit Pet">
                                       <i class="fas fa-edit" style="font-size: 1.1em;"></i>
                                   </button>
-                                  <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #FFB6C1; color: #333; border-radius: 0.3rem;" onclick="deletePet({{ $pet->id }})" title="Delete Pet">
+                                  <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #FFB6C1; color: #333; border-radius: 0.3rem;" onclick="deletePet('{{ $pet->id }}')" title="Delete Pet">
                                       <i class="fas fa-trash" style="font-size: 1.1em;"></i>
                                   </button>
                               @endif

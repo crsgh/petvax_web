@@ -83,7 +83,7 @@
                       <td class="align-middle text-center">
                         <div class="d-flex gap-1 justify-content-center">
                           <button class="btn btn-icon-only btn-rounded btn-outline-primary mb-0 p-2 d-flex align-items-center justify-content-center" 
-                                  onclick="openEditSidebar({{ $item->id }}, '{{ $item->name }}', {{ $item->category_id }}, {{ $item->quantity }}, '{{ $item->description }}', {{ $item->clinic_id }})"
+                                  onclick="openEditSidebar('{{ $item->id }}', '{{ $item->name }}', '{{ $item->category_id }}', {{ $item->quantity }}, '{{ $item->description }}', '{{ $item->clinic_id }}')"
                                   data-bs-toggle="tooltip" 
                                   data-bs-placement="top"
                                   title="Edit Item">

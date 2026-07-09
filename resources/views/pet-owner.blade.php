@@ -59,11 +59,11 @@
                         <span class="ms-1 text-sm">({{ $clinic->reviews_count }} reviews)</span>
                       </div>
                       @if(auth()->user()->role_id != 4)
-                      <button class="btn btn-primary btn-sm" onclick="openSidebarWithClinic({{ $clinic->id }})">
+                      <button class="btn btn-primary btn-sm" onclick="openSidebarWithClinic('{{ $clinic->id }}')">
                         Book Now
                       </button>
                       @else
-                      <button class="btn btn-primary btn-sm" onclick="viewClinicDetails({{ $clinic->id }})">
+                      <button class="btn btn-primary btn-sm" onclick="viewClinicDetails('{{ $clinic->id }}')">
                         View Details
                       </button>
                       @endif

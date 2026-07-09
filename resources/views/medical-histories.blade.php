@@ -110,7 +110,7 @@
                                     <div class="card-footer pt-0">
                                         <div class="d-flex justify-content-center">
                                             <button class="btn btn-sm btn-outline-info w-100"
-                                                    onclick="viewPetHistories({{ $data['pet_id'] }})"
+                                                    onclick="viewPetHistories('{{ $data['pet_id'] }}')"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     title="View All Records">

@@ -70,7 +70,7 @@
                         <button type="button" class="btn btn-info btn-lg px-3 py-2" style="background-color: #90EE90; color: #333; border-radius: 0.3rem; margin-right: 8px;" onclick="openEditQuestionSidebar({{ json_encode($question) }})" title="Edit Question">
                           <i class="fas fa-edit" style="font-size: 1.1em;"></i>
                         </button>
-                        <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #FFB6C1; color: #333; border-radius: 0.3rem;" onclick="deleteQuestion({{ $question->id }})" title="Delete Question">
+                        <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #FFB6C1; color: #333; border-radius: 0.3rem;" onclick="deleteQuestion('{{ $question->id }}')" title="Delete Question">
                           <i class="fas fa-trash" style="font-size: 1.1em;"></i>
                         </button>
                         @endif

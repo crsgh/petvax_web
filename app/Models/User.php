@@ -11,6 +11,9 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    // Mongo stores the key as _id; expose "id" in JSON for the frontend
+    protected $appends = ['id'];
+
     use HasApiTokens, HasFactory, Notifiable, CascadesDeletes;
 
     protected static array $cascades = [

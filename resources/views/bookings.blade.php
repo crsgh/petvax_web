@@ -273,7 +273,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
-                                                <button class="btn btn-primary w-100" type="button" onclick="addInventoryItem({{ $booking->id }})">
+                                                <button class="btn btn-primary w-100" type="button" onclick="addInventoryItem('{{ $booking->id }}')">
                                                     <i class="fas fa-plus-circle me-1"></i> Add Item
                                                 </button>
                                             </div>
@@ -354,7 +354,7 @@
                                   </script>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" onclick="submitCompletedBooking({{ $booking->id }})">Complete Booking</button>
+                                    <button type="submit" class="btn btn-primary" onclick="submitCompletedBooking('{{ $booking->id }}')">Complete Booking</button>
                                   </div>
                                 </form>
                               </div>
@@ -379,7 +379,7 @@
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" onclick="confirmWithStaff({{ $booking->id }})">Confirm</button>
+                                <button type="button" class="btn btn-primary" onclick="confirmWithStaff('{{ $booking->id }}')">Confirm</button>
                               </div>
                             </div>
                           </div>

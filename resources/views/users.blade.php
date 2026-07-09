@@ -112,7 +112,7 @@
                           <form action="{{ Route::currentRouteName() . "/" . $user->id }}/delete" method="GET">
                             @csrf
                             <button class="btn btn-icon-only btn-rounded btn-outline-danger mb-0 p-2 d-flex align-items-center justify-content-center"
-                                  onclick="deleteUser({{ $user->id }})"
+                                  onclick="deleteUser('{{ $user->id }}')"
                                   data-bs-toggle="tooltip"
                                   data-bs-placement="top" 
                                   title="Delete User">

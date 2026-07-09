@@ -60,7 +60,7 @@ class UserController extends Controller
             }
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->id,
+                'email' => 'required|email|unique:users,email,' . $request->id . ',_id',
                 'role_id' => 'required|exists:roles,_id',
                 'clinic_id' => 'required|exists:clinics,_id',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
@@ -138,7 +138,7 @@ class UserController extends Controller
             }
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->id,
+                'email' => 'required|email|unique:users,email,' . $request->id . ',_id',
                 'role_id' => 'required|exists:roles,_id',
                 'clinic_id' => 'required|exists:clinics,_id',
                 'password' => 'nullable|string|min:8',
