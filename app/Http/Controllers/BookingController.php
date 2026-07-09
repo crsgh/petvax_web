@@ -298,30 +298,6 @@ class BookingController extends Controller
         return redirect()->back()->with('success', 'Booking deleted successfully');
     }
     
-    /**
-     * Upload an image file to the specified directory
-     *
-     * @param \Illuminate\Http\UploadedFile $file
-     * @param string $directory
-     * @return string The path to the uploaded image
-     */
-    protected function uploadImage($file, $directory = 'uploads')
-    {
-        if ($directory === 'payment_proofs') {
-            $directory = 'payments';
-        }
-        
-        // Create directory if it doesn't exist
-        $storage_path = storage_path('app/public/' . $directory);
-        if (!file_exists($storage_path)) {
-            mkdir($storage_path, 0755, true);
-        }
-        
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('public/' . $directory, $filename);
-        return str_replace('public/', 'storage/', $path);
-    }
-
 public function decline(Request $request, $id)
 {
     try {

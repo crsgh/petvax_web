@@ -54,6 +54,12 @@ use Illuminate\Support\Facades\Mail;
 
 
 
+// Uploaded images are stored in MongoDB (Vercel has no writable disk).
+// Serve them publicly under both URL shapes the views use:
+// asset('storage/'.$path) and asset($path) where $path = media/{id}.
+Route::get('/media/{id}', [App\Http\Controllers\MediaController::class, 'show']);
+Route::get('/storage/media/{id}', [App\Http\Controllers\MediaController::class, 'show']);
+
 Route::post('/clinics/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
 
 Route::group(['middleware' => 'auth'], function () {

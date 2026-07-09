@@ -85,7 +85,7 @@ class PetController extends Controller
         $breed->clinic_id = $validatedData['clinic_id'];
 
         if ($request->hasFile('image')) {
-            $breed->image = uploadImage($request->file('image'), 'pets');
+            $breed->image = $this->uploadImage($request->file('image'), 'pets');
         }
 
         $breed->save();
