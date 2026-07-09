@@ -53,11 +53,12 @@ class ClinicController extends Controller
 
             // Reject duplicate emails up front so we can show a friendly toast
             // instead of a raw Mongo E11000 duplicate-key 500. For edits, allow
-            // the record to keep its own email.
+            // the record to keep its own email. Compare key strings because a
+            // Mongo _id (ObjectId) won't reliably "!=" a string id in a query.
             $email = $validatedData['clinic_email'];
-            $clinicDup = Clinic::where('email', $email)
-                ->when($id != null, fn ($q) => $q->where('_id', '!=', $id))
-                ->exists();
+            $existingClinic = Clinic::where('email', $email)->first();
+            $clinicDup = $existingClinic
+                && (string) $existingClinic->getKey() !== (string) $clinic->getKey();
             $userDup = $id == null && \App\Models\User::where('email', $email)->exists();
             if ($clinicDup || $userDup) {
                 $msg = "A clinic or account with the email \"{$email}\" already exists.";
@@ -79,7 +80,7 @@ class ClinicController extends Controller
             $clinic->closing_time = $validatedData['closing_time'];
             $clinic->latitude = $validatedData['latitude'];
             $clinic->longitude = $validatedData['longitude'];
-            $clinic->tags = $validatedData['tags'];
+            $clinic->tags = $validatedData['tags'] ?? '[]';
             $clinic->status = $validatedData['clinic_status'];
             $clinic->description = "";
 

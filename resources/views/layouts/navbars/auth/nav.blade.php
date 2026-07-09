@@ -410,7 +410,7 @@
                 document.removeEventListener('click', closeDropdown);
             }
         };
-        const userId = {{ auth()->user()->id }};
+        const userId = '{{ auth()->user()->id }}';
         const response = await fetch('/api/notifications/read/' + userId);
         setTimeout(() => document.addEventListener('click', closeDropdown), 0);
     }
