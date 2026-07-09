@@ -14,7 +14,7 @@ class RatingController extends Controller
         return view('ratings',[
             'ratings' => ClinicRating::with(['clinic', 'user'])
                 ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('clinic_ratings.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })->get(),
             'clinics' => Clinic::all(),
             'notifications' => match(auth()->user()->role_id) {

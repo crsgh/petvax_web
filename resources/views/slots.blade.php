@@ -178,40 +178,45 @@ function openDuplicateModal(slot) {
 
 <!-- Add/Edit Slot Sidebar -->
 <div class="sidebar-overlay" onclick="closeSidebar()"></div>
-<div class="sidebar p-3" id="addSlotSidebar">
-  <div class="sidebar-header">
+<div class="sidebar" id="addSlotSidebar">
+  <div class="sidebar-header p-3">
     <h5 id="sidebarTitle">Customize Schedule Slots</h5>
-    <button type="button" class="btn-close" onclick="closeSidebar()"></button>
+    <button type="button" class="btn-close" onclick="closeSidebar()"><span aria-hidden="true" class="text-3xl">&times;</span></button>
   </div>
-  <form id="addSlotForm" method="POST" action="">
-    @csrf
-    <input type="hidden" id="slot_id" name="slot_id">
-    @if(auth()->user()->role_id == 1)
-    <div class="sidebar-body">
-      <div class="mb-3">
-        <label for="clinic_id" class="form-label">Select Clinic</label>
-        <select class="form-select" id="clinic_id" name="clinic_id" required>
-          @foreach($clinics as $clinic)
-            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-          @endforeach
-        </select>
-      </div>
-    @else
-      <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
-    @endif
+  <div class="sidebar-body p-3">
+    <form id="addSlotForm" method="POST" action="" onsubmit="return validateForm()">
+      @csrf
+      <input type="hidden" id="slot_id" name="slot_id">
+      @if(auth()->user()->role_id == 1)
+        <div class="mb-3">
+          <label for="clinic_id" class="form-label">Select Clinic</label>
+          <select class="form-select" id="clinic_id" name="clinic_id" required>
+            <option value="">Select a clinic</option>
+            @foreach($clinics as $clinic)
+              <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+            @endforeach
+          </select>
+          <div class="invalid-feedback">Please select a clinic</div>
+        </div>
+      @else
+        <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
+      @endif
 
       <div class="mb-3">
         <label for="service_id" class="form-label">Select Service</label>
         <select class="form-select" id="service_id" name="service_id" required>
+          <option value="">Select a service</option>
           @foreach($services as $service)
             <option value="{{ $service->id }}">{{ $service->name }}</option>
           @endforeach
         </select>
+        <div class="invalid-feedback">Please select a service</div>
       </div>
 
       <div class="mb-3">
         <label for="day" class="form-label">Select Day</label>
         <select class="form-select" id="day" name="day" required>
+          <option value="">Select a day</option>
           @php
             $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
           @endphp
@@ -219,41 +224,50 @@ function openDuplicateModal(slot) {
             <option value="{{ $day }}">{{ ucfirst($day) }}</option>
           @endforeach
         </select>
+        <div class="invalid-feedback">Please select a day</div>
       </div>
 
       <div class="mb-3 row">
         <div class="col-md-6">
           <label for="startTime" class="form-label">Start Time</label>
           <input type="time" class="form-control" id="startTime" value="08:00" required>
+          <div class="invalid-feedback">Please select a start time</div>
         </div>
         <div class="col-md-6">
           <label for="endTime" class="form-label">End Time</label>
           <input type="time" class="form-control" id="endTime" value="20:00" required>
+          <div class="invalid-feedback">Please select an end time</div>
         </div>
       </div>
       
       <div class="mb-3">
         <label class="form-label">Available Time Slots</label>
-        <div id="timeSlots" class="border p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+        <div id="timeSlots" class="border p-3 rounded" style="max-height: 300px; overflow-y: auto;">
           <div class="time-slots-grid">
             <!-- Time slots will be populated here -->
           </div>
         </div>
+        <div id="timeSlotsError" class="invalid-feedback" style="display: none;">
+          Please select at least one time slot
+        </div>
       </div>
+
       <div class="mb-3">
         <label for="status" class="form-label">Status</label>
         <select class="form-select" id="status" name="status" required>
+          <option value="">Select status</option>
           <option value="1">Active</option>
           <option value="0">Inactive</option>
         </select>
+        <div class="invalid-feedback">Please select a status</div>
       </div>
+
       <div class="d-flex justify-content-end gap-2 mt-3">
         <button type="button" class="btn btn-secondary" onclick="closeSidebar()">Close</button>
         <button type="submit" class="btn btn-primary" id="saveScheduleBtn">Save Schedule</button>
       </div>
-    </div>
-   
-  </form>
+    </form>
+  </div>
 </div>
 
 <style>

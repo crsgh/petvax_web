@@ -1,0 +1,7 @@
+vendor
+node_modules
+storage/framework/*
+!storage/framework/.gitignore
+tests
+.env
+.git

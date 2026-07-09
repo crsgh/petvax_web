@@ -52,6 +52,18 @@
       </div>
     </div>
   @endif
+
+  @if(session()->has('error'))
+    <div x-data="{ show: true}"
+        x-init="setTimeout(() => show = false, 5000)"
+        x-show="show"
+        class="position-fixed bottom-3 end-3 z-index-3 bg-danger rounded-3 shadow-sm text-white py-3 px-4">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <p class="m-0 font-weight-bold">{{ session('error')}}</p>
+      </div>
+    </div>
+  @endif
     <!--   Core JS Files   -->
   <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap.min.js"></script>

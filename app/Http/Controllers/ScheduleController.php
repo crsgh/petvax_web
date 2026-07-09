@@ -20,11 +20,11 @@ class ScheduleController extends Controller
         return view('slots',[
             'slots' => Schedule::with('clinic','service')
             ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('schedules.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })->get(),
                 'clinics' => Clinic::all(),
             'clinic' => Clinic::when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('id', auth()->user()->clinic_id);
+                    return $query->where('_id', auth()->user()->clinic_id);
                 })->first(),
             'services' => Service::when(auth()->user()->role_id != 1, function($query) {
                     return $query->where('clinic_id', auth()->user()->clinic_id);

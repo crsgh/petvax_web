@@ -11,7 +11,7 @@ class HomeServiceController extends Controller
     public function upsert(Request $request, $id = null)
     {
         $validated = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
+            'booking_id' => 'required|exists:bookings,_id',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'address' => 'nullable|string',

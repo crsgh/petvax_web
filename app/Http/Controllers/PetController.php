@@ -9,25 +9,38 @@ use App\Models\Clinic;
 use App\Models\Specie;
 use App\Models\Breed;
 use App\Models\Notification;
+use App\Models\Booking;
+
 
 class PetController extends Controller
 {
-    /**
-     * Display a listing of pets.
-     */
+
     public function index()
     {
+        // Get completed booking pet IDs for non-admin users
+        $query = Booking::where('status', 'completed');
+        if (auth()->user()->role_id != 1) {
+            $query->where('clinic_id', auth()->user()->clinic_id);
+        }
+        $completedPetIds = $query->distinct()->pluck('pet_id')->toArray();
+        
+
+        // Build pets query with conditions
+        $petsQuery = Pet::with(['owner', 'clinic'])
+            ->whereNull('deleted_at');
+
+        // Filter by completed pets for non-admin users
+        if (auth()->user()->role_id != 1) {
+            $petsQuery->whereIn('_id', $completedPetIds);
+        }
+
         return view('pets', [
-            'pets' => Pet::select('pets.*', 'clinics.name as clinic_name', 'users.name as owners_name')
-                // ->when(auth()->user()->role_id != 1, function($query) {
-                //     return $query->where('pets.clinic_id', auth()->user()->clinic_id);
-                // })
-                ->leftJoin('users', 'pets.owner_id', '=', 'users.id')
-                ->leftJoin('clinics', 'pets.clinic_id', '=', 'clinics.id')
-                ->paginate(8),
+            'pets' => auth()->user()->role_id == 5 
+                ? Pet::where('owner_id', auth()->id())->whereNull('deleted_at')->paginate(8)
+                : $petsQuery->paginate(8),
             'owners' => User::where('role_id', 5)->get(),
             'clinics' => Clinic::all(),
-            'species' => Specie::all(),
+            'species' => Specie::all(), 
             'breeds' => Breed::all(),
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
@@ -45,7 +58,7 @@ class PetController extends Controller
             'species' => Specie::all(),
             'breeds' => Breed::with(['clinic', 'species'])
                 ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('breeds.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })->paginate(8),
                 'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
@@ -60,8 +73,8 @@ class PetController extends Controller
         
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'species_id' => 'required|exists:species,id',
-            'clinic_id' => 'required|exists:clinics,id',
+            'species_id' => 'required|exists:species,_id',
+            'clinic_id' => 'required|exists:clinics,_id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -96,7 +109,7 @@ class PetController extends Controller
             
             'clinics' => Clinic::all(),
             'species' => Specie::when(auth()->user()->role_id != 1, function($query) {
-                return $query->where('species.clinic_id', auth()->user()->clinic_id);
+                return $query->where('clinic_id', auth()->user()->clinic_id);
             })->get(),
             'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
@@ -110,7 +123,7 @@ class PetController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'clinic_id' => 'required|exists:clinics,id',
+            'clinic_id' => 'required|exists:clinics,_id',
         ]);
 
         $specie = $id == null ? new Specie : Specie::findOrFail($id);
@@ -144,17 +157,26 @@ class PetController extends Controller
                 'species' => 'required|string|max:255', 
                 'breed' => 'nullable|string|max:255',
                 'birth_date' => 'nullable|date',
-                'owner_id' => 'required|exists:users,id',
-                'clinic_id' =>'required|exists:clinics,id',
+                'owner_id' => 'required|exists:users,_id',
+                'clinic_id' =>'required|exists:clinics,_id',
                 'weight' => 'nullable|numeric',
                 'gender' => 'nullable|in:male,female,unspecified',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
-
             $pet = $id == null ? new Pet : Pet::findOrFail($id);
+            
+            try {
+                $specie = Specie::findOrFail((int)$validatedData['species']);
+                
+                $pet->species = strtolower($specie->name);
+             
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                $pet->species = strtolower($validatedData['species']);
+            }
+           
 
             $pet->name = $validatedData['name'];
-            $pet->species = $validatedData['species'];
+            
             $pet->breed = $validatedData['breed'];
             $pet->birth_date = $validatedData['birth_date'];
             $pet->owner_id = $validatedData['owner_id'];
@@ -182,6 +204,8 @@ class PetController extends Controller
         $pet = Pet::findOrFail($id);
         $pet->delete();
         
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true
+        ], 200);
     }
 }

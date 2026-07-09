@@ -7,21 +7,24 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Clinic;
 use App\Models\Notification;
+use App\Models\Booking;
+
 
 class UserController extends Controller
 {
     public function owners()
     {
+
+        $query = Booking::where('status', 'completed');
+    
+        $completedPetIds = $query->distinct()->pluck('client_id')->toArray();
+        $users = User::with(['role', 'clinic'])
+            ->where('role_id', 5)
+            ->whereIn('_id', $completedPetIds)
+            ->paginate(10);
+
         return view('users', [
-            'users' => User::with(['role', 'clinic'])
-                ->where('role_id', 5)
-                // ->when(auth()->user()->role_id != 1, function($query) {
-                //     return $query->where(function($q) {
-                //         $q->where('clinic_id', auth()->user()->clinic_id)
-                //           ->orWhere('role_id', 5);
-                //     });
-                // })
-                ->paginate(8),
+            'users' => $users,
             'roles' => Role::all(),
             'clinics' => Clinic::all(),
             'notifications' => match(auth()->user()->role_id) {
@@ -38,16 +41,23 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->id,
-                'role_id' => 'required|exists:roles,id',
-                'clinic_id' => 'required|exists:clinics,id',
-                'password' => 'nullable|string|min:8',
+                'role_id' => 'required|exists:roles,_id',
+                'clinic_id' => 'required|exists:clinics,_id',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
             
             $user = $id == null ? new User : User::findOrFail($request->id);
 
-            if ($validated['password']) {
-                $user->password = bcrypt($validated['password']);
+            if ($id == null) {
+                // Generate random password for new owners
+                $password = \Str::random(8);
+                $user->password = bcrypt($password);
+                            
+                // Send password email to owner
+                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
+                    $message->to($request->email)
+                            ->subject("PetVax Account Password");
+                });
             }
 
             if ($request->hasFile('avatar')) {
@@ -105,16 +115,24 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $request->id,
-                'role_id' => 'required|exists:roles,id',
-                'clinic_id' => 'required|exists:clinics,id',
+                'role_id' => 'required|exists:roles,_id',
+                'clinic_id' => 'required|exists:clinics,_id',
                 'password' => 'nullable|string|min:8',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
             
             $user = $id == null ? new User : User::findOrFail($request->id);
 
-            if ($validated['password']) {
-                $user->password = bcrypt($validated['password']);
+           if ($id == null) {
+                // Generate random password for new owners
+                $password = \Str::random(8);
+                $user->password = bcrypt($password);
+                            
+                // Send password email to owner
+                \Mail::raw("Your PetVax account password is: " . $password, function ($message) use ($request) {
+                    $message->to($request->email)
+                            ->subject("PetVax Account Password");
+                });
             }
 
             if ($request->hasFile('avatar')) {

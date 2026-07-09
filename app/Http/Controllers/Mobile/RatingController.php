@@ -13,9 +13,9 @@ class RatingController extends Controller
     {
         $validated = $request->validate([
             'rate' => 'required|integer|min:1|max:5',
-            'clinic_id' => 'required|exists:clinics,id',
+            'clinic_id' => 'required|exists:clinics,_id',
             'comment' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,_id',
             'is_anonymous' => 'sometimes|boolean',
         ]);
 

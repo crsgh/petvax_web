@@ -12,11 +12,9 @@ class InventoryController extends Controller
 {
     public function index () {
 		return view('inventory',[
-			'inventoryItems' => InventoryItem::leftJoin('categories', 'inventory_items.category_id', '=', 'categories.id')
-			
-				->select('inventory_items.*', 'categories.name as category_name')
+			'inventoryItems' => InventoryItem::with('category')
 				->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('inventory_items.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
 				->get(),
 			'categories' => Category::when(auth()->user()->role_id != 1, function($query) {
@@ -42,9 +40,9 @@ class InventoryController extends Controller
 				'name' => 'required|string|max:255',
 				'description' => 'nullable|string',
 				'quantity' => 'required|integer|min:0',
-				'category_id' => 'required|exists:categories,id',
-				'clinic_id' =>'required|exists:clinics,id',
-				'added_by' =>'required|exists:users,id',
+				'category_id' => 'required|exists:categories,_id',
+				'clinic_id' =>'required|exists:clinics,_id',
+				'added_by' =>'required|exists:users,_id',
 			]);
 
 			$inventory = $id == null ? new InventoryItem : InventoryItem::findOrFail($id);

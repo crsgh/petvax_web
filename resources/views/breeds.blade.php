@@ -78,33 +78,74 @@
   <div class="offcanvas offcanvas-end" tabindex="-1" id="addBreedSidebar">
     <div class="offcanvas-header border-bottom">
       <h5 class="offcanvas-title">Add New Breed</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
+        <span aria-hidden="true" class="text-3xl">&times;</span>
+      </button>
     </div>
     <div class="offcanvas-body">
-      <form id="addBreedForm" action="" method="POST">
+      <form id="addBreedForm" action="" method="POST" class="needs-validation" novalidate>
         @csrf
         <div class="mb-3">
           <label for="breedName" class="form-label">Name</label>
-          <input type="text" class="form-control" id="breedName" name="name" required>
+          <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                 id="breedName" 
+                 name="name" 
+                 required
+                 minlength="2"
+                 maxlength="50"
+                 pattern="^[A-Za-z\s]+$"
+
+                 value="{{ old('name') }}">
+          <div class="invalid-feedback">
+            @error('name')
+              {{ $message }}
+            @else
+              Please enter a valid breed name (2-50 characters, letters and spaces only, no numbers allowed)
+            @enderror
+          </div>
         </div>
         <div class="mb-3">
           <label for="speciesId" class="form-label">Species</label>
-          <select class="form-control" id="speciesId" name="species_id" required>
+          <select class="form-control @error('species_id') is-invalid @enderror" 
+                  id="speciesId" 
+                  name="species_id" 
+                  required>
             <option value="">Select Species</option>
             @foreach($species as $specie)
-              <option value="{{ $specie->id }}">{{ $specie->name }}</option>
+              <option value="{{ $specie->id }}" {{ old('species_id') == $specie->id ? 'selected' : '' }}>
+                {{ $specie->name }}
+              </option>
             @endforeach
           </select>
+          <div class="invalid-feedback">
+            @error('species_id')
+              {{ $message }}
+            @else
+              Please select a species
+            @enderror
+          </div>
         </div>
         @if(auth()->user()->role_id == 1)
         <div class="mb-3">
           <label for="clinicId" class="form-label">Clinic</label>
-          <select class="form-control" id="clinicId" name="clinic_id" required>
+          <select class="form-control @error('clinic_id') is-invalid @enderror" 
+                  id="clinicId" 
+                  name="clinic_id" 
+                  required>
             <option value="">Select Clinic</option>
             @foreach($clinics as $clinic)
-              <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+              <option value="{{ $clinic->id }}" {{ old('clinic_id') == $clinic->id ? 'selected' : '' }}>
+                {{ $clinic->name }}
+              </option>
             @endforeach
           </select>
+          <div class="invalid-feedback">
+            @error('clinic_id')
+              {{ $message }}
+            @else
+              Please select a clinic
+            @enderror
+          </div>
         </div>
         @else
           <input type="hidden" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
@@ -116,6 +157,23 @@
     </div>
   </div>
 
+  <script>
+    // Form validation script
+    (function () {
+      'use strict'
+      var forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+          }, false)
+        })
+    })()
+  </script>
   <!-- Edit Breed Sidebar -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="editBreedSidebar">
     <div class="offcanvas-header border-bottom">

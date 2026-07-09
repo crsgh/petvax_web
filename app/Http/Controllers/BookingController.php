@@ -16,30 +16,34 @@ use App\Models\Pet;
 class BookingController extends Controller
 {
     public function index () {
-        $bookings = Booking::with(['pet:id,name', 'service:id,name,category', 'clinic:id,name'])
-                ->select('bookings.*')
+        $bookings = Booking::with(['pet' => function($query) {
+                return $query->withTrashed();
+            }, 'service:id,name,category', 'clinic:id,name'])
                 ->when(auth()->user()->role_id != 1, function($query) {
                     if (auth()->user()->role_id == 4) {
-                        return $query->where('bookings.staff_id', auth()->id());
+                        return $query->where('staff_id', auth()->id());
                     }
-                    return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
+                    if (auth()->user()->role_id == 5) {
+                        return $query->where('client_id', auth()->user()->id);
+                    }
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
-                ->orderBy('created_at', 'desc')
+                ->orderBy('_id', 'desc')
                 ->paginate(8)
                 ->withQueryString();
 
-$bookings->each(function($booking) {
-    $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
-                   
-                    ->first();
-    if ($homeService) {
-        $booking->latitude = $homeService->latitude;
-        $booking->longitude = $homeService->longitude;
-        $booking->isHomeService = !is_null($homeService);
-    }
+            $bookings->each(function($booking) {
+                $homeService = \App\Models\HomeService::where('booking_id', $booking->id)
+                            
+                                ->first();
+                if ($homeService) {
+                    $booking->latitude = $homeService->latitude;
+                    $booking->longitude = $homeService->longitude;
+                    $booking->isHomeService = !is_null($homeService);
+                }
 
-    
-});
+                
+            });
 		return view('bookings',[
             'bookings' => $bookings,
 			'clinics' => Clinic::all(),
@@ -63,10 +67,11 @@ $bookings->each(function($booking) {
     {
        
        return view('sales-report',[
-			'bookings' => Booking::with(['pet:id,name', 'service:id,name', 'clinic:id,name'])
-                ->select('bookings.*')
+			'bookings' => Booking::with(['pet' => function($query) {
+                    return $query->withTrashed();
+                }, 'service:id,name', 'clinic:id,name'])
                 ->when(auth()->user()->role_id != 1, function($query) {
-                    return $query->where('bookings.clinic_id', auth()->user()->clinic_id);
+                    return $query->where('clinic_id', auth()->user()->clinic_id);
                 })
                 ->get(),
 			
@@ -89,12 +94,15 @@ $bookings->each(function($booking) {
         // dd($request->all);
         try{
             $validatedData = $request->validate([
-                'pet_id' => 'required|exists:pets,id',
-                'clinic_id' =>'required|exists:clinics,id',
-                'service_id' => 'required|exists:services,id',
-                'staff_id' => 'required|exists:users,id',
+                'pet_id' => 'required|exists:pets,_id',
+                'clinic_id' =>'required|exists:clinics,_id',
+                'service_id' => 'required|exists:services,_id',
+                'staff_id' => 'required|exists:users,_id',
                 'appointment_date' => 'required|date',
-                'notes' => 'nullable|string'
+                'notes' => 'nullable|string',
+                'payment_method' => 'nullable|string',
+                'payment_reference' => 'nullable|string',
+                'total_amount' => 'nullable|numeric'
             ]);
     
             $booking = $id == null ? new Booking : Booking::findOrFail($id);
@@ -107,8 +115,16 @@ $bookings->each(function($booking) {
             $booking->service_id = $validatedData['service_id'];
             $booking->staff_id = $validatedData['staff_id'];
             $booking->appointment_datetime = $validatedData['appointment_date'];
-            $booking->notes = $validatedData['notes'];
-            $booking->total_amount = $service->price;
+            $booking->notes = $validatedData['notes'] ?? '';
+            $booking->total_amount = $validatedData['total_amount'] ?? $service->price;
+            $booking->payment_method = $validatedData['payment_method'] ?? 'cash';
+            $booking->payment_reference = $validatedData['payment_reference'] ?? null;
+            
+            // Handle payment proof upload
+            if ($request->hasFile('proof')) {
+                $booking->payment_proof = $this->uploadImage($request->file('proof'), 'payment_proofs');
+            }
+            
             $booking->save();   
 
             ActivityRecord::create([
@@ -119,26 +135,65 @@ $bookings->each(function($booking) {
                     ? 'Created a new booking for pet ' . Pet::find($booking->pet_id)->name 
                     : 'Updated booking ID ' . $booking->id,
             ]);
+            
+            // Create notification for new booking
+            if ($id === null) {
+                Notification::create([
+                    'user_id' => $booking->client_id,
+                    'clinic_id' => $booking->clinic_id,
+                    'pet_id' => $booking->pet_id,
+                    'title' => 'Booking Submitted',
+                    'message' => $booking->payment_proof
+                        ? 'Your booking with payment proof has been submitted.'
+                        : 'Your booking has been submitted.',
+                    'type' => 'booking',
+                    'for_user' => 1,
+                    'is_read' => 0,
+                ]);
+                
+                // Notification for clinic staff
+                Notification::create([
+                    'clinic_id' => $booking->clinic_id,
+                    'pet_id' => $booking->pet_id,
+                    'title' => 'New Booking',
+                    'message' => 'New booking has been submitted for your clinic.',
+                    'type' => 'booking',
+                    'for_user' => 0,
+                    'is_read' => 0,
+                ]);
+            }
 
         }catch(\Illuminate\Validation\ValidationException $e){
             dd($e->errors());
        }
         
 
-        return redirect()->route('bookings')->with('success', 'Pet saved successfully');
+        return redirect()->route('bookings')->with('success', 'Booking saved successfully');
     }
 
 
 
     public function complete(Request $request, $id){
         try {
+           
             $booking = Booking::findOrFail($id);
             
             $validatedData = $request->validate([
                 'diagnosis' => 'required|string',
                 'treatment' => 'required|string',
-                'inventory_id' => 'required|exists:inventory_items,id',
+                //'inventory_id' => 'required|exists:inventory_items,_id',
             ]);
+
+            // Decode the selected inventories JSON string
+            $selectedInventories = json_decode($request->input('selected_inventories'), true);
+
+            // Loop through each selected inventory and deduct quantities
+            foreach ($selectedInventories as $inventory) {
+                $inventoryItem = InventoryItem::find($inventory['id']);
+                if ($inventoryItem) {
+                    $inventoryItem->decrement('quantity', $inventory['quantity']);
+                }
+            }
 
             // Update booking status and amount
             $booking->status = 'completed';
@@ -155,13 +210,7 @@ $bookings->each(function($booking) {
             $medicalHistory->staff_id = $booking->staff_id;
             $medicalHistory->save();
 
-            // Decrease inventory item quantity
-            $inventoryItem = InventoryItem::findOrFail($request->inventory_id);
-            if ($inventoryItem->quantity > 0) {
-                $inventoryItem->decrement('quantity');
-            } else {
-                throw new \Exception('Insufficient inventory quantity');
-            }
+        
 
             // add notif 
             Notification::create([
@@ -200,7 +249,7 @@ $bookings->each(function($booking) {
             
             $validatedData = $request->validate([
                 'action' => 'required|in:confirmed,cancelled,completed,declined',
-                'staff_id' => 'nullable|exists:users,id',
+                'staff_id' => 'nullable|exists:users,_id',
             ]);
 
             
@@ -247,6 +296,30 @@ $bookings->each(function($booking) {
         ]);
         
         return redirect()->back()->with('success', 'Booking deleted successfully');
+    }
+    
+    /**
+     * Upload an image file to the specified directory
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param string $directory
+     * @return string The path to the uploaded image
+     */
+    protected function uploadImage($file, $directory = 'uploads')
+    {
+        if ($directory === 'payment_proofs') {
+            $directory = 'payments';
+        }
+        
+        // Create directory if it doesn't exist
+        $storage_path = storage_path('app/public/' . $directory);
+        if (!file_exists($storage_path)) {
+            mkdir($storage_path, 0755, true);
+        }
+        
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('public/' . $directory, $filename);
+        return str_replace('public/', 'storage/', $path);
     }
 
 public function decline(Request $request, $id)

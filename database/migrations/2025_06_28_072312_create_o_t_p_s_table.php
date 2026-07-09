@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('o_t_p_s', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('user_id');
             $table->string('otp_code');
             $table->boolean('is_verified')->default(false);
             $table->timestamp('expires_at');
+            $table->index('user_id');
             $table->timestamps();
         });
     }

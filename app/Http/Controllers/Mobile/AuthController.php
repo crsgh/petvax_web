@@ -45,6 +45,72 @@ class AuthController extends Controller {
             ], 500);
         }
 	}
+
+    public function checkEmail(Request $request) {
+        $email = $request->email;
+        
+        $user = User::where('email', $email)->first();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Email not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'exists' => true,
+            'message' => 'Email already exists'
+        ]);
+    }
+
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'contact_number' => 'required|string',
+                'address' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $user = User::find($request->user_id);
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            $user->update([
+                'name' => $request->name,
+                'contact_number' => $request->contact_number,
+                'address' => $request->address
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating profile',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
     public function signup(Request $request)
     {
         // $validator = Validator::make($request->all(), [
@@ -72,6 +138,7 @@ class AuthController extends Controller {
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'contact_number' => $request->contact_number,
             'clinic_id' => $clinic->id,
 
         ]);

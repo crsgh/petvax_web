@@ -42,7 +42,7 @@ class InfoUserController extends Controller
         }
         
         
-        User::where('id',Auth::user()->id)
+        User::where('_id',Auth::user()->id)
         ->update([
             'name'    => $attributes['name'],
             'email' => $attribute['email'],

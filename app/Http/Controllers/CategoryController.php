@@ -13,7 +13,7 @@ class CategoryController extends Controller
         return view('categories',[
             'clinics' => Clinic::all(),
             'categories' => Category::when(auth()->user()->role_id != 1, function($query) {
-                return $query->where('categories.clinic_id', auth()->user()->clinic_id);
+                return $query->where('clinic_id', auth()->user()->clinic_id);
             })->get(),
            'notifications' => match(auth()->user()->role_id) {
                 1 => collect([]),
@@ -28,7 +28,7 @@ class CategoryController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'clinic_id' => 'required|integer|exists:clinics,id',
+            'clinic_id' => 'required|exists:clinics,_id',
             'status' => 'required|in:active,inactive,default',
             'description' => 'nullable|string|max:255',
         ]);

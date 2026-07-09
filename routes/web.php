@@ -22,6 +22,7 @@ use App\Http\Controllers\{
 	ScheduleController,
 	NotificationController,
 	OTPController,
+	RuleBaseController,
 };
 use Illuminate\Support\Facades\{Route, Password};
 use App\Models\{
@@ -34,7 +35,8 @@ use App\Models\{
     MedicalHistory,
     InventoryItem,
 	Category,
-
+	Notification,
+	ClinicRating,
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -52,16 +54,43 @@ use Illuminate\Support\Facades\Mail;
 
 
 
-
+Route::post('/clinics/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
 
 Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/', [HomeController::class, 'home']);
-	Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+	Route::get('/owner', function() {
+		$clinics = Clinic::where('status', 'active')->get()	;
+        $clinics = $clinics->map(function($clinic) {
+			$rating = ClinicRating::where('clinic_id', $clinic->id);
+			$clinic->reviews_count = $rating->count();
+            $clinic->stars = $rating->avg('rating') ?? 0;
+            return $clinic;
+        });
+
+		return view('pet-owner',[
+			'clinics' => $clinics,
+			'services' => Service::all(),
+			'pets' => Pet::where('owner_id', auth()->id())->whereNull('deleted_at')->get(),
+			'vets' => User::where('role_id', 4)->get(),
+			
+			'notifications' => match(auth()->user()->role_id) {
+                1 => collect([]),
+                2, 3 => Notification::where('clinic_id', auth()->user()->clinic_id)->where('is_read', 0)->get(),
+                default => Notification::where('user_id', auth()->id())->where('is_read', 0)->get(),
+            },
+			
+		]);
+	});
+
+	Route::post('/owner/{id?}', [BookingController::class, 'upsert'])->name('upsert-owner-bookings');
+
+	Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+ 
 	Route::group(['prefix' => 'clinics'], function () {
 		Route::get('/',[ClinicController::class, 'index'])->name('clinics');
-		Route::post('/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
+		//Route::post('/{id?}', [ClinicController::class, 'upsert'])->name('upsert-clinic');
 		Route::get('/{id}/delete', [ClinicController::class, 'delete'])->name('delete-clinic');
 	});
 
@@ -151,6 +180,12 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('/', [RatingController::class,'index'])->name('ratings');
 		Route::post('/{id?}', [RatingController::class, 'upsert'])->name('upsert-ratings');
 		Route::get('/{id}/delete', [RatingController::class, 'delete'])->name('delete-ratings');
+	});
+
+	Route::group(['prefix' => 'rule-base'], function () {
+		Route::get('/', [RuleBaseController::class, 'index'])->name('rule-base');
+		Route::post('/{id?}', [RuleBaseController::class, 'upsert'])->name('upsert-rule-base');
+		Route::get('/{id}/delete', [RuleBaseController::class, 'destroy'])->name('delete-rule-base');
 	});
 
     Route::get('static-sign-in', function () {

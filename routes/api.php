@@ -7,11 +7,13 @@ use App\Models\User;
 use App\Models\Pet;
 use App\Models\Clinic;
 use App\Models\Service;
+use App\Models\Booking;
 
 use App\Http\Controllers\Mobile\AuthController;
 use App\Http\Controllers\Mobile\ClinicController;
 use App\Http\Controllers\Mobile\AppointmentController;
 use App\Http\Controllers\Mobile\ServiceController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Mobile\PetController;
 use App\Http\Controllers\Mobile\BookingController;
 use App\Http\Controllers\Mobile\NotificationController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\Mobile\RatingController;
 use App\Http\Controllers\Mobile\MedicalHistoryController;
 use App\Http\Controllers\Mobile\HomeServiceController;
 use App\Http\Controllers\OTPController;
+use App\Http\Controllers\Mobile\RuleBaseController;
 
 
 /*
@@ -37,12 +40,69 @@ Route::post('/mail', [OTPController::class, 'sendMail']);
 
 Route::post('/verify', [OTPController::class, 'verify']);
 
+Route::post('/check-email', [AuthController::class, 'checkEmail']);
+
+Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+
+
+Route::get('/rule-base',[RuleBaseController::class,'getRulebase']);
+
+
+// Payment routes
+Route::post('/create-payment', [PaymentController::class, 'createPayment']);
+Route::get('/verify-payment/{sessionId}', [PaymentController::class, 'verifyPayment']);
+
+// Payment callback routes
+Route::get('/payment/success', function (Request $request) {
+    $booking = Booking::findOrFail($request->id);
+
+    $booking->is_paid = 1;
+    $booking->save();
+
+    return view('payment',['success' => true]);
+});
+
+Route::get('/payment/closed/{id}', function (Request $request) {
+    $booking = Booking::findOrFail($request->id);
+    if(!$booking->is_paid){
+        $booking->delete();
+    }
+    return view('payment', ['success' => false]);
+});
+
+
+Route::get('/payment/{id}', function (Request $request) {
+    $booking = Booking::findOrFail($request->id);
+    return response()->json([
+        'success' => $booking->is_paid ? true : false,
+        'message' => 'Payment is paid',
+    ]);
+});
+
+
+
+Route::get('/payment/failed', function (Request $request) {
+    // Delete the booking if it exists and is not paid
+    if ($request->has('booking_id')) {
+        $booking = Booking::find($request->booking_id);
+        if ($booking && !$booking->is_paid) {
+            $booking->delete();
+        }
+    }
+    
+    return view('payment', ['success' => false]);
+});
+
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 Route::get('/clinics/{id}/pets', function ($id) {
-    return Pet::where("clinic_id", $id)->get();
+    return Pet::where("clinic_id", $id)
+        ->whereNull('deleted_at')
+        ->orderBy('created_at', 'desc')
+        ->get();
 });
 
 Route::get('/clinics/{id}/services', function ($id) {
@@ -51,6 +111,25 @@ Route::get('/clinics/{id}/services', function ($id) {
 
 Route::get('/clinics/{id}/staffs', function ( $id) {
     return User::where("clinic_id", $id)->where("role_id",4)->get();
+});
+
+Route::get('/clinics/{id}', function ($id) {
+    return Clinic::findOrFail($id);
+});
+
+Route::get('/clinics/{id}/details', function ($id) {
+    $clinic = Clinic::findOrFail($id);
+    $services = Service::where('clinic_id', $id)->get();
+    
+    return response()->json([
+        'id' => $clinic->id,
+        'name' => $clinic->name,
+        'address' => $clinic->address,
+        'contact_number' => $clinic->contact,
+        'operating_hours' => $clinic->operating_hours ?? '9:00 AM - 5:00 PM',
+        'image' => asset('storage/' . $clinic->image),
+        'services' => $services
+    ]);
 });
 
 // User Authentication Routes

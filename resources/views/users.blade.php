@@ -63,7 +63,10 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $user->avatar == null ? asset('assets/img/team-2.jpg') : asset('storage/' . $user->avatar) }}" class="avatar avatar-sm me-3" alt="{{ $user->name }}">
+                            <img src="{{ $user->avatar == null ? asset('assets/img/team-2.jpg') : asset('storage/' . $user->avatar) }}" 
+                                 class="avatar avatar-sm me-3" 
+                                 alt="{{ $user->name }}"
+                                 onerror="this.src='{{ asset('assets/img/team-2.jpg') }}'">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $user->name }}</h6>
@@ -148,23 +151,32 @@
       <form id="userForm" enctype="multipart/form-data" method="POST">
         @csrf
         <input type="hidden" name="user_id" id="userId">
+        
+        <!-- Error Alert -->
+        <div class="alert alert-danger d-none" id="validationErrors">
+          <ul id="errorList"></ul>
+        </div>
+
         <div class="mb-3">
           <label for="userImage" class="form-label">Profile Image</label>
           <div class="d-flex align-items-center">
-            <img id="imagePreview" src="../assets/img/team-2.jpg" class="avatar avatar-lg me-3" alt="Profile Preview">
+            <img id="imagePreview" src="../assets/img/team-2.jpg" class="avatar avatar-lg me-3" alt="Profile Preview" onerror="this.src='../assets/img/team-2.jpg'">
             <div class="upload-btn-wrapper">
               <button class="btn btn-outline-primary btn-sm">Upload Photo</button>
               <input type="file" name="avatar" id="userImage" accept="image/*" onchange="previewImage(this)"/>
+              <small class="text-danger d-none" id="avatarError"></small>
             </div>
           </div>
         </div>
         <div class="mb-3">
           <label for="userName" class="form-label">Name</label>
-          <input type="text" class="form-control" name="name" id="userName" required>
+          <input type="text" class="form-control" name="name" id="userName" required minlength="3" maxlength="50">
+          <small class="text-danger d-none" id="nameError"></small>
         </div>
         <div class="mb-3">
           <label for="userEmail" class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" id="userEmail" required>
+          <input type="email" class="form-control" name="email" id="userEmail" required pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$">
+          <small class="text-danger d-none" id="emailError"></small>
         </div>
         <div class="mb-3">
           <label for="userRole" class="form-label">Role</label>
@@ -176,6 +188,7 @@
               @endif
             @endforeach
           </select>
+          <small class="text-danger d-none" id="roleError"></small>
         </div>
        
         <div class="mb-3">
@@ -187,21 +200,13 @@
                 <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
               @endforeach
             </select>
+            <small class="text-danger d-none" id="clinicError"></small>
           @else
             <input type="hidden" id="userClinic" name="clinic_id" value="{{ auth()->user()->clinic_id }}">
-            @endif
+          @endif
         </div>
        
-        <div class="mb-3">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="use_default_password" id="defaultPasswordSwitch">
-            <label class="form-check-label" for="defaultPasswordSwitch">Use Default Password</label>
-          </div>
-        </div>
-        <div class="mb-3" id="passwordField">
-          <label for="userPassword" class="form-label">Password</label>
-          <input type="password" class="form-control" name="password" id="userPassword">
-        </div>
+
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary" id="saveButton">Save User</button>
         </div>
@@ -298,20 +303,42 @@
         document.getElementById('userClinic').value = userData.clinic.id;
         
         if (userData.avatar) {
-          document.getElementById('imagePreview').src = '{{ asset("storage/") }}/' + userData.avatar;
+          const imagePreview = document.getElementById('imagePreview');
+          imagePreview.src = '{{ asset("storage/") }}/' + userData.avatar;
+          // Add error handling for the dynamically set image
+          imagePreview.onerror = function() {
+            this.src = '../assets/img/team-2.jpg';
+          };
+        } else {
+          document.getElementById('imagePreview').src = '../assets/img/team-2.jpg';
         }
         
-        document.getElementById('passwordField').style.display = 'none';
-        document.getElementById('defaultPasswordSwitch').parentElement.style.display = 'none';
+        // Hide password fields if they exist (for edit mode)
+        const passwordField = document.getElementById('passwordField');
+        const defaultPasswordSwitch = document.getElementById('defaultPasswordSwitch');
+        
+        if (passwordField) {
+          passwordField.style.display = 'none';
+        }
+        if (defaultPasswordSwitch && defaultPasswordSwitch.parentElement) {
+          defaultPasswordSwitch.parentElement.style.display = 'none';
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
         alert('Failed to load user data');
       }
     }
 
-    document.getElementById('defaultPasswordSwitch').addEventListener('change', function() {
-      document.getElementById('passwordField').style.display = this.checked ? 'none' : 'block';
-    });
+    // Add event listener for password switch if it exists
+    const defaultPasswordSwitch = document.getElementById('defaultPasswordSwitch');
+    if (defaultPasswordSwitch) {
+      defaultPasswordSwitch.addEventListener('change', function() {
+        const passwordField = document.getElementById('passwordField');
+        if (passwordField) {
+          passwordField.style.display = this.checked ? 'none' : 'block';
+        }
+      });
+    }
 
     function previewImage(input) {
       if (input.files && input.files[0]) {

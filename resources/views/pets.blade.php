@@ -34,8 +34,9 @@
                 <div class="col-md-2">
                   <select class="form-select" id="speciesFilter" onchange="filterTable()">
                     <option value="">All Species</option>
-                    <option value="feline">Feline</option>
-                    <option value="canine">Canine</option>
+                    @foreach($species as $specie)
+                      <option value="{{ $specie->name }}">{{ ucfirst($specie->name) }}</option>
+                    @endforeach
                   </select>
                 </div>
                 <div class="col-md-2">
@@ -63,10 +64,7 @@
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Birth Date</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gender</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Weight</th>
-                    
-                      <!-- @if(auth()->user()->role_id != 4)
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                      @endif -->
                     </tr>
                   </thead>
                   <tbody>
@@ -79,6 +77,7 @@
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $pet->name }}</h6>
+                            <p class="text-xs text-secondary mb-0">Owner: {{ $pet->owner->name }}</p>
                           </div>
                         </div>
                       </td>
@@ -98,8 +97,100 @@
                           {{ $pet->weight ? $pet->weight . ' kg' : 'N/A' }}
                         </span>
                       </td>
-                      
-                    
+                      <td class="align-middle text-center">
+                          <div class="btn-group" role="group">
+                              <button type="button" class="btn btn-info btn-lg px-3 py-2" onclick="openMedicalHistory({{ $pet->id }})" title="View Medical History" style="background-color: #ADD8E6; color: #333; border-radius: 0.3rem; margin-right: 8px;">
+                                  <i class="fas fa-notes-medical" style="font-size: 1.1em;"></i>
+                              </button>
+
+                              <!-- Medical History Modal -->
+                              <div class="modal fade" id="medicalHistoryModal" tabindex="-1" aria-labelledby="medicalHistoryModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                  <div class="modal-content">
+                                    <div class="modal-header bg-light">
+                                      <h5 class="modal-title fw-bold" id="medicalHistoryModalLabel">
+                                        <i class="fas fa-notes-medical me-2"></i>
+                                        Medical History
+                                        @if(auth()->user()->role_id == 1)
+                                        <span class="text-muted fs-6 ms-2">(Clinic: <span id="clinicName"></span>)</span>
+                                        @endif
+                                      </h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-4" id="medicalHistoryContent">
+                                      <!-- Content will be loaded here -->
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <script>
+                                function openMedicalHistory(petId) {
+                                  const modal = new bootstrap.Modal(document.getElementById('medicalHistoryModal'));
+                                  const contentDiv = document.getElementById('medicalHistoryContent');
+                                  
+                                  contentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                                  modal.show();
+
+                                  fetch(`/api/medical-history/${petId}?clinic={{ auth()->user()->clinic_id }}&role={{ auth()->user()->role_id }}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                      contentDiv.innerHTML = formatMedicalHistory(data.data);
+                                    })
+                                    .catch(error => {
+                                      contentDiv.innerHTML = '<div class="alert alert-danger">Error loading medical history</div>';
+                                      console.error('Error:', error);
+                                    });
+                                }
+
+                                function formatMedicalHistory(data) {
+                                  if (!data || !data.length) {
+                                    return '<div class="alert alert-info">No medical history available</div>';
+                                  }
+
+                                  const isAdmin = {{ auth()->user()->role_id }} === 1;
+
+                                  return `<div class="table-responsive">
+                                    <table class="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Date</th>
+                                          ${isAdmin ? '<th>Clinic</th>' : ''}
+                                          <th>Diagnosis</th>
+                                          <th>Treatment</th>
+                                          <th>Notes</th>
+                                          <th>Attending Vet</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        ${data.map(record => `
+                                          <tr>
+                                            <td>${new Date(record.treatment_date).toLocaleDateString()}</td>
+                                            ${isAdmin ? `<td>${record.clinic ? record.clinic.name : 'N/A'}</td>` : ''}
+                                            <td>${record.diagnosis || 'N/A'}</td>
+                                            <td>${record.treatment || 'N/A'}</td>
+                                            <td>${record.notes || 'N/A'}</td>
+                                            <td>${record.veterinarian ? record.veterinarian.name : 'N/A'}</td>
+                                          </tr>
+                                        `).join('')}
+                                      </tbody>
+                                    </table>
+                                  </div>`;
+                                }
+                              </script>
+                              @if(auth()->user()->role_id != 4)
+                                  <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #90EE90; color: #333; border-radius: 0.3rem; margin-right: 8px;" onclick="openEditSidebar({{ $pet }})" title="Edit Pet">
+                                      <i class="fas fa-edit" style="font-size: 1.1em;"></i>
+                                  </button>
+                                  <button type="button" class="btn btn-lg px-3 py-2" style="background-color: #FFB6C1; color: #333; border-radius: 0.3rem;" onclick="deletePet({{ $pet->id }})" title="Delete Pet">
+                                      <i class="fas fa-trash" style="font-size: 1.1em;"></i>
+                                  </button>
+                              @endif
+                          </div>
+                      </td>
                     </tr>
                     @endforeach
                   </tbody>
@@ -119,7 +210,9 @@
   <div class="offcanvas offcanvas-end" tabindex="-1" id="addPetSidebar">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title">Add New Pet</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close">
+        <span aria-hidden="true" class="text-3xl">&times;</span>
+      </button>
     </div>
     <div class="offcanvas-body">
       <form id="addPetForm" action="" method="POST" enctype="multipart/form-data">
@@ -137,19 +230,53 @@
         </div>
         <div class="mb-3">
           <label for="species" class="form-label">Species</label>
-          <select class="form-select" id="species" name="species" required>
-            <option value="canine">Canine</option>
-            <option value="feline">Feline</option>
+          <select class="form-select" id="species" name="species" required onchange="updateBreeds()">
+            <option value="">Select Species</option>
+            @foreach($species as $specie)
+              <option value="{{ $specie->id }}">{{ ucfirst($specie->name) }}</option>
+            @endforeach
           </select>
         </div>
         <div class="mb-3">
           <label for="breed" class="form-label">Breed</label>
           <select class="form-select" id="breed" name="breed" required>
+            <option value="">Select Breed</option>
             @foreach($breeds as $breed)
-              <option value="{{ $breed->id }}">{{ $breed->name }}</option>
+              <option value="{{ $breed->id }}" data-species="{{ $breed->species_id }}" style="display: none;">
+                {{ $breed->name }}
+              </option>
             @endforeach
           </select>
         </div>
+
+        <script>
+          function updateBreeds() {
+            const speciesSelect = document.getElementById('species');
+            const breedSelect = document.getElementById('breed');
+            const selectedSpeciesId = speciesSelect.value;
+
+            // Hide all breed options first
+            const breedOptions = breedSelect.querySelectorAll('option');
+            breedOptions.forEach(option => {
+              option.style.display = 'none';
+            });
+
+            // Show default "Select Breed" option
+            breedSelect.querySelector('option[value=""]').style.display = '';
+
+            // Show only breeds matching selected species ID
+            if (selectedSpeciesId) {
+              breedOptions.forEach(option => {
+                if (option.dataset.species === selectedSpeciesId) {
+                  option.style.display = '';
+                }
+              });
+            }
+
+            // Reset breed selection
+            breedSelect.value = '';
+          }
+        </script>
         <div class="mb-3">
           <label for="birthDate" class="form-label">Birth Date</label>
           <input type="date" class="form-control" id="birthDate" name="birth_date" max="<?php echo date('Y-m-d'); ?>" required>
@@ -163,7 +290,7 @@
         </div>
         <div class="mb-3">
           <label for="weight" class="form-label">Weight (kg)</label>
-          <input type="number" step="0.1" class="form-control" id="weight" name="weight">
+          <input type="number" step="0.1" min="0" class="form-control" id="weight" name="weight">
         </div>
         <div class="mb-3">
           <label for="ownersName" class="form-label">Owner's Name</label>
@@ -198,7 +325,7 @@
     <div class="offcanvas-body">
       <form id="editPetForm" method="POST" enctype="multipart/form-data">
         @csrf
-       
+      
         <div class="mb-3">
           <label for="editPetImage" class="form-label">Pet Image</label>
           <input type="file" class="form-control" id="editPetImage" name="image" onchange="previewEditImage(this)">
@@ -212,22 +339,27 @@
         </div>
         <div class="mb-3">
           <label for="editSpecies" class="form-label">Species</label>
-          <select class="form-select" id="editSpecies" name="species" required>
-            <option value="canine">Canine</option>
-            <option value="feline">Feline</option>
+          <select class="form-select" id="editSpecies" name="species" required onchange="updateEditBreeds()">
+            <option value="">Select Species</option>
+            @foreach($species as $specie)
+              <option value="{{ strtolower($specie->name) }}">{{ ucfirst($specie->name) }}</option>
+            @endforeach
           </select>
         </div>
         <div class="mb-3">
           <label for="editBreed" class="form-label">Breed</label>
           <select class="form-select" id="editBreed" name="breed" required>
+            <option value="">Select Breed</option>
             @foreach($breeds as $breed)
-              <option value="{{ $breed->id }}">{{ $breed->name }}</option>
+              <option value="{{ $breed->name }}" data-species="{{ strtolower($breed->species->name) }}" style="display: none;">
+                {{ $breed->name }}
+              </option>
             @endforeach
           </select>
         </div>
         <div class="mb-3">
           <label for="editBirthDate" class="form-label">Birth Date</label>
-          <input type="date" class="form-control" id="editBirthDate" name="birth_date" required>
+          <input type="date" class="form-control" id="editBirthDate" name="birth_date" max="<?php echo date('Y-m-d'); ?>" required>
         </div>
         <div class="mb-3">
           <label for="editGender" class="form-label">Gender</label>
@@ -238,7 +370,7 @@
         </div>
         <div class="mb-3">
           <label for="editWeight" class="form-label">Weight (kg)</label>
-          <input type="number" step="0.1" class="form-control" id="editWeight" name="weight">
+          <input type="number" step="0.1" min="0" class="form-control" id="editWeight" name="weight">
         </div>
         <div class="mb-3">
           <label for="editOwnersName" class="form-label">Owner's Name</label>
@@ -264,6 +396,35 @@
       </form>
     </div>
   </div>
+
+  <script>
+    function updateEditBreeds() {
+      const speciesSelect = document.getElementById('editSpecies');
+      const breedSelect = document.getElementById('editBreed');
+      const selectedSpecies = speciesSelect.value.toLowerCase();
+
+      // Hide all breed options first
+      const breedOptions = breedSelect.querySelectorAll('option');
+      breedOptions.forEach(option => {
+        option.style.display = 'none';
+      });
+
+      // Show default "Select Breed" option
+      breedSelect.querySelector('option[value=""]').style.display = '';
+
+      // Show only breeds matching selected species
+      if (selectedSpecies) {
+        breedOptions.forEach(option => {
+          if (option.dataset.species === selectedSpecies) {
+            option.style.display = '';
+          }
+        });
+      }
+
+      // Reset breed selection
+      breedSelect.value = '';
+    }
+  </script>
 
   <script>
     function previewImage(input) {
@@ -296,21 +457,24 @@
       document.getElementById('editPetForm').action = `/pets/${pet.id}`;
       document.getElementById('editImagePreview').src = pet.image ? `/storage/${pet.image}` : '/assets/img/dog.png';
       document.getElementById('editPetName').value = pet.name;
-      document.getElementById('editSpecies').value = pet.species;
+      document.getElementById('editSpecies').value = pet.species.toLowerCase();
+      updateEditBreeds(); // Update breeds dropdown after species is set
+      document.getElementById('editBreed').value = pet.breed;
       document.getElementById('editBirthDate').value = pet.birth_date;
       document.getElementById('editGender').value = pet.gender;
       document.getElementById('editWeight').value = pet.weight;
-      document.getElementById('editOwnersName').value = pet.owners_name;
+      document.getElementById('editOwnersName').value = pet.owner_id;
+      if (document.getElementById('editClinic')) {
+        document.getElementById('editClinic').value = pet.clinic_id;
+      }
       editSidebar.show();
     }
 
     function deletePet(petId) {
       if (confirm('Are you sure you want to delete this pet?')) {
-        fetch(`/pets/${petId}`, {
-          method: 'DELETE',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          }
+        fetch(`/pets/${petId}/delete`, {
+          method: 'GET',
+         
         })
         .then(response => response.json())
         .then(data => {
