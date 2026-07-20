@@ -14,7 +14,7 @@
           </svg>
         </div>
         <div class="stat-trend positive">
-          <x-ui.icon name="arrow-up" class="w-4 h-4" />
+          <i class="fas fa-arrow-up" style="font-size:12px"></i>
           <span>+12%</span>
         </div>
       </div>
@@ -43,7 +43,7 @@
       </div>
       <div class="stat-actions">
         <a href="/sales-report" class="stat-action-btn">
-          <x-ui.icon name="chart" class="w-4 h-4" />
+          <i class="fas fa-chart-bar" style="font-size:14px"></i>
           View Report
         </a>
       </div>
@@ -58,7 +58,7 @@
           </svg>
         </div>
         <div class="stat-trend positive">
-          <x-ui.icon name="arrow-up" class="w-4 h-4" />
+          <i class="fas fa-arrow-up" style="font-size:12px"></i>
           <span>+8%</span>
         </div>
       </div>
@@ -77,7 +77,7 @@
           </svg>
         </div>
         <div class="stat-trend positive">
-          <x-ui.icon name="arrow-up" class="w-4 h-4" />
+          <i class="fas fa-arrow-up" style="font-size:12px"></i>
           <span>+5%</span>
         </div>
       </div>
@@ -117,7 +117,7 @@
                    onerror="this.src='{{ asset('assets/img/team-2.jpg') }}'">
               @if($index === 0)
                 <div class="crown-badge">
-                  <x-ui.icon name="star" class="w-4 h-4 text-yellow-500" />
+                  <i class="fas fa-star" style="font-size:10px;color:#f59e0b"></i>
                 </div>
               @endif
             </div>
@@ -133,7 +133,7 @@
           </div>
         @empty
           <div class="empty-state">
-            <x-ui.icon name="chart" class="w-8 h-8 text-gray-400" />
+            <i class="fas fa-chart-bar" style="font-size:32px;color:#9ca3af"></i>
             <p>No performance data available</p>
           </div>
         @endforelse
@@ -150,7 +150,7 @@
     <div class="quick-actions-grid">
       <a href="/bookings" class="quick-action">
         <div class="action-icon new-booking">
-          <x-ui.icon name="add" class="w-5 h-5" />
+          <i class="fas fa-plus" style="font-size:20px"></i>
         </div>
         <div class="action-content">
           <div class="action-title">New Appointment</div>
@@ -160,7 +160,7 @@
       
       <a href="/pets" class="quick-action">
         <div class="action-icon add-pet">
-          <x-ui.icon name="pets" class="w-5 h-5" />
+          <i class="fas fa-paw" style="font-size:20px"></i>
         </div>
         <div class="action-content">
           <div class="action-title">Add Pet</div>
@@ -170,7 +170,7 @@
       
       <a href="/medical-histories" class="quick-action">
         <div class="action-icon medical-record">
-          <x-ui.icon name="medical" class="w-5 h-5" />
+          <i class="fas fa-notes-medical" style="font-size:20px"></i>
         </div>
         <div class="action-content">
           <div class="action-title">Medical Record</div>
@@ -180,7 +180,7 @@
       
       <a href="/inventory" class="quick-action">
         <div class="action-icon inventory">
-          <x-ui.icon name="package" class="w-5 h-5" />
+          <i class="fas fa-box" style="font-size:20px"></i>
         </div>
         <div class="action-content">
           <div class="action-title">Inventory</div>
