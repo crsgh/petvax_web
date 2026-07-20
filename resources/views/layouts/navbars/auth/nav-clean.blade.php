@@ -334,6 +334,8 @@ $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('
 
 <style>
 .topbar-clean {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
     padding: var(--space-3) var(--space-6);
     position: sticky;
     top: 0;

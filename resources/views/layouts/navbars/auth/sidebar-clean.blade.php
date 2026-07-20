@@ -278,7 +278,7 @@ if($activeItem) {
 
 /* Header */
 .sidebar-header {
-    padding: var(--space-6);
+    padding: calc(var(--space-3) + 2.5px) var(--space-6);
     border-bottom: 1px solid var(--gray-200);
     display: flex;
     align-items: center;
