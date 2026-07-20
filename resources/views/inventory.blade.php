@@ -115,13 +115,9 @@
                   onclick="addStock({{ $item->id }})"
                   title="Add Stock"
                 >Add Stock</x-ui.button>
-                <x-ui.button 
-                  variant="danger" 
-                  size="xs" 
-                  icon-name="delete"
-                  onclick="deleteItem({{ $item->id }})"
-                  title="Delete Item"
-                >Delete</x-ui.button>
+                <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deleteItem({{ $item->id }})" title="Delete Item">
+                  <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                </button>
               </div>
             </td>
           </tr>

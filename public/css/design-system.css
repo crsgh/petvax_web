@@ -208,14 +208,14 @@ body {
 }
 
 .btn-danger-clean {
-  background: #fef2f2;
-  color: #dc2626;
+  background: #fca5a5;
+  color: #7f1d1d;
   border-color: #fca5a5;
 }
 
 .btn-danger-clean:hover {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #f87171;
+  color: #ffffff;
   border-color: #f87171;
 }
 

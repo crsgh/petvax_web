@@ -141,13 +141,9 @@
                     onclick="editPet({{ $pet }})"
                     title="Edit Pet"
                   >Edit</x-ui.button>
-                  <x-ui.button 
-                    variant="danger" 
-                    size="xs" 
-                    icon-name="delete"
-                    onclick="deletePet({{ $pet->id }})"
-                    title="Delete Pet"
-                  >Delete</x-ui.button>
+                  <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deletePet({{ $pet->id }})" title="Delete Pet">
+                    <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                  </button>
                 @endif
               </div>
             </td>

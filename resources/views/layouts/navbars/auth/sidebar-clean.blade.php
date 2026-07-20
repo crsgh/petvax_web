@@ -1,176 +1,128 @@
 @php
-$menuItems = [
-    [
-        'id' => 'clinics',
-        'label' => 'All Clinics',
-        'route' => '/owner', 
-        'permission' => [5],
-        'icon_name' => 'building',
+$menuSections = [
+    'Main Menu' => [
+        [
+            'id' => 'dashboard',
+            'label' => 'Dashboard',
+            'route' => '/dashboard', 
+            'permission' => [1,2],
+            'icon_name' => 'fa-chart-bar'
+        ],
+        [
+            'id' => 'clinics-owner',
+            'label' => 'All Clinics',
+            'route' => '/owner', 
+            'permission' => [5],
+            'icon_name' => 'fa-building',
+        ],
+        [
+            'id' => 'clinics',
+            'label' => 'Clinics',
+            'route' => '/clinics',
+            'permission' => [1,2],
+            'icon_name' => 'fa-building'
+        ],
     ],
-    [
-        'id' => 'dashboard',
-        'label' => 'Dashboard',
-        'route' => '/dashboard', 
-        'permission' => [1,2],
-        'icon_name' => 'chart'
-    ],
-    [
-        'id' => 'clinics',
-        'label' => 'Clinics',
-        'route' => '/clinics',
-        'permission' => [1,2],
-        'icon_name' => 'building'
-    ],
-    [
-        'id' => 'users',
-        'label' => 'Users',
-        'hasSubmenu' => true,
-        'icon_name' => 'users',
-        'submenu' => [
-            [
-                'id' => 'staffs',
-                'label' => 'Staff Members',
-                'route' => '/staffs',
-                'permission' => [1,2],
-                'icon_name' => 'staff'
-            ],
-            [
-                'id' => 'owners',
-                'label' => 'Pet Owners',
-                'route' => '/owners',
-                'permission' => [1,2,3],
-                'icon_name' => 'users'
+    'Management' => [
+        [
+            'id' => 'users',
+            'label' => 'Users',
+            'hasSubmenu' => true,
+            'icon_name' => 'fa-users',
+            'submenu' => [
+                ['id' => 'staffs', 'label' => 'Staff Members', 'route' => '/staffs', 'permission' => [1,2], 'icon_name' => 'fa-user-tie'],
+                ['id' => 'owners', 'label' => 'Pet Owners', 'route' => '/owners', 'permission' => [1,2,3], 'icon_name' => 'fa-users']
             ]
-        ]
-    ],
-    [
-        'id' => 'pets',
-        'label' => 'Pet Management',
-        'hasSubmenu' => true,
-        'icon_name' => 'pets',
-        'submenu' => [
-            [
-                'id' => 'all-pets', 
-                'label' => 'All Pets', 
-                'route' => '/pets',
-                'permission' => [1,2,3,4,5],
-                'icon_name' => 'pets'
-            ],
-            [
-                'id' => 'breeds', 
-                'label' => 'Breeds', 
-                'route' => '/breeds',
-                'permission' => [1],
-                'icon_name' => 'breeds'
-            ],
-            [
-                'id' => 'species', 
-                'label' => 'Species', 
-                'route' => '/species',
-                'permission' => [1],
-                'icon_name' => 'species'
-            ],
-        ]
-    ],
-    [
-        'id' => 'services',
-        'label' => 'Services',
-        'hasSubmenu' => true,
-        'icon_name' => 'stethoscope',
-        'submenu' => [
-            [
-                'id' => 'all-services',
-                'label' => 'All Services',
-                'route' => '/services',
-                'permission' => [1,2,3],
-                'icon_name' => 'list'
-            ],
-            [
-                'id' => 'services-schedule',
-                'label' => 'Schedule',
-                'route' => '/services-schedule',
-                'permission' => [1,2,3],
-                'icon_name' => 'calendar'
+        ],
+        [
+            'id' => 'pets',
+            'label' => 'Pet Management',
+            'hasSubmenu' => true,
+            'icon_name' => 'fa-paw',
+            'submenu' => [
+                ['id' => 'all-pets', 'label' => 'All Pets', 'route' => '/pets', 'permission' => [1,2,3,4,5], 'icon_name' => 'fa-paw'],
+                ['id' => 'breeds', 'label' => 'Breeds', 'route' => '/breeds', 'permission' => [1], 'icon_name' => 'fa-dna'],
+                ['id' => 'species', 'label' => 'Species', 'route' => '/species', 'permission' => [1], 'icon_name' => 'fa-tag'],
             ]
-        ]
-    ],
-    [
-        'id' => 'bookings',
-        'label' => 'Appointments',
-        'route' => '/bookings',
-        'permission' => [1,2,3,4,5],
-        'icon_name' => 'calendar'
-    ],
-    [
-        'id' => 'medical-histories',
-        'label' => 'Medical Records',
-        'route' => '/medical-histories',
-        'permission' => [1,2,3,4],
-        'icon_name' => 'medical'
-    ],
-    [
-        'id' => 'inventory',
-        'label' => 'Inventory',
-        'hasSubmenu' => true,
-        'icon_name' => 'package',
-        'submenu' => [
-            [
-                'id' => 'all-inventory',
-                'label' => 'All Items',
-                'route' => '/inventory',
-                'permission' => [1,2,3],
-                'icon_name' => 'package'
-            ],
-            [
-                'id' => 'inventory-categories',
-                'label' => 'Categories',
-                'route' => '/categories',
-                'permission' => [1,2,3],
-                'icon_name' => 'category'
+        ],
+        [
+            'id' => 'services',
+            'label' => 'Services',
+            'hasSubmenu' => true,
+            'icon_name' => 'fa-stethoscope',
+            'submenu' => [
+                ['id' => 'all-services', 'label' => 'All Services', 'route' => '/services', 'permission' => [1,2,3], 'icon_name' => 'fa-list'],
+                ['id' => 'services-schedule', 'label' => 'Schedule', 'route' => '/services-schedule', 'permission' => [1,2,3], 'icon_name' => 'fa-calendar-alt']
             ]
-        ]
+        ],
+        [
+            'id' => 'bookings',
+            'label' => 'Appointments',
+            'route' => '/bookings',
+            'permission' => [1,2,3,4,5],
+            'icon_name' => 'fa-calendar-check'
+        ],
+        [
+            'id' => 'medical-histories',
+            'label' => 'Medical Records',
+            'route' => '/medical-histories',
+            'permission' => [1,2,3,4],
+            'icon_name' => 'fa-notes-medical'
+        ],
+        [
+            'id' => 'inventory',
+            'label' => 'Inventory',
+            'hasSubmenu' => true,
+            'icon_name' => 'fa-box',
+            'submenu' => [
+                ['id' => 'all-inventory', 'label' => 'All Items', 'route' => '/inventory', 'permission' => [1,2,3], 'icon_name' => 'fa-box'],
+                ['id' => 'inventory-categories', 'label' => 'Categories', 'route' => '/categories', 'permission' => [1,2,3], 'icon_name' => 'fa-th-large']
+            ]
+        ],
     ],
-    [
-        'id' => 'sales-report',
-        'label' => 'Reports',
-        'route' => '/sales-report',
-        'permission' => [1,2],
-        'icon_name' => 'chart'
-    ],
-    [
-        'id' => 'rule-base',
-        'label' => 'Rule Base',
-        'route' => '/rule-base',
-        'permission' => [1],
-        'icon_name' => 'settings'
-    ],
-    [
-        'id' => 'clinic-rating',
-        'label' => 'Ratings',
-        'route' => '/clinic-ratings',
-        'permission' => [1,2],
-        'icon_name' => 'star'
-    ],
-    [
-        'id' => 'notifications',
-        'label' => 'Notifications',
-        'route' => '/notifications',
-        'permission' => [1,2,3,4],
-        'icon_name' => 'notification'
-    ],
-    [
-        'id' => 'activity-records',
-        'label' => 'Activity Log',
-        'route' => '/activity-records',
-        'permission' => [1,2],
-        'icon_name' => 'clock'
-    ],
-    [
-        'id' => 'settings-page',
-        'label' => 'Settings',
-        'route' => '/settings',
-        'permission' => [1],
-        'icon_name' => 'settings'
+    'System' => [
+        [
+            'id' => 'sales-report',
+            'label' => 'Reports',
+            'route' => '/sales-report',
+            'permission' => [1,2],
+            'icon_name' => 'fa-chart-line'
+        ],
+        [
+            'id' => 'rule-base',
+            'label' => 'Rule Base',
+            'route' => '/rule-base',
+            'permission' => [1],
+            'icon_name' => 'fa-cog'
+        ],
+        [
+            'id' => 'clinic-rating',
+            'label' => 'Ratings',
+            'route' => '/clinic-ratings',
+            'permission' => [1,2],
+            'icon_name' => 'fa-star'
+        ],
+        [
+            'id' => 'notifications',
+            'label' => 'Notifications',
+            'route' => '/notifications',
+            'permission' => [1,2,3,4],
+            'icon_name' => 'fa-bell'
+        ],
+        [
+            'id' => 'activity-records',
+            'label' => 'Activity Log',
+            'route' => '/activity-records',
+            'permission' => [1,2],
+            'icon_name' => 'fa-clock'
+        ],
+        [
+            'id' => 'settings-page',
+            'label' => 'Settings',
+            'route' => '/settings',
+            'permission' => [1],
+            'icon_name' => 'fa-cog'
+        ],
     ],
 ];
 
@@ -178,19 +130,20 @@ $currentRoute = request()->route() ? request()->route()->getName() : '';
 $activeItem = 'dashboard';
 $activeSubItem = null;
 
-foreach($menuItems as $item) {
-    if(isset($item['route']) && trim($currentRoute, '/') === trim($item['route'], '/')) {
-        $activeItem = $item['id'];
-        break;
-    }
-    
-    if(isset($item['submenu'])) {
-        foreach($item['submenu'] as $subItem) {
-            $subRoute = trim($subItem['route'], '/');
-            if(trim($currentRoute, '/') === $subRoute || str_starts_with(trim($currentRoute, '/'), $subRoute.'/')) {
-                $activeItem = $item['id'];
-                $activeSubItem = $subItem['id'];
-                break 2;
+foreach($menuSections as $sectionTitle => $items) {
+    foreach($items as $item) {
+        if(isset($item['route']) && trim($currentRoute, '/') === trim($item['route'], '/')) {
+            $activeItem = $item['id'];
+            break 2;
+        }
+        if(isset($item['submenu'])) {
+            foreach($item['submenu'] as $subItem) {
+                $subRoute = trim($subItem['route'], '/');
+                if(trim($currentRoute, '/') === $subRoute || str_starts_with(trim($currentRoute, '/'), $subRoute.'/')) {
+                    $activeItem = $item['id'];
+                    $activeSubItem = $subItem['id'];
+                    break 3;
+                }
             }
         }
     }
@@ -198,9 +151,11 @@ foreach($menuItems as $item) {
 
 $expandedMenus = [];
 if($activeItem) {
-    foreach($menuItems as $item) {
-        if(isset($item['hasSubmenu']) && $item['hasSubmenu'] && $item['id'] === $activeItem) {
-            $expandedMenus[$item['id']] = true;
+    foreach($menuSections as $sectionTitle => $items) {
+        foreach($items as $item) {
+            if(isset($item['hasSubmenu']) && $item['hasSubmenu'] && $item['id'] === $activeItem) {
+                $expandedMenus[$item['id']] = true;
+            }
         }
     }
 }
@@ -222,10 +177,11 @@ if($activeItem) {
 
     <!-- Navigation -->
     <nav class="sidebar-nav">
+        @foreach($menuSections as $sectionTitle => $items)
         <div class="nav-section">
-            <h3 class="nav-title">Main Menu</h3>
+            <h3 class="nav-title">{{ $sectionTitle }}</h3>
             <ul class="nav-list">
-                @foreach($menuItems as $item)
+                @foreach($items as $item)
                     @php
                         $isActive = $activeItem === $item['id'];
                         $hasSubmenu = $item['hasSubmenu'] ?? false;
@@ -249,10 +205,10 @@ if($activeItem) {
                         <a href="{{ $hasSubmenu ? '#' : $item['route'] }}" 
                            class="nav-link {{ $isActive ? 'active' : '' }}"
                            @if($hasSubmenu) onclick="toggleSubmenu('{{ $item['id'] }}'); return false;" @endif>
-                            <x-ui.icon name="{{ $item['icon_name'] }}" class="nav-icon" />
+                            <i class="fas {{ $item['icon_name'] }} nav-icon"></i>
                             <span class="nav-text">{{ $item['label'] }}</span>
                             @if($hasSubmenu)
-                                <x-ui.icon name="chevron-down" class="nav-arrow {{ $isExpanded ? 'expanded' : '' }}" />
+                                <i class="fas fa-chevron-down nav-arrow {{ $isExpanded ? 'expanded' : '' }}"></i>
                             @endif
                         </a>
                         
@@ -263,7 +219,7 @@ if($activeItem) {
                                         @php $isSubActive = $activeSubItem === $subItem['id']; @endphp
                                         <li class="nav-subitem">
                                             <a href="{{ $subItem['route'] }}" class="nav-sublink {{ $isSubActive ? 'active' : '' }}">
-                                                <x-ui.icon name="{{ $subItem['icon_name'] }}" class="nav-subicon" />
+                                                <i class="fas {{ $subItem['icon_name'] }} nav-subicon"></i>
                                                 <span class="nav-subtext">{{ $subItem['label'] }}</span>
                                             </a>
                                         </li>
@@ -276,6 +232,7 @@ if($activeItem) {
                 @endforeach
             </ul>
         </div>
+        @endforeach
     </nav>
 
     <!-- User Profile -->
@@ -392,15 +349,22 @@ if($activeItem) {
 
 .nav-section {
     padding: 0 var(--space-4);
+    margin-top: var(--space-6);
+}
+
+.nav-section:first-child {
+    margin-top: 0;
 }
 
 .nav-title {
     font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--gray-500);
+    font-weight: 700;
+    color: var(--gray-400);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0 0 var(--space-4) var(--space-4);
+    letter-spacing: 0.8px;
+    margin: 0 0 var(--space-3) var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--gray-100);
 }
 
 .nav-list {

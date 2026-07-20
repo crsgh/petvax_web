@@ -9,7 +9,7 @@
     </div>
     <div class="header-actions">
       <div class="search-wrapper">
-        <x-ui.icon name="search" class="search-icon w-4 h-4" />
+        <i class="fas fa-search search-icon"></i>
         <input 
           type="text" 
           id="clinicSearchInput"
@@ -34,7 +34,7 @@
   <div class="clinic-stats">
     <div class="clinic-stat-card">
       <div class="clinic-stat-icon total">
-        <x-ui.icon name="building" class="w-5 h-5" />
+        <i class="fas fa-building"></i>
       </div>
       <div class="clinic-stat-info">
         <span class="clinic-stat-value">{{ $clinics->count() }}</span>
@@ -43,7 +43,7 @@
     </div>
     <div class="clinic-stat-card">
       <div class="clinic-stat-icon active">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13L9 17L19 7"/></svg>
+        <i class="fas fa-check-circle"></i>
       </div>
       <div class="clinic-stat-info">
         <span class="clinic-stat-value">{{ $clinics->where('status', 'active')->count() }}</span>
@@ -52,11 +52,25 @@
     </div>
     <div class="clinic-stat-card">
       <div class="clinic-stat-icon inactive">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6L18 18"/></svg>
+        <i class="fas fa-times-circle"></i>
       </div>
       <div class="clinic-stat-info">
         <span class="clinic-stat-value">{{ $clinics->where('status', 'inactive')->count() }}</span>
         <span class="clinic-stat-label">Inactive</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Splash Hero -->
+  <div class="clinic-splash">
+    <div class="splash-overlay"></div>
+    <div class="splash-content">
+      <div class="splash-icon">
+        <i class="fas fa-clinic-medical"></i>
+      </div>
+      <div class="splash-text">
+        <h2>Veterinary Clinics</h2>
+        <p>Manage all your clinic locations, hours, and services in one place</p>
       </div>
     </div>
   </div>
@@ -84,7 +98,7 @@
                     <img src="{{ asset('storage/' . $clinic->image) }}" alt="{{ $clinic->name }}" class="clinic-image">
                   @else
                     <div class="clinic-placeholder">
-                      <x-ui.icon name="building" class="w-5 h-5" />
+                      <i class="fas fa-building" style="font-size:20px"></i>
                     </div>
                   @endif
                 </div>
@@ -105,11 +119,11 @@
             <td>
               <div class="contact-info">
                 <div class="contact-phone">
-                  <x-ui.icon name="phone" class="w-4 h-4 text-primary" />
+                  <i class="fas fa-phone" style="font-size:14px;color:#3b82f6"></i>
                   {{ $clinic->contact }}
                 </div>
                 <div class="contact-email">
-                  <x-ui.icon name="mail" class="w-4 h-4 text-gray-500" />
+                  <i class="fas fa-envelope" style="font-size:14px;color:#6b7280"></i>
                   {{ $clinic->email }}
                 </div>
               </div>
@@ -149,13 +163,9 @@
                   onclick="editClinic({{ $clinic->toJson() }})"
                   title="Edit Clinic"
                 >Edit</x-ui.button>
-                <x-ui.button 
-                  variant="danger" 
-                  size="xs" 
-                  icon-name="delete"
-                  onclick="deleteClinic({{ $clinic->id }})"
-                  title="Delete Clinic"
-                >Delete</x-ui.button>
+                <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deleteClinic({{ $clinic->id }})" title="Delete Clinic">
+                  <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                </button>
               </div>
             </td>
           </tr>
@@ -173,7 +183,7 @@
     <div class="sidebar-header">
       <h3 class="sidebar-title" id="sidebarTitle">Add New Clinic</h3>
       <button type="button" class="sidebar-close" onclick="closeSidebar('clinicSidebar')">
-        <x-ui.icon name="close" class="w-4 h-4" />
+        <i class="fas fa-times"></i>
       </button>
     </div>
     
@@ -277,10 +287,10 @@
                      placeholder="Search for location...">
               <div class="search-buttons">
                 <button type="button" class="search-btn" onclick="searchLocation()" title="Search">
-                  <x-ui.icon name="search" class="w-4 h-4" />
+                  <i class="fas fa-search"></i>
                 </button>
                 <button type="button" class="location-btn" onclick="getCurrentLocation()" title="Use current location">
-                  <x-ui.icon name="map-pin" class="w-4 h-4" />
+                  <i class="fas fa-map-pin"></i>
                 </button>
               </div>
             </div>
@@ -459,6 +469,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  font-size: 18px;
 }
 
 .clinic-stat-icon.total { background: #eff6ff; color: #3b82f6; }
@@ -481,6 +492,69 @@
   font-size: 0.8rem;
   color: #6b7280;
   font-weight: 500;
+}
+
+/* Splash Hero */
+.clinic-splash {
+  position: relative;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+}
+
+.splash-overlay {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+.splash-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 2.5rem;
+  z-index: 1;
+}
+
+.splash-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+
+.splash-text h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.25rem 0;
+}
+
+.splash-text p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .splash-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
 }
 
 .clinics-content {

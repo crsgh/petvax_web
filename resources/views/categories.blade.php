@@ -75,13 +75,9 @@
                   onclick="editCategory({{ json_encode($category) }})"
                   title="Edit Category"
                 >Edit</x-ui.button>
-                <x-ui.button 
-                  variant="danger" 
-                  size="xs" 
-                  icon-name="delete"
-                  onclick="deleteCategory({{ $category->id }})"
-                  title="Delete Category"
-                >Delete</x-ui.button>
+                <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deleteCategory({{ $category->id }})" title="Delete Category">
+                  <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                </button>
               </div>
             </td>
           </tr>

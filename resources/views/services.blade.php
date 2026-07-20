@@ -103,13 +103,9 @@
                   onclick="editService({{ json_encode($service) }})"
                   title="Edit Service"
                 >Edit</x-ui.button>
-                <x-ui.button 
-                  variant="danger" 
-                  size="xs" 
-                  icon-name="delete"
-                  onclick="deleteService({{ $service->id }})"
-                  title="Delete Service"
-                >Delete</x-ui.button>
+                <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deleteService({{ $service->id }})" title="Delete Service">
+                  <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                </button>
               </div>
             </td>
           </tr>

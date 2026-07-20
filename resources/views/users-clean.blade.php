@@ -93,13 +93,9 @@
                   onclick="editUser({{ $user }})"
                   title="Edit User"
                 >Edit</x-ui.button>
-                <x-ui.button 
-                  variant="danger" 
-                  size="xs" 
-                  icon-name="delete"
-                onclick="deleteUser({{ $user->id }})"
-                title="Delete User"
-              >Delete</x-ui.button>
+                <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deleteUser({{ $user->id }})" title="Delete User">
+                  <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                </button>
             </div>
           </td>
         </tr>

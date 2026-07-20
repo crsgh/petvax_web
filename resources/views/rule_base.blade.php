@@ -76,13 +76,9 @@
                   onclick="openEditQuestionSidebar({{ $question->toJson() }})"
                   title="Edit Question"
                 >Edit</x-ui.button>
-                <x-ui.button 
-                  variant="danger" 
-                  size="xs" 
-                  icon-name="delete"
-                  onclick="deleteQuestion({{ $question->id }})"
-                  title="Delete Question"
-                >Delete</x-ui.button>
+                <button class="btn-clean btn-danger-clean btn-xs-clean" onclick="deleteQuestion({{ $question->id }})" title="Delete Question">
+                  <i class="fas fa-trash-alt" style="font-size:12px;margin-right:4px"></i> Delete
+                </button>
                 @endif
               </div>
             </td>

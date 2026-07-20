@@ -62,28 +62,14 @@
             @if(config('app.debug'))
             <div class="test-accounts">
                 <p class="test-accounts-label">Quick Login (Test Accounts)</p>
-                <div class="test-account-list">
-                    <button type="button" class="test-account-btn" onclick="fillLogin('superadmin@petvax.test', 'password')">
-                        <span class="role-badge role-superadmin">SA</span>
-                        Super Admin
-                    </button>
-                    <button type="button" class="test-account-btn" onclick="fillLogin('admin@petvax.test', 'password')">
-                        <span class="role-badge role-admin">A</span>
-                        Admin
-                    </button>
-                    <button type="button" class="test-account-btn" onclick="fillLogin('staff@petvax.test', 'password')">
-                        <span class="role-badge role-staff">S</span>
-                        Staff
-                    </button>
-                    <button type="button" class="test-account-btn" onclick="fillLogin('vet@petvax.test', 'password')">
-                        <span class="role-badge role-vet">V</span>
-                        Veterinarian
-                    </button>
-                    <button type="button" class="test-account-btn" onclick="fillLogin('client@petvax.test', 'password')">
-                        <span class="role-badge role-client">C</span>
-                        Pet Owner
-                    </button>
-                </div>
+                <select class="quick-login-dropdown" onchange="if(this.value) { const [e,p]=this.value.split('|'); fillLogin(e,p); this.selectedIndex=0; }">
+                    <option value="">— Select an account —</option>
+                    <option value="superadmin@petvax.test|password">Super Admin — superadmin@petvax.test</option>
+                    <option value="admin@petvax.test|password">Admin — admin@petvax.test</option>
+                    <option value="staff@petvax.test|password">Staff — staff@petvax.test</option>
+                    <option value="vet@petvax.test|password">Veterinarian — vet@petvax.test</option>
+                    <option value="client@petvax.test|password">Pet Owner — client@petvax.test</option>
+                </select>
             </div>
             @endif
 
@@ -114,52 +100,29 @@
     text-align: center;
 }
 
-.test-account-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.test-account-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+.quick-login-dropdown {
     width: 100%;
-    padding: 0.625rem 1rem;
+    padding: 0.75rem 1rem;
     background: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    cursor: pointer;
     font-size: 0.8125rem;
     color: #374151;
+    cursor: pointer;
     transition: all 0.2s ease;
-    text-align: left;
+    appearance: auto;
 }
 
-.test-account-btn:hover {
-    background: #eff6ff;
+.quick-login-dropdown:hover {
     border-color: #93c5fd;
-    transform: translateY(-1px);
+    background: #eff6ff;
 }
 
-.role-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: white;
-    flex-shrink: 0;
+.quick-login-dropdown:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
-
-.role-superadmin { background: #7c3aed; }
-.role-admin { background: #2563eb; }
-.role-staff { background: #059669; }
-.role-vet { background: #d97706; }
-.role-client { background: #dc2626; }
 .login-container {
     min-height: 100vh;
     display: flex;
