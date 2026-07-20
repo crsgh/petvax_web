@@ -262,16 +262,18 @@ async function editUser(userData) {
 async function deleteUser(userId) {
   if (confirm('Are you sure you want to delete this user?')) {
     try {
-      const response = await fetch(`/users/${userId}/delete`, {
-        method: 'DELETE',
+      const response = await fetch(`/owners/${userId}/delete`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Accept': 'application/json',
         },
       });
-      
-      if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
         window.location.reload();
+      } else {
+        alert(data.message || 'Failed to delete user');
       }
     } catch (error) {
       console.error('Error deleting user:', error);

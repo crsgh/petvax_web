@@ -543,18 +543,18 @@ function editStaff(staffData) {
 async function deleteStaff(staffId) {
   if (confirm('Are you sure you want to delete this staff member?')) {
     try {
-      const response = await fetch(`/staffs/${staffId}`, {
-        method: 'DELETE',
+      const response = await fetch(`/staffs/${staffId}/delete`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+          'Accept': 'application/json',
         },
       });
-      
-      if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
         window.location.reload();
       } else {
-        alert('Failed to delete staff member');
+        alert(data.message || 'Failed to delete staff member');
       }
     } catch (error) {
       console.error('Error deleting staff:', error);

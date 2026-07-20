@@ -152,21 +152,27 @@ $menuItems = [
         'icon_name' => 'star'
     ],
     [
+        'id' => 'notifications',
+        'label' => 'Notifications',
+        'route' => '/notifications',
+        'permission' => [1,2,3,4],
+        'icon_name' => 'notification'
+    ],
+    [
         'id' => 'activity-records',
         'label' => 'Activity Log',
         'route' => '/activity-records',
         'permission' => [1,2],
         'icon_name' => 'clock'
     ],
+    [
+        'id' => 'settings-page',
+        'label' => 'Settings',
+        'route' => '/settings',
+        'permission' => [1],
+        'icon_name' => 'settings'
+    ],
 ];
-
-Route::currentRouteName() === 'notifications' ? array_push($menuItems, [
-    'id' => 'notifications',
-    'label' => 'Notifications',
-    'route' => '/notifications',
-    'permission' => [1,2,3,4],
-    'icon_name' => 'notification'
-]) : null;
 
 $currentRoute = request()->route() ? request()->route()->getName() : '';
 $activeItem = 'dashboard';
